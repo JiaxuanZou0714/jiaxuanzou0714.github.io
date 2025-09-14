@@ -15,29 +15,28 @@ Education
 
 Research Experience
 ======
-* **Low-Frequency Spectral Bias of Neural Networks in Time-Series Forecasting**  
+**Low-Frequency Spectral Bias of Neural Networks in Time-Series Forecasting**  
   Sep 2024–Feb 2025 | Adviser: Prof. Xuan Sun, Xi’an Jiaotong University  
-  – Provided the first mathematical proof of the “low-frequency-first” phenomenon in neural nets.  
-  – Introduced FreLE, an algorithm that explicitly/implicitly regularizes frequency components; achieves SOTA on ETT & Weather datasets.  
-  – Paper has been accepted as a short paper at IEEE ICDM 2025.
+- Provided the first mathematical proof of the “frequency principle” phenomenon in neural networks.  
+- Introduced FreLE, an algorithm that explicitly/implicitly regularizes frequency components; achieves SOTA on ETT & Weather datasets.  
+- Paper has been accepted as a short paper at IEEE ICDM 2025.
 
-* **Deep-Learning-Based Seismic Horizon Picking**  
+**Deep-Learning-Based Seismic Horizon Picking**  
   Feb 2025–Apr 2025 | Adviser: Prof. Naihao Liu, Xi’an Jiaotong University  
-  – Identified poor generalization in small-sample seismic-horizon picking.  
-  – Designed Channel-Independent Multi-Scale UNet (CIMS-UNet): multi-cycle embeddings, multi-resolution kernels, channel-independent training.  
-  – Leads SOTA on IoU, F1 and noise-robustness; 2 papers (1st-author & co-author) under review.
+- Designed Channel-Independent Multi-Scale UNet (CIMS-UNet): multi-period embeddings, multi-scale kernels, channel-independent training strategy.  
+- 2 papers (1st-author & co-author) under review.
 
-* **Deep Learning for 3-D Molecular Structure Reconstruction from EM Images**  
+**Deep Learning for 3D Molecular Structure Reconstruction from EM Images**  
   Feb 2025– Aug 2025 | Collaborating with Prof. Lei Zhang, Xi’an Jiaotong University  
-  – In charge of denoising: BM3D, improved Noise2Noise & Noise2Self pipelines; boosts downstream 3-D reconstruction quality.  
+- In charge of denoising: BM3D, improved Noise2Noise & Noise2Self pipelines; boosts downstream 3D reconstruction quality.  
 
 Publications
 ======
-1. **Sun, J., Ling, X., Zou, J., Kang, J., & Zhang, K.** (2025). *FreLE: Low-Frequency Spectral Bias in Neural Networks for Time-Series Tasks*. Proceedings of the IEEE International Conference on Data Mining (ICDM 2025). (Accepted)
+1. **Sun, J., Ling, X., <u>Zou, J.</u>, Kang, J., & Zhang, K.** (2025). *FreLE: Low-Frequency Spectral Bias in Neural Networks for Time-Series Tasks*. Proceedings of the IEEE International Conference on Data Mining (ICDM 2025). (Accepted)
 
-2. **Zou, J., Liu, N., Zhang, T., He, J., Li, T., & Gao, J.** (2025). *Seismic Horizon Picking Using Channel-Independent Multi-Scale Network with Limited Training Samples*. **Geophysics**. (Under Review)
+2. **<u>Zou, J.</u>, Liu, N., Zhang, T., He, J., Li, T., & Gao, J.** (2025). *Seismic Horizon Picking Using Channel-Independent Multi-Scale Network with Limited Training Samples*. **Geophysics**. (Under Review)
 
-3. **Zhang, T., He, J., Liu, N., Zou, J., & Jiang, Y.** (2025). *Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation*. IEEE Transactions on Geoscience and Remote Sensing. (Under Review)
+3. **Zhang, T., He, J., Liu, N., <u>Zou, J.</u>, & Jiang, Y.** (2025). *Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation*. IEEE Transactions on Geoscience and Remote Sensing (TGRS). (Under Review)
 
 
 Research Interests
@@ -51,7 +50,7 @@ Outreach
 
 Future Plan
 ======
-Pursue theoretically-oriented machine-learning research, especially the internal mechanisms of large language models—representation, training dynamics, and generalization—using rigorous mathematics to build interpretable and trustworthy AI.
+Pursue theoretically-oriented machine learning research, especially the internal mechanisms of large language models—representation, training dynamics, and generalization—using rigorous mathematics to build interpretable and trustworthy AI.
 
 Skills
 ======
