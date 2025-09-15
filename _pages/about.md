@@ -7,7 +7,10 @@ redirect_from:
   - /about.html
 ---
 
-👋Hi! I am Jiaxuan Zou(邹嘉轩), currently an undergraduate student at the School of Mathematics and Statistics, Xi'an Jiaotong University. My research interests focus on several areas of artificial intelligence and its applications.
+👋Hi! I am Jiaxuan Zou(邹嘉轩), an undergraduate student at the School of Mathematics and Statistics, Xi'an Jiaotong University. My research interests focus on several areas of artificial intelligence and its applications.
+
+I am currently a research intern in Prof. [Liu Yong](https://gsai.ruc.edu.cn/liuyong)'s group at the Gaoling School of Artificial Intelligence, Renmin University of China, working on latent reasoning in large language models and its mechanistic interpretability.
+
 
 Research Interests🔍
 =====
