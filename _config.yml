@@ -23,7 +23,7 @@ repository               : "JiaxuanZou0714/jiaxuanzou0714.github.io"
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "headshot.jpg"
+  avatar           : "headshot.png"
   name             : "Jiaxuan Zou"
   pronouns         : # example: "she/her"  
   bio              : "Deep learning researcher"
