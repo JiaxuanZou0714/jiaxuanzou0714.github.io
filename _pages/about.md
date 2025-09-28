@@ -7,23 +7,31 @@ redirect_from:
   - /about.html
 ---
 
-👋Hi! I am Jiaxuan Zou(邹嘉轩), an undergraduate student at the School of Mathematics and Statistics, Xi'an Jiaotong University. My research interests focus on several areas of artificial intelligence and its applications.
+Undergraduate Researcher  
+School of Mathematics and Statistics, Xi’an Jiaotong University  
+Research Intern, Gaoling School of Artificial Intelligence, Renmin University of China  
+Advisor: Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong)  
 
-I am currently a research intern in Prof. [Liu Yong](https://gsai.ruc.edu.cn/liuyong)'s group at the Gaoling School of Artificial Intelligence, Renmin University of China, working on latent reasoning in large language models and its mechanistic interpretability.
-
-
-Research Interests🔍
-=====
-- **Deep learning theory**: I'm interested in understanding the theoretical underpinnings of deep learning models and how they learn and represent information.
-
-
-- **Mechanistic Interpretability for LLM**: I study the inner workings of large language models, including attention mechanisms, emergent abilities, and interpretability.
+**Research Focus**:
+• Mechanistic Interpretability of Large Language Models 
+• Deep Learning Theory 
+• AI for Scientific Discovery
 
 
-- **AI for science**: I'm interested in how AI can accelerate scientific discovery and solve complex problems in various domains.
 
+### Research Experience
 
-- **Time series modeling using deep learning approaches**: I research deep learning methods for time series data modeling, exploring how neural networks can effectively capture temporal patterns and dependencies in sequential data.
+**Research Intern**  
+*Gaoling School of Artificial Intelligence, Renmin University of China*  
+*June 2025 – Present*  
+Studying latent reasoning in large language models and its mechanistic interpretability. Developed a theoretical framework characterizing the exploration–execution trade-off in Latent Chain-of-Thought, introduced the Symbolic Index as a measure of decisional certainty, and proved the necessity of curriculum learning for stable training; manuscript under review at *ICLR*.
+
+**Undergraduate Researcher**  
+*School of Mathematics and Statistics, Xi’an Jiaotong University*  
+*2024 – Present*  
+Researching seismic horizon picking under extremely limited labeled data using a channel-independent multi-scale framework; manuscript under review at *Geophysics*.  
+Researching automatic seismic interpretation with Mamba-based U-Net architectures; manuscript under review at *IEEE TGRS*.
+
 
 
 Publications📄
