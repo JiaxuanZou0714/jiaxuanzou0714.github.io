@@ -19,15 +19,16 @@ Advisor: Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong)
 
 
 
-### Research Experience
+Research Experience🧐
+===
 
 **Research Intern**  
-*Gaoling School of Artificial Intelligence, Renmin University of China*  
+*[Gaoling School of Artificial Intelligence, Renmin University of China](http://ai.ruc.edu.cn/)*  
 *June 2025 – Present*  
 Studying latent reasoning in large language models and its mechanistic interpretability. Developed a theoretical framework characterizing the exploration–execution trade-off in Latent Chain-of-Thought, introduced the Symbolic Index as a measure of decisional certainty, and proved the necessity of curriculum learning for stable training; manuscript under review at *ICLR*.
 
 **Undergraduate Researcher**  
-*School of Mathematics and Statistics, Xi’an Jiaotong University*  
+*[School of Mathematics and Statistics, Xi’an Jiaotong University](https://math.xjtu.edu.cn/)*  
 *2024 – Present*  
 Researching seismic horizon picking under extremely limited labeled data using a channel-independent multi-scale framework; manuscript under review at *Geophysics*.  
 Researching automatic seismic interpretation with Mamba-based U-Net architectures; manuscript under review at *IEEE TGRS*.
