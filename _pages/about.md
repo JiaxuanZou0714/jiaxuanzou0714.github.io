@@ -24,7 +24,7 @@ Research Experience🧐
 
 **Research Intern**  
 *[Gaoling School of Artificial Intelligence, Renmin University of China](http://ai.ruc.edu.cn/)*  
-*June 2025 – Present*  
+*2025.06 – Present*  
 Studying latent reasoning in large language models and its mechanistic interpretability. Developed a theoretical framework characterizing the exploration–execution trade-off in Latent Chain-of-Thought, introduced the Symbolic Index as a measure of decisional certainty, and proved the necessity of curriculum learning for stable training; manuscript under review at *ICLR*.
 
 **Undergraduate Researcher**  
