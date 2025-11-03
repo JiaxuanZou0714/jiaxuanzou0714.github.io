@@ -1,6 +1,6 @@
 ---
 permalink: /
-title: "Jiaxuan Zou"
+title: "Jiaxuan Zou (邹嘉轩)"
 author_profile: true
 redirect_from: 
   - /about/
