@@ -23,6 +23,7 @@ I am an undergraduate student at the School of Mathematics and Statistics, Xi'an
 ### Main Research Experience
 
 **Gaoling School of Artificial Intelligence, Renmin University of China**
+
 *Research Intern* | *Jun. 2025 – Present*
 *   Investigated latent reasoning mechanisms in large language models through the lens of mechanistic interpretability.
 *   Developed a theoretical framework to characterize the exploration-execution trade-off in Latent Chain-of-Thought.
@@ -31,6 +32,7 @@ I am an undergraduate student at the School of Mathematics and Statistics, Xi'an
 *   *Work resulting from this research is currently under review at **ICLR**.*
 
 **School of Mathematics and Statistics, Xi’an Jiaotong University**
+
 *Undergraduate Researcher* | *2024 – Present*
 *   Developed a channel-independent multi-scale framework for seismic horizon picking, specifically designed to perform effectively with extremely limited labeled data. *Manuscript under review at **Geophysics**.*
 *   Designed and implemented a novel U-Net architecture based on Mamba (a State Space Model) for automatic seismic interpretation, focusing on improving feature fusion and long-range dependency modeling. *Manuscript under review at **IEEE TGRS**.*
