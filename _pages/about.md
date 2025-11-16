@@ -13,7 +13,7 @@ I am an undergraduate student at the School of Mathematics and Statistics, Xi'an
 
 ---
 
-## Research Interests
+### Research Interests
 - Mechanistic Interpretability of Large Language Models
 - Deep Learning Theory and Optimization
 - AI for Scientific Discovery and Scientific Modeling
