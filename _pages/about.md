@@ -18,7 +18,7 @@ Advisor: Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong)
 
 
 
-Selected Research Experience🧐
+Main Research Experience🧐
 ===
 
 *[Gaoling School of Artificial Intelligence, Renmin University of China](http://ai.ruc.edu.cn/)*
