@@ -3,12 +3,12 @@
 # This config file is meant for settings that affect your entire site, values
 # which you are expected to set up once and rarely need to edit after that.
 # For technical reasons, this file is *NOT* reloaded automatically when you use
-# `jekyll serve -l -H localhost`. If you change this file, please restart the 
+# `jekyll serve -l -H localhost`. If you change this file, please restart the
 # server process.
 
 # Basic Site Settings
 locale                   : "zh-CN"
-site_theme               : "default" # Currently available options are "default", "air"
+site_theme               : "air" # Currently available options are "default", "air"
 title                    : "Jiaxuan Zou"
 title_separator          : "-"
 name                     : &name "Jiaxuan Zou"
@@ -25,12 +25,12 @@ author:
   # Biographic information
   avatar           : "headshot.png"
   name             : "Jiaxuan Zou"
-  pronouns         : # example: "she/her"  
+  pronouns         : # example: "she/her"
   bio              : "Deep learning researcher"
   location         : "China"
   employer         : "Xi'an Jiaotong University"
   uri              : # URL
-  email            : "3140143497@qq.com" 
+  email            : "3140143497@qq.com"
 
   # Academic websites
   academia         : # URL
@@ -49,8 +49,8 @@ author:
   codepen          : # Username
   dribbble         : # Username
   github           : #"academicpages"
-  kaggle           : # Username  
-  stackoverflow    : # User number or user number and name (i.e., use "1" or "1/jeff-atwood")    
+  kaggle           : # Username
+  stackoverflow    : # User number or user number and name (i.e., use "1" or "1/jeff-atwood")
 
   # Social media
   artstation       : # Username
@@ -84,7 +84,7 @@ publication_category:
   books:
     title: 'Books'
   manuscripts:
-    title: 'Journal Articles'    
+    title: 'Journal Articles'
   conferences:
     title: 'Conference Papers'
 
