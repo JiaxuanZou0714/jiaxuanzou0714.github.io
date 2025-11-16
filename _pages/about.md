@@ -18,7 +18,7 @@ Advisor: Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong)
 
 
 
-Research Experience🧐
+Selected Research Experience🧐
 ===
 
 **Research Intern**
