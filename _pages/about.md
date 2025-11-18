@@ -1,13 +1,11 @@
 ---
 permalink: /
-title: "Jiaxuan Zou (邹嘉轩)"
+title: "About Me"
 author_profile: true
 redirect_from:
   - /about/
   - /about.html
 ---
-
-### About Me
 
 I am an undergraduate student at the School of Mathematics and Statistics, Xi'an Jiaotong University. Currently, I am also a research intern at the Gaoling School of Artificial Intelligence, Renmin University of China, advised by Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong).
 
