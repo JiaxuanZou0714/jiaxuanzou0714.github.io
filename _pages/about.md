@@ -9,6 +9,8 @@ redirect_from:
 
 I am an undergraduate student at the School of Mathematics and Statistics, Xi'an Jiaotong University. Currently, I am also a research intern at the Gaoling School of Artificial Intelligence, Renmin University of China, advised by Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong).
 
+My research focuses on mechanistic understanding and interpretability of deep learning. I take a phenomenon-driven approach: starting from empirical observations and seeking first-principles mechanisms that explain why a model works (or fails) and where certain behaviors come from, with the goal of opening the black box of deep learning.
+
 ---
 
 ### Research Interests
@@ -23,24 +25,24 @@ I am an undergraduate student at the School of Mathematics and Statistics, Xi'an
 **Gaoling School of Artificial Intelligence, Renmin University of China**
 
 *Research Intern, Advised by Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong)* | *Jun. 2025 – Present*
-*   Investigated latent reasoning mechanisms in large language models through the lens of mechanistic interpretability.
+*   Investigated latent reasoning mechanisms in large language models through mechanistic interpretability.
 *   Developed a theoretical framework to characterize the exploration-execution trade-off in Latent Chain-of-Thought.
 *   Proposed the Symbolic Index, a novel metric to measure the model's decisional certainty during reasoning.
 *   Proved the necessity of curriculum learning for achieving stable training in this context.
-*   Submitted to *ICLR*.
+*   Submitted the resulting work to *ICLR*.
 
 **School of Mathematics and Statistics, Xi’an Jiaotong University**
 
 *Undergraduate Researcher, Advised by Prof. [Naihao Liu](https://gr.xjtu.edu.cn/en/web/naihao_liu)* | *2024 – Present*
-*   Developed a channel-independent multi-scale framework for seismic horizon picking, specifically designed to perform effectively with extremely limited labeled data. Manuscript submitted to *Geophysics*.
-*   Designed and implemented a novel U-Net architecture based on Mamba (a State Space Model) for automatic seismic interpretation, focusing on improving feature fusion and long-range dependency modeling. To appear in *IEEE TGRS*.
+*   Developed a channel-independent multi-scale framework for seismic horizon picking, designed to perform effectively with extremely limited labeled data; submitted to *Geophysics*.
+*   Designed and implemented a novel U-Net architecture based on Mamba (a State Space Model) for automatic seismic interpretation, improving feature fusion and long-range dependency modeling; to appear in *IEEE TGRS*.
 
 ---
 
 ### Selected Publications
 
 **Conference Papers**
-1.  **Sun, J., Ling, X., <u>Zou, J.</u>, Kang, J., & Zhang, K.** (2025). *FreLE: Low-Frequency Spectral Bias in Neural Networks for Time-Series Tasks*. *Proceedings of the IEEE International Conference on Data Mining (ICDM).* (Accepted) [[arXiv]](https://arxiv.org/abs/2510.25800)
+1.  **Sun, J., Ling, X., <u>Zou, J.</u>, Kang, J., & Zhang, K.** (2025). *FreLE: Low-Frequency Spectral Bias in Neural Networks for Time-Series Tasks*. *Proceedings of the IEEE International Conference on Data Mining (ICDM).* (Accepted) [[arXiv]](https://arxiv.org/abs/2510.25800) [[Oral video]](https://www.bilibili.com/video/BV1eH4vzuEyq/?share_source=copy_web&vd_source=f99c6bc416bcadef736a7eba48835b2d)
 
 **Journal Articles**
 
