@@ -33,7 +33,7 @@ I am an undergraduate student at the School of Mathematics and Statistics, Xi'an
 
 *Undergraduate Researcher, Advised by Prof. [Naihao Liu](https://gr.xjtu.edu.cn/en/web/naihao_liu)* | *2024 – Present*
 *   Developed a channel-independent multi-scale framework for seismic horizon picking, specifically designed to perform effectively with extremely limited labeled data. *Submitted to **Geophysics**. (Under review)*
-*   Designed and implemented a novel U-Net architecture based on Mamba (a State Space Model) for automatic seismic interpretation, focusing on improving feature fusion and long-range dependency modeling. *Submitted to **IEEE TGRS**. (Under review)*
+*   Designed and implemented a novel U-Net architecture based on Mamba (a State Space Model) for automatic seismic interpretation, focusing on improving feature fusion and long-range dependency modeling. *Accepted by **IEEE TGRS**. (Accepted)*
 
 ---
 
@@ -45,6 +45,6 @@ I am an undergraduate student at the School of Mathematics and Statistics, Xi'an
 **Journal Articles**
 
 2.  **<u>Zou, J.</u>, Liu, N., Zhang, T., He, J., Li, T., & Gao, J.** *Seismic Horizon Picking Using Channel-Independent Multi-Scale Network with Limited Training Samples*. Submitted to **Geophysics**. (Under review)
-3.  **Zhang, T., He, J., Liu, N., <u>Zou, J.</u>, & Jiang, Y.** *Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation*. Submitted to **IEEE Transactions on Geoscience and Remote Sensing (TGRS)**. (Under review)
+3.  **Zhang, T., He, J., Liu, N., <u>Zou, J.</u>, & Jiang, Y.** *Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation*. **IEEE Transactions on Geoscience and Remote Sensing (TGRS)**. (Accepted)
 
 ---
