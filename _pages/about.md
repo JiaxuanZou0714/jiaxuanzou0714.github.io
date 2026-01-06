@@ -27,24 +27,24 @@ I am an undergraduate student at the School of Mathematics and Statistics, Xi'an
 *   Developed a theoretical framework to characterize the exploration-execution trade-off in Latent Chain-of-Thought.
 *   Proposed the Symbolic Index, a novel metric to measure the model's decisional certainty during reasoning.
 *   Proved the necessity of curriculum learning for achieving stable training in this context.
-*   *Submitted to **ICLR**. (Under review)*
+*   Submitted to *ICLR*.
 
 **School of Mathematics and Statistics, Xi’an Jiaotong University**
 
 *Undergraduate Researcher, Advised by Prof. [Naihao Liu](https://gr.xjtu.edu.cn/en/web/naihao_liu)* | *2024 – Present*
-*   Developed a channel-independent multi-scale framework for seismic horizon picking, specifically designed to perform effectively with extremely limited labeled data. *Submitted to **Geophysics**. (Under review)*
-*   Designed and implemented a novel U-Net architecture based on Mamba (a State Space Model) for automatic seismic interpretation, focusing on improving feature fusion and long-range dependency modeling. *Accepted by **IEEE TGRS**. (Accepted)*
+*   Developed a channel-independent multi-scale framework for seismic horizon picking, specifically designed to perform effectively with extremely limited labeled data. Manuscript submitted to *Geophysics*.
+*   Designed and implemented a novel U-Net architecture based on Mamba (a State Space Model) for automatic seismic interpretation, focusing on improving feature fusion and long-range dependency modeling. To appear in *IEEE TGRS*.
 
 ---
 
 ### Selected Publications
 
 **Conference Papers**
-1.  **Sun, J., Ling, X., <u>Zou, J.</u>, Kang, J., & Zhang, K.** (2025). *FreLE: Low-Frequency Spectral Bias in Neural Networks for Time-Series Tasks*. In *Proceedings of the IEEE International Conference on Data Mining (ICDM)*. (Accepted) [[arXiv]](https://arxiv.org/abs/2510.25800)
+1.  **Sun, J., Ling, X., <u>Zou, J.</u>, Kang, J., & Zhang, K.** (2025). *FreLE: Low-Frequency Spectral Bias in Neural Networks for Time-Series Tasks*. *Proceedings of the IEEE International Conference on Data Mining (ICDM).* (Accepted) [[arXiv]](https://arxiv.org/abs/2510.25800)
 
 **Journal Articles**
 
-2.  **<u>Zou, J.</u>, Liu, N., Zhang, T., He, J., Li, T., & Gao, J.** *Seismic Horizon Picking Using Channel-Independent Multi-Scale Network with Limited Training Samples*. Submitted to **Geophysics**. (Under review)
-3.  **Zhang, T., He, J., Liu, N., <u>Zou, J.</u>, & Jiang, Y.** *Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation*. **IEEE Transactions on Geoscience and Remote Sensing (TGRS)**. (Accepted)
+2.  **<u>Zou, J.</u>, Liu, N., Zhang, T., He, J., Li, T., & Gao, J.** *Seismic Horizon Picking Using Channel-Independent Multi-Scale Network with Limited Training Samples*. Submitted to *Geophysics*. (Under review)
+3.  **Zhang, T., He, J., Liu, N., <u>Zou, J.</u>, & Jiang, Y.** *Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation*. *IEEE Transactions on Geoscience and Remote Sensing (TGRS).* (Accepted)
 
 ---
