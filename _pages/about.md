@@ -27,13 +27,13 @@ I am an undergraduate student at the School of Mathematics and Statistics, Xi'an
 *   Developed a theoretical framework to characterize the exploration-execution trade-off in Latent Chain-of-Thought.
 *   Proposed the Symbolic Index, a novel metric to measure the model's decisional certainty during reasoning.
 *   Proved the necessity of curriculum learning for achieving stable training in this context.
-*   *Work resulting from this research is currently under review at **ICLR**.*
+*   *Submitted to **ICLR**. (Under review)*
 
 **School of Mathematics and Statistics, Xi’an Jiaotong University**
 
 *Undergraduate Researcher, Advised by Prof. [Naihao Liu](https://gr.xjtu.edu.cn/en/web/naihao_liu)* | *2024 – Present*
-*   Developed a channel-independent multi-scale framework for seismic horizon picking, specifically designed to perform effectively with extremely limited labeled data. *Manuscript under review at **Geophysics**.*
-*   Designed and implemented a novel U-Net architecture based on Mamba (a State Space Model) for automatic seismic interpretation, focusing on improving feature fusion and long-range dependency modeling. *Manuscript under review at **IEEE TGRS**.*
+*   Developed a channel-independent multi-scale framework for seismic horizon picking, specifically designed to perform effectively with extremely limited labeled data. *Submitted to **Geophysics**. (Under review)*
+*   Designed and implemented a novel U-Net architecture based on Mamba (a State Space Model) for automatic seismic interpretation, focusing on improving feature fusion and long-range dependency modeling. *Submitted to **IEEE TGRS**. (Under review)*
 
 ---
 
