@@ -2,51 +2,63 @@
 permalink: /
 title: "About Me"
 author_profile: true
+layout: single
+classes: wide
+toc: true
+toc_sticky: true
+excerpt: "Undergraduate at Xi'an Jiaotong University. Research interests: mechanistic interpretability, optimization, AI for science."
 redirect_from:
   - /about/
   - /about.html
 ---
 
-I am an undergraduate student at the School of Mathematics and Statistics, Xi'an Jiaotong University. Currently, I am also a research intern at the Gaoling School of Artificial Intelligence, Renmin University of China, advised by Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong).
+{: .notice--info}
+**Currently:** Undergraduate at the School of Mathematics and Statistics, Xi'an Jiaotong University; research intern at Gaoling School of Artificial Intelligence (Renmin University of China), advised by Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong).
 
-My research focuses on mechanistic understanding and interpretability of deep learning. I take a phenomenon-driven approach: starting from empirical observations and seeking first-principles mechanisms that explain why a model works (or fails) and where certain behaviors come from, with the goal of opening the black box of deep learning.
+I work on mechanistic understanding and interpretability of deep learning. My approach is phenomenon-driven: start from empirical behaviors, then build first-principles mechanisms that explain *why* a model works (or fails) and *where* certain behaviors come from.
 
----
+## Research Interests
 
-### Research Interests
-- Mechanistic Interpretability of Large Language Models
-- Deep Learning Theory and Optimization
-- AI for Scientific Discovery and Scientific Modeling
+- Mechanistic interpretability of LLMs
+- Deep learning theory & optimization
+- AI for scientific discovery and scientific modeling
 
----
 
-### Main Research Experience
+## Research Experience
 
-**Gaoling School of Artificial Intelligence, Renmin University of China**
+### Gaoling School of Artificial Intelligence, Renmin University of China
 
-*Research Intern, Advised by Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong)* | *Jun. 2025 – Present*
-*   Investigated latent reasoning mechanisms in large language models through mechanistic interpretability.
-*   Developed a theoretical framework to characterize the exploration-execution trade-off in Latent Chain-of-Thought.
-*   Proposed the Symbolic Index, a novel metric to measure the model's decisional certainty during reasoning.
-*   Proved the necessity of curriculum learning for achieving stable training in this context.
-*   Submitted the resulting work to *ICLR*.
+*Research Intern (Advised by Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong))* | *Jun. 2025 – Present*
 
-**School of Mathematics and Statistics, Xi’an Jiaotong University**
+- Investigate latent reasoning mechanisms in LLMs through mechanistic interpretability.
+- Develop a theoretical framework for the exploration–execution trade-off in Latent Chain-of-Thought.
+- Propose **Symbolic Index**, a metric measuring decisional certainty during reasoning.
+- Prove the necessity of curriculum learning for stable training in this setting.
+- Submit the resulting work to *ICLR*.
 
-*Undergraduate Researcher, Advised by Prof. [Naihao Liu](https://gr.xjtu.edu.cn/en/web/naihao_liu)* | *2024 – Present*
-*   Developed a channel-independent multi-scale framework for seismic horizon picking, designed to perform effectively with extremely limited labeled data; submitted to *Geophysics*.
-*   Designed and implemented a novel U-Net architecture based on Mamba (a State Space Model) for automatic seismic interpretation, improving feature fusion and long-range dependency modeling; to appear in *IEEE TGRS*.
+### School of Mathematics and Statistics, Xi’an Jiaotong University
 
----
+*Undergraduate Researcher (Advised by Prof. [Naihao Liu](https://gr.xjtu.edu.cn/en/web/naihao_liu))* | *2024 – Present*
 
-### Selected Publications
+- Build a channel-independent multi-scale framework for seismic horizon picking with extremely limited labeled data; submitted to *Geophysics*.
+- Design a Mamba-based (State Space Model) U-Net for automatic seismic interpretation, improving feature fusion and long-range dependency modeling; to appear in *IEEE TGRS*.
 
-**Conference Papers**
-1.  **Sun, J., Ling, X., <u>Zou, J.</u>, Kang, J., & Zhang, K.** (2025). *FreLE: Low-Frequency Spectral Bias in Neural Networks for Time-Series Tasks*. *Proceedings of the IEEE International Conference on Data Mining (ICDM).* (Accepted) [[arXiv]](https://arxiv.org/abs/2510.25800) [[Oral video]](https://www.bilibili.com/video/BV1eH4vzuEyq/?share_source=copy_web&vd_source=f99c6bc416bcadef736a7eba48835b2d)
+## Selected Publications
 
-**Journal Articles**
+### Conference Papers
 
-2.  **<u>Zou, J.</u>, Liu, N., Zhang, T., He, J., Li, T., & Gao, J.** *Seismic Horizon Picking Using Channel-Independent Multi-Scale Network with Limited Training Samples*. Submitted to *Geophysics*. (Under review)
-3.  **Zhang, T., He, J., Liu, N., <u>Zou, J.</u>, & Jiang, Y.** *Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation*. *IEEE Transactions on Geoscience and Remote Sensing (TGRS).* (Accepted)
+1. **Sun, J., Ling, X., <u>Zou, J.</u>, Kang, J., & Zhang, K.** (2025). *FreLE: Low-Frequency Spectral Bias in Neural Networks for Time-Series Tasks*. *ICDM* (Accepted). [[arXiv]](https://arxiv.org/abs/2510.25800) [[Oral video]](https://www.bilibili.com/video/BV1eH4vzuEyq/?share_source=copy_web&vd_source=f99c6bc416bcadef736a7eba48835b2d)
 
----
+### Journal Articles
+
+2. **<u>Zou, J.</u>, Liu, N., Zhang, T., He, J., Li, T., & Gao, J.** *Seismic Horizon Picking Using Channel-Independent Multi-Scale Network with Limited Training Samples*. Submitted to *Geophysics* (Under review).
+3. **Zhang, T., He, J., Liu, N., <u>Zou, J.</u>, & Jiang, Y.** *Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation*. *IEEE TGRS* (Accepted).
+
+<details>
+  <summary>Notes (what I like to work on)</summary>
+
+  - Understanding *where* computation happens inside models
+  - Connecting empirical scaling/behaviors to mechanistic explanations
+  - Building simple metrics that predict failure modes
+
+</details>
