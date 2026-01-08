@@ -7,7 +7,7 @@
 # server process.
 
 # Basic Site Settings
-locale                   : "zh-CN"
+locale                   : "en-US"
 site_theme               : "air" # Currently available options are "default", "air"
 title                    : "Home"
 title_separator          : "-"
