@@ -12,7 +12,7 @@ redirect_from:
   - /about.html
 ---
 
-{: .notice--info}
+{: .notice--info .notice--large}
 **Currently:** Undergraduate at the School of Mathematics and Statistics, Xi'an Jiaotong University; research intern at Gaoling School of Artificial Intelligence (Renmin University of China), advised by Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong).
 
 I work on mechanistic understanding and interpretability of deep learning. My approach is phenomenon-driven: start from empirical behaviors, then build first-principles mechanisms that explain *why* a model works (or fails) and *where* certain behaviors come from.
@@ -38,7 +38,7 @@ I work on mechanistic understanding and interpretability of deep learning. My ap
 
 ### School of Mathematics and Statistics, Xi’an Jiaotong University
 
-*Undergraduate Researcher (Advised by Prof. [Naihao Liu](https://gr.xjtu.edu.cn/en/web/naihao_liu))* | *2024 – Present*
+*Undergraduate Researcher (Advised by Prof. [Naihao Liu](https://gr.xjtu.edu.cn/en/web/naihao_liu))* | *Sep. 2024 – Present*
 
 - Build a channel-independent multi-scale framework for seismic horizon picking with extremely limited labeled data; submitted to *Geophysics*.
 - Design a Mamba-based (State Space Model) U-Net for automatic seismic interpretation, improving feature fusion and long-range dependency modeling; to appear in *IEEE TGRS*.
@@ -53,4 +53,3 @@ I work on mechanistic understanding and interpretability of deep learning. My ap
 
 2. **<u>Zou, J.</u>, Liu, N., Zhang, T., He, J., Li, T., & Gao, J.** *Seismic Horizon Picking Using Channel-Independent Multi-Scale Network with Limited Training Samples*. Submitted to *Geophysics* (Under review).
 3. **Zhang, T., He, J., Liu, N., <u>Zou, J.</u>, & Jiang, Y.** *Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation*. *IEEE TGRS* (Accepted).
-
