@@ -31,21 +31,21 @@
         <li class="author__desktop"><i class="fas fa-fw fa-building-columns icon-pad-right" aria-hidden="true"></i>{{ author.employer }}</li>
       {% endif %}
       {% if author.uri %}
-        <li><a href="{{ author.uri }}"><i class="fas fa-fw fa-link icon-pad-right" aria-hidden="true"></i>{{ site.data.ui-text[site.locale].website_label | default: "Website" }}</a></li>
+        <li><a href="{{ author.uri }}"><i class="fas fa-fw fa-link icon-pad-right" aria-hidden="true"></i>Website</a></li>
       {% endif %}
       {% if author.email %}
-        <li><a href="mailto:{{ author.email }}"><i class="fas fa-fw fa-envelope icon-pad-right" aria-hidden="true"></i>{{ site.data.ui-text[site.locale].email_label | default: "Email" }}</a></li>
+        <li><a href="mailto:{{ author.email }}"><i class="fas fa-fw fa-envelope icon-pad-right" aria-hidden="true"></i>Email</a></li>
       {% endif %}
 
       {% if author.wechat %}
-        <li><i class="fab fa-fw fa-weixin icon-pad-right" aria-hidden="true"></i>微信: {{ author.wechat }}</li>
+        <li><i class="fab fa-fw fa-weixin icon-pad-right" aria-hidden="true"></i>WeChat: {{ author.wechat }}</li>
       {% endif %}
 
       {% if author.xiaohongshu %}
         {% if author.xiaohongshu contains '://' %}
-          <li><a href="{{ author.xiaohongshu }}"><i class="fas fa-fw fa-link icon-pad-right" aria-hidden="true"></i>小红书</a></li>
+          <li><a href="{{ author.xiaohongshu }}"><i class="fas fa-fw fa-link icon-pad-right" aria-hidden="true"></i>Xiaohongshu</a></li>
         {% else %}
-          <li><a href="https://www.xiaohongshu.com/user/profile/{{ author.xiaohongshu }}"><i class="fas fa-fw fa-link icon-pad-right" aria-hidden="true"></i>小红书: {{ author.xiaohongshu }}</a></li>
+          <li><a href="https://www.xiaohongshu.com/user/profile/{{ author.xiaohongshu }}"><i class="fas fa-fw fa-link icon-pad-right" aria-hidden="true"></i>Xiaohongshu: {{ author.xiaohongshu }}</a></li>
         {% endif %}
       {% endif %}
 
