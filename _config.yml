@@ -31,6 +31,11 @@ author:
   employer         : "Xi'an Jiaotong University"
   uri              : # URL
   email            : "3140143497@qq.com"
+  wechat           : "Jiaxuan_Zou" # 微信号 (will be shown publicly)
+
+  # Chinese platforms
+  xiaohongshu      : "https://www.xiaohongshu.com/user/profile/65fc3374000000000b00d833" # URL or profile id (e.g. "https://www.xiaohongshu.com/user/profile/xxxx" or "xxxx")
+  bilibili         : "https://space.bilibili.com/282545566?spm_id_from=333.1007.0.0" # URL or UID (e.g. "https://space.bilibili.com/123" or "123")
 
   # Academic websites
   academia         : # URL
