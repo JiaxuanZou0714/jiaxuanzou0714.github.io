@@ -54,11 +54,3 @@ I work on mechanistic understanding and interpretability of deep learning. My ap
 2. **<u>Zou, J.</u>, Liu, N., Zhang, T., He, J., Li, T., & Gao, J.** *Seismic Horizon Picking Using Channel-Independent Multi-Scale Network with Limited Training Samples*. Submitted to *Geophysics* (Under review).
 3. **Zhang, T., He, J., Liu, N., <u>Zou, J.</u>, & Jiang, Y.** *Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation*. *IEEE TGRS* (Accepted).
 
-<details>
-  <summary>Notes (what I like to work on)</summary>
-
-  - Understanding *where* computation happens inside models
-  - Connecting empirical scaling/behaviors to mechanistic explanations
-  - Building simple metrics that predict failure modes
-
-</details>
