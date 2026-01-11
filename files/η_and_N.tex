@@ -1,0 +1,441 @@
+\documentclass{article}
+\usepackage{geometry}
+\geometry{a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+\linespread{1.15} % 1.15倍行距，阅读更舒适
+\usepackage{graphicx} % Required for inserting images
+\usepackage{ctex}
+
+% 1. 颜色包必须最先加载，并开启 dvipsnames 选项
+\usepackage[dvipsnames]{xcolor}
+
+% 2. 基础数学包
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% 3. 定理工具包 + 边框支持包 (这里必须加载 mdframed)
+\usepackage{thmtools}
+\usepackage[framemethod=TikZ]{mdframed}
+
+% 4. 定义样式
+% 蓝色系样式（用于定义、假设）
+\declaretheoremstyle[
+    headfont=\bfseries\sffamily\color{NavyBlue}, % 标题字体颜色
+    bodyfont=\normalfont,
+    mdframed={
+        linewidth=2pt,
+        rightline=false, topline=false, bottomline=false, % 只保留左边线
+        linecolor=NavyBlue,      % 左边线颜色
+        backgroundcolor=NavyBlue!5, % 背景色 (5%透明度)
+        innerleftmargin=10pt,    % 左内边距
+        innerrightmargin=10pt,   % 右内边距
+        innertopmargin=10pt,     % 上内边距
+        innerbottommargin=10pt,  % 下内边距
+        skipabove=10pt,          % 与上方文本间距
+        skipbelow=10pt,          % 与下方文本间距
+    }
+]{thmblue}
+
+% 红色系样式（用于定理、引理）
+\declaretheoremstyle[
+    headfont=\bfseries\sffamily\color{RawSienna},
+    bodyfont=\normalfont,
+    mdframed={
+        linewidth=2pt,
+        rightline=false, topline=false, bottomline=false,
+        linecolor=RawSienna,
+        backgroundcolor=RawSienna!5,
+        innerleftmargin=10pt,
+        innerrightmargin=10pt,
+        innertopmargin=10pt,
+        innerbottommargin=10pt,
+        skipabove=10pt,
+        skipbelow=10pt,
+    }
+]{thmred}
+% remark
+\declaretheoremstyle[
+    headfont=\bfseries\sffamily\color{ForestGreen}, % 标题绿色
+    bodyfont=\normalfont,
+    mdframed={
+        linewidth=2pt,
+        rightline=false, topline=false, bottomline=false,
+        linecolor=ForestGreen,       % 边框绿色
+        backgroundcolor=ForestGreen!5, % 背景极淡的绿色
+        innerleftmargin=10pt,
+        innerrightmargin=10pt,
+        innertopmargin=10pt,
+        innerbottommargin=10pt,
+        skipabove=10pt,
+        skipbelow=10pt,
+    }
+]{thmgreen}
+
+% 1. 加载 hyperref
+\usepackage[
+    colorlinks=true,
+    linkcolor=NavyBlue,
+    citecolor=ForestGreen,
+    urlcolor=NavyBlue,
+    pdfborder={0 0 0}
+]{hyperref}
+
+% 2. 加载 cleveref (必须在 hyperref 之后)
+\usepackage[nameinlink]{cleveref}
+\crefname{definition}{定义}{定义}
+\crefname{assumption}{假设}{假设}
+\crefname{theorem}{定理}{定理}
+\crefname{lemma}{引理}{引理}
+\crefname{proposition}{命题}{命题}
+\crefname{corollary}{推论}{推论}
+\crefname{remark}{Remark}{Remarks}
+
+% 3. 最后执行 \declaretheorem (此时它能检测到 hyperref 并正确设置锚点)
+\declaretheorem[style=thmblue, name=定义, numberwithin=section]{definition}
+\declaretheorem[style=thmblue, name=假设, numberwithin=section]{assumption}
+
+\declaretheorem[style=thmred, name=定理, numberwithin=section]{theorem}
+\declaretheorem[style=thmred, name=引理, numberwithin=section]{lemma}
+\declaretheorem[style=thmred, name=推论, numberwithin=section]{corollary}
+\declaretheorem[style=thmred, name=命题, numberwithin=section]{proposition}
+
+\declaretheorem[style=thmgreen, name=Remark, numberwithin=section]{remark}
+
+\title{基于 Modes--Zipf--隐式偏置框架的\\学习率随模型规模缩放规律推导}
+\author{Jiaxuan Zou}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+本文在一种可解析的 ''Modes--Zipf--隐式偏置'' 抽象框架下，给出学习率 $\eta$ 随模型规模 $N$ 的缩放规律推导。框架的核心是：数据由一族可数的 ''模式''（modes）组成，出现频率满足 Zipf 幂律；训练过程在每个模式上的剩余误差 $q_k$ 呈乘法收缩；并允许 ''频率调制'' 的有效学习强度 $\lambda_k$。在该框架中，训练动力学只通过内禀时间尺度 $s=c\tau$ 进入，其中 $c=\eta\lambda_0$、$\tau$ 为 token-step。要把学习率与模型规模关联起来，必须补充一条把 $\lambda_0$ 与模型可承载模式数 $M(N)$ 联系的结构性假设。本文给出一个最小且可证伪的 ''资源密度'' 假设 $\lambda_0(N)\propto N/M(N)$，从而推出
+\[
+\eta(N)\ \propto\ \frac{M(N)}{N}.
+\]
+若进一步假设容量映射 $M(N)\propto N^\gamma$，则得到幂律缩放 $\eta(N)\propto N^{\gamma-1}$；在常见情形 $\gamma=\tfrac12$ 时，得到 $\eta\propto N^{-1/2}$，等价于宽度倍率下的 $\eta\propto 1/\text{width}$ 级别缩放，与 $\mu$P 类方法在形式上相容。
+\end{abstract}
+
+\tableofcontents
+
+\section{引言}
+经验上，大模型训练往往需要随规模调整学习率等超参数；而 $\mu$P 一类工作强调：存在一套参数化与超参数缩放，使得学习率等可在不同宽度间近似稳定（超参数迁移）。本文的目标是：在你提出的 ''Modes--Zipf--隐式偏置'' 理论中，推导一个\textbf{学习率 $\eta$ 随模型规模 $N$ 的缩放律}，并明确指出推导所需的最小额外假设与可检验预测。
+
+\medskip
+本文结构如下：\Cref{sec:modes} 给出 modes 与 Zipf 假设以及 excess loss 分解；\Cref{sec:dynamics} 给出 $q_k$ 的乘法收缩动力学并导出 ''内禀时间''；\Cref{sec:capacity} 给出容量映射 $M(N)$；\Cref{sec:lr-scaling} 在框架内推导学习率缩放律，并讨论与 $\mu$P 的形式对齐与可证伪点。
+
+\section{Modes、Zipf 与 excess loss 分解}\label{sec:modes}
+
+\begin{definition}[模式与频率分布]
+设存在可数的模式集合 $\mathcal{K}=\{1,2,3,\dots\}$。在数据分布下，模式 $k$ 出现的概率为 $p_k$，满足 $\sum_{k\ge 1}p_k=1$。
+\end{definition}
+
+\begin{assumption}[Zipf 幂律分布]\label{ass:zipf}
+存在指数 $\alpha>1$ 与缓变函数 $L(\cdot)$，使得当 $k$ 足够大时
+\[
+p_k \;=\; k^{-\alpha}L(k).
+\]
+为便于显式推导常数项，后文常采用纯幂律特例
+\[
+p_k \;=\; \frac{1}{Z}k^{-\alpha},\qquad Z=\sum_{k=1}^\infty k^{-\alpha}=\zeta(\alpha).
+\]
+\end{assumption}
+
+\begin{definition}[excess loss 的模式分解]\label{def:excess}
+设总体风险（或损失）为 $L$，不可约误差（Bayes 风险或熵项等）为 $E$，定义 excess loss
+\[
+\Delta L := L-E.
+\]
+假设 $\Delta L$ 可按模式加和分解为
+\begin{equation}\label{eq:excess-sum}
+\Delta L \;\approx\; \sum_{k=1}^\infty p_k\,q_k,
+\end{equation}
+其中 $q_k\in[0,1]$ 表示模型在模式 $k$ 上的 ''剩余误差''（未学习/未拟合程度）。
+\end{definition}
+
+\begin{remark}
+\Cref{eq:excess-sum} 的含义是：模式越常见（$p_k$ 越大），其剩余误差对总损失贡献越大；而隐式偏置将驱动训练优先压低高频模式的 $q_k$（见 \Cref{sec:dynamics}）。
+\end{remark}
+
+\section{乘法收缩动力学与内禀时间}\label{sec:dynamics}
+
+\subsection{有序学习与有效前沿}
+\begin{assumption}[有序学习与有效前沿]\label{ass:ordered}
+训练过程中存在一族随训练进度变化的剩余误差序列 $\{q_k(\tau)\}_{k\ge 1}$（$\tau$ 为 token-step），满足：
+\begin{enumerate}
+\item （单调性）$0\le q_1(\tau)\le q_2(\tau)\le \cdots \le 1$；
+\item （有效前沿）存在 $k_\star(\tau)$ 使得当 $k\ll k_\star(\tau)$ 时 $q_k(\tau)\to 0$，当 $k\gg k_\star(\tau)$ 时 $q_k(\tau)\to 1$。
+\end{enumerate}
+\end{assumption}
+
+\begin{remark}
+\Cref{ass:ordered} 是对 ''隐式偏置 + feature learning'' 的抽象刻画：训练更倾向先学习高频/低复杂度模式，形成由 $k_\star$ 划分的 ''学会'' 与 ''未学会'' 区域。
+\end{remark}
+
+\subsection{i.i.d.\ 采样与乘法更新}
+\begin{assumption}[token-step 下的 i.i.d.\ 模式采样]\label{ass:iid}
+每个 token-step $t=0,1,2,\dots$ 观测到的模式 $K_t\in\mathbb{N}$ 独立同分布，且
+\[
+\Pr[K_t=k]=p_k.
+\]
+记指示变量 $I_{t,k}:=\mathbf{1}\{K_t=k\}$，则 $\mathbb{E}[I_{t,k}]=p_k$。
+\end{assumption}
+
+\begin{assumption}[乘法收缩更新]\label{ass:mult}
+对任意模式 $k$，其剩余误差 $q_k(t)\in[0,1]$ 在离散 token-step 下按如下方式更新：
+\[
+q_k(t+1)=
+\begin{cases}
+(1-\eta\lambda_k)\,q_k(t), & I_{t,k}=1,\\
+q_k(t), & I_{t,k}=0,
+\end{cases}
+\]
+其中 $\eta>0$ 为（全局）学习率，$\lambda_k>0$ 表示模式 $k$ 的有效学习强度。假设初始 $q_k(0)=1$。
+\end{assumption}
+
+\begin{assumption}[频率调制的有效学习强度]\label{ass:lambda}
+存在常数 $\lambda_0>0$ 与指数 $\beta>0$，使得
+\begin{equation}\label{eq:lambda-k}
+\lambda_k \;=\; \lambda_0\,p_k^{\beta-1}.
+\end{equation}
+当 $\beta=1$ 时，各模式的 $\lambda_k$ 近似同阶；当 $\beta>1$ 时，高频模式具有更强的有效收缩强度；当 $0<\beta<1$ 时则相反。
+\end{assumption}
+
+\subsection{连续近似与显式解}
+记截至 token-step $\tau$，模式 $k$ 被观测到的次数为
+\[
+n_k(\tau):=\sum_{t=0}^{\tau-1}I_{t,k}.
+\]
+由 \Cref{ass:mult} 立即得到
+\begin{equation}\label{eq:q-discrete}
+q_k(\tau) \;=\; (1-\eta\lambda_k)^{n_k(\tau)} q_k(0).
+\end{equation}
+
+\begin{proposition}[指数形式与内禀时间]\label{prop:exp}
+在 ''小步长'' 条件 $\eta\lambda_k\ll 1$ 下，结合大数定律 $n_k(\tau)=\tau p_k+o(\tau)$，有近似
+\begin{equation}\label{eq:q-exp}
+q_k(\tau)\ \approx\ \exp\!\big(-\eta\lambda_k\,\tau p_k\big)
+\ =\ \exp\!\big(-c\,\tau\,p_k^\beta\big),
+\qquad c:=\eta\lambda_0.
+\end{equation}
+等价地，存在连续时间动力学
+\begin{equation}\label{eq:ode}
+\frac{d}{d\tau}q_k(\tau)=-c\,p_k^\beta q_k(\tau),\qquad q_k(0)=1.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+由 \Cref{eq:q-discrete} 与 $\log(1-x)=-x+o(x)$（$x\to 0$）得
+\[
+(1-\eta\lambda_k)^{n_k(\tau)}
+=\exp\!\big(n_k(\tau)\log(1-\eta\lambda_k)\big)
+\approx \exp\!\big(-\eta\lambda_k\,n_k(\tau)\big).
+\]
+代入 $n_k(\tau)=\tau p_k+o(\tau)$ 并结合 \Cref{ass:lambda} 即得 \Cref{eq:q-exp}。对 \Cref{eq:q-exp} 求导即可得到 \Cref{eq:ode}。
+\end{proof}
+
+\begin{definition}[内禀时间尺度]\label{def:intrinsic-time}
+定义内禀时间（或 ''有效训练时间''）
+\[
+s \;:=\; c\,\tau \;=\; \eta\lambda_0\,\tau.
+\]
+在 \Cref{prop:exp} 的近似下，$\{q_k\}$ 以及由其诱导的 $\Delta L$ 的训练动力学仅通过 $s$ 进入。
+\end{definition}
+
+\begin{remark}[学习率在该抽象层面的地位]
+在 \Cref{def:intrinsic-time} 下，学习率 $\eta$ 的作用等价于对横轴（token-step）做线性重标尺：$\tau \mapsto s=\eta\lambda_0\,\tau$。因此，要讨论 ''$\eta$ 随模型规模 $N$ 如何缩放''，本质上是在讨论：当 $N$ 改变时，$\lambda_0$ 是否保持常数；若不保持，则应如何选择 $\eta(N)$ 使 $s$ 的标定保持可比。
+\end{remark}
+
+\subsection{训练前沿与时间缩放（复述框架中的结论）}
+从 \Cref{eq:q-exp} 可见，模式 $k$ 何时 ''被学会'' 由量级条件 $c\tau p_k^\beta\gtrsim 1$ 控制。
+
+\begin{definition}[训练前沿]\label{def:k-tau}
+定义训练前沿 $k_\tau$（忽略常数）为满足
+\begin{equation}\label{eq:frontier-condition}
+c\tau\,p_{k_\tau}^\beta \asymp 1
+\end{equation}
+的模式指标。
+\end{definition}
+
+在纯幂律 $p_k=\frac{1}{Z}k^{-\alpha}$ 下，由 \Cref{eq:frontier-condition} 得到
+\begin{equation}\label{eq:k-tau-scaling}
+k_\tau \;\asymp\; Z^{-1/\alpha}\,(c\tau)^{1/(\alpha\beta)}.
+\end{equation}
+
+此外，将 \Cref{eq:q-exp} 代入 excess loss 分解 \Cref{eq:excess-sum}，可得到时间/计算缩放的幂律（此处给出一个标准推导版本）：
+
+\begin{lemma}[时间缩放律与 $c$ 的幂次进入]\label{lem:time-scaling}
+在纯幂律 $p_k=\frac{1}{Z}k^{-\alpha}$ 下，令
+\[
+\Delta L(\tau) \approx \sum_{k=1}^\infty p_k\exp(-c\tau p_k^\beta),
+\]
+则当 $\tau\to\infty$ 时有渐近
+\begin{equation}\label{eq:time-scaling}
+\Delta L(\tau)\ \sim\
+\underbrace{\frac{1}{\alpha\beta}\,Z^{-1/\alpha}\,
+\Gamma\!\Big(\frac{\alpha-1}{\alpha\beta}\Big)}_{=:C_{\alpha,\beta,Z}}
+\cdot (c\tau)^{-(\alpha-1)/(\alpha\beta)}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+用积分近似和变量替换。设 $p(x)=\frac{1}{Z}x^{-\alpha}$，则
+\[
+\Delta L(\tau)\approx \int_{1}^{\infty}\frac{1}{Z}x^{-\alpha}
+\exp\!\Big(-c\tau\Big(\frac{1}{Z}x^{-\alpha}\Big)^\beta\Big)\,dx
+=\int_1^\infty \frac{1}{Z}x^{-\alpha}\exp(-a\tau x^{-\alpha\beta})dx,
+\]
+其中 $a:=cZ^{-\beta}$。令 $u=a\tau x^{-\alpha\beta}$，则
+$x=(a\tau/u)^{1/(\alpha\beta)}$，
+$dx=-(1/(\alpha\beta))(a\tau)^{1/(\alpha\beta)}u^{-1/(\alpha\beta)-1}du$。
+代入并整理幂次，可得
+\[
+\Delta L(\tau)\approx \frac{1}{Z}\cdot \frac{1}{\alpha\beta}
+(a\tau)^{-(\alpha-1)/(\alpha\beta)}
+\int_{0}^{a\tau} e^{-u}\,u^{(\alpha-1)/(\alpha\beta)-1}\,du.
+\]
+当 $\tau\to\infty$ 时，上限 $a\tau\to\infty$，积分趋于 Gamma 函数
+$\Gamma\big(\frac{\alpha-1}{\alpha\beta}\big)$，从而
+\[
+\Delta L(\tau)\sim \frac{1}{Z}\cdot \frac{1}{\alpha\beta}
+(cZ^{-\beta}\tau)^{-(\alpha-1)/(\alpha\beta)}
+\Gamma\!\Big(\frac{\alpha-1}{\alpha\beta}\Big)
+=\frac{1}{\alpha\beta}Z^{-1/\alpha}\Gamma\!\Big(\frac{\alpha-1}{\alpha\beta}\Big)
+(c\tau)^{-(\alpha-1)/(\alpha\beta)}.
+\]
+\end{proof}
+
+\begin{remark}
+\Cref{lem:time-scaling} 直接显示：$c=\eta\lambda_0$ 以幂次形式进入时间缩放律。换言之，若我们希望不同设置下训练曲线的时间尺度可对齐，核心是控制 $c(N)$ 的变化。
+\end{remark}
+
+\section{容量映射与模型规模误差}\label{sec:capacity}
+
+\begin{assumption}[容量映射（capacity map）]\label{ass:capacity}
+存在函数 $M:\mathbb{N}\to\mathbb{N}$（随模型规模 $N$ 单调增长），使得当模型规模为 $N$ 时，有效前沿满足
+\[
+k_\star(N)\ \asymp\ M(N).
+\]
+并假设存在 $\gamma>0$ 使得幂律容量映射成立：
+\[
+M(N)\ \propto\ N^\gamma.
+\]
+\end{assumption}
+
+\begin{proposition}[模型规模误差的幂律]\label{prop:model-scaling}
+在 \Cref{ass:zipf,ass:capacity} 下，若训练足够充分使得 $k\lesssim M(N)$ 的模式被学习（$q_k\approx 0$），则模型规模瓶颈下的剩余误差满足
+\begin{equation}\label{eq:epsN}
+\varepsilon_N(N)
+\ :=\ \sum_{k>M(N)}p_k
+\ \asymp\ M(N)^{-(\alpha-1)}
+\ \asymp\ N^{-\gamma(\alpha-1)}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+由 Zipf 幂律尾和（积分比较）：
+$\sum_{k>M}k^{-\alpha}\asymp \int_M^\infty x^{-\alpha}dx \asymp M^{-(\alpha-1)}$。
+代入 $M=M(N)\propto N^\gamma$ 即得。
+\end{proof}
+
+\begin{remark}
+\Cref{prop:model-scaling} 是 ''模型规模 scaling law'' 的一条直接来源：只要 tail（未覆盖模式）主导误差，就得到幂律指数 $\gamma(\alpha-1)$。
+\end{remark}
+
+\section{学习率随模型规模的缩放律}\label{sec:lr-scaling}
+
+\subsection{为什么仅靠原框架无法推出 $\eta(N)$}
+到目前为止，学习率 $\eta$ 只通过 $c=\eta\lambda_0$ 进入训练动力学；而模型规模 $N$ 仅通过 $M(N)$ 进入模型瓶颈误差 \Cref{eq:epsN}。若不说明 $\lambda_0$ 与 $N$ 的关系，则 \textbf{$N$ 与 $\eta$ 在理论上彼此独立}：任何 $\eta(N)$ 都与 \Cref{ass:capacity} 不发生代数耦合，因此无法推出唯一缩放律。
+
+因此，要从该理论推出 ''$\eta$ 应如何随 $N$ 缩放''，必须补充一条把 $\lambda_0$ 连接到 $N$（或 $M(N)$）的结构性假设。下面给出一个最小且自然的选择。
+
+\subsection{内禀时间不变性：缩放律的第一原则}
+
+\begin{theorem}[尺度不变性原则：固定 $c(N)$]\label{thm:keep-c}
+在 \Cref{ass:iid,ass:mult,ass:lambda} 下，对任意给定的模式频率 $\{p_k\}$，训练动力学由
+\[
+q_k(\tau)\approx \exp\big(-c(N)\tau p_k^\beta\big),\qquad c(N):=\eta(N)\lambda_0(N),
+\]
+决定。特别地，若希望不同模型规模 $N$ 下的训练曲线在 ''内禀时间'' 坐标 $s=c(N)\tau$ 上可直接对齐（即实现零样本超参数迁移意义下的动力学相似），充分条件是
+\begin{equation}\label{eq:c-const}
+c(N)\equiv c_\mathrm{ref}\quad\text{为常数}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+由 \Cref{prop:exp,def:intrinsic-time}，$q_k$ 仅依赖于 $s=c\tau$。若对所有 $N$ 取相同 $c_\mathrm{ref}$，则对任意 $\tau$，$q_k$ 与由其诱导的 $\Delta L$ 都是同一个函数在相同 $s$ 上的取值，从而实现动力学对齐。
+\end{proof}
+
+\begin{remark}[与稳定性条件的一致性]
+小步长与稳定性通常要求 $\eta\lambda_k\ll 1$，而 $\lambda_k\le \lambda_0$（当 $\beta\ge 1$ 且 $p_k\le 1$）时，固定 $c=\eta\lambda_0$ 也等价于固定最坏情形的步长尺度，从而稳定性不随 $N$ 系统性恶化。
+\end{remark}
+
+\subsection{资源密度假设：把 $\lambda_0(N)$ 接到 $M(N)$}
+
+\begin{assumption}[模式资源密度 $\Rightarrow$ 基准学习强度]\label{ass:resource}
+将模型规模 $N$ 理解为可调自由度总量。容量映射 $M(N)$ 描述模型能稳定承载/表征的有效模式数量。假设在已覆盖模式集合上，\textbf{单个模式的平均资源密度}与 $N/M(N)$ 同阶，且基准有效学习强度 $\lambda_0(N)$ 与该资源密度成正比：
+\begin{equation}\label{eq:lambda0-resource}
+\lambda_0(N)\ \propto\ \frac{N}{M(N)}.
+\end{equation}
+\end{assumption}
+
+\begin{remark}[可证伪性]
+\Cref{ass:resource} 是本文唯一新增的 ''结构性'' 假设。它可通过实验估计 $\lambda_0(N)$ 的相对变化（例如从早期训练曲线拟合 $c(N)$，或从 $q_k$ 的衰减速度估计）来检验；若观测到 $\lambda_0(N)$ 近似常数，则学习率无需按本文方式缩放。
+\end{remark}
+
+\subsection{主结论：$\eta(N)\propto M(N)/N$}
+
+\begin{theorem}[学习率--模型规模缩放律]\label{thm:lr-scaling}
+在 \Cref{thm:keep-c,ass:resource} 下，若希望不同模型规模 $N$ 的训练动力学在内禀时间上保持相似（即 $c(N)$ 保持常数），则学习率应满足
+\begin{equation}\label{eq:eta-scaling-main}
+\eta(N)\ \propto\ \frac{1}{\lambda_0(N)}\ \propto\ \frac{M(N)}{N}.
+\end{equation}
+进一步地，若 $M(N)\propto N^\gamma$，则得到幂律缩放
+\begin{equation}\label{eq:eta-power}
+\eta(N)\ \propto\ N^{\gamma-1}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+由 \Cref{thm:keep-c}，要求 $c(N)=\eta(N)\lambda_0(N)\equiv c_\mathrm{ref}$。于是 $\eta(N)\propto 1/\lambda_0(N)$。再由 \Cref{ass:resource} 得到 \Cref{eq:eta-scaling-main}；代入 $M(N)\propto N^\gamma$ 得 \Cref{eq:eta-power}。
+\end{proof}
+
+\begin{corollary}[宽度倍率形式与 $\mu$P 形式对齐]\label{cor:width}
+设某类架构的参数量与宽度 $d$ 近似满足 $N\propto d^2$。若容量映射满足 $M(N)\propto \sqrt{N}\propto d$（即 $\gamma=\tfrac12$），则
+\[
+\eta(N)\propto N^{-1/2}\ \propto\ d^{-1}.
+\]
+即：宽度放大 $m$ 倍（$d\mapsto md$）时，学习率按 $1/m$ 级别缩放。
+\end{corollary}
+
+\begin{remark}
+\Cref{cor:width} 解释了为何在一些经验/工程规则中会出现 ''宽度放大 $m$ 倍，学习率缩小 $\sim 1/m$'' 的规律：在本文框架中，这对应于 ''可承载模式数与宽度线性增长'' 的容量映射，以及 ''基准学习强度与单模式资源密度正比'' 的结构假设。
+\end{remark}
+
+\subsection{进一步讨论：若 $\lambda_0(N)$ 的指数不同会怎样？}
+为便于你在论文中扩展，给出一个一般化的注记。
+
+\begin{remark}[一般化：$\lambda_0(N)\propto (N/M(N))^\delta$]
+若把 \Cref{ass:resource} 推广为 $\lambda_0(N)\propto (N/M(N))^\delta$（$\delta>0$），则在保持 $c(N)$ 常数的原则下有
+\[
+\eta(N)\propto \Big(\frac{M(N)}{N}\Big)^\delta.
+\]
+当 $M(N)\propto N^\gamma$ 时，得到 $\eta(N)\propto N^{\delta(\gamma-1)}$。
+本文取 $\delta=1$ 是最小的 ''线性资源密度'' 情形。
+\end{remark}
+
+\section{结论}
+本文在 Modes--Zipf--隐式偏置的抽象框架中，指出学习率只通过 $c=\eta\lambda_0$ 进入训练动力学，从而 ''学习率随模型规模缩放'' 的问题等价于：厘清 $\lambda_0$ 随 $N$ 的变化。通过补充一个最小的资源密度假设 $\lambda_0(N)\propto N/M(N)$，我们得到主结论
+\[
+\eta(N)\propto \frac{M(N)}{N}\propto N^{\gamma-1}.
+\]
+该缩放律的关键优势是可证伪：只要能从训练曲线或模式级残差衰减估计 $\lambda_0(N)$ 的相对变化，就可以直接验证/否定该结论，并据此修正 $\delta$ 或容量映射 $M(N)$ 的形式。
+
+% \begin{thebibliography}{9}
+% \bibitem{kaplan}
+% Jared Kaplan et al. Scaling Laws for Neural Language Models. NeurIPS 2020.
+% \bibitem{hoffmann}
+% Jordan Hoffmann et al. Training Compute-Optimal Large Language Models. arXiv:2203.15556, 2022.
+% \end{thebibliography}
+
+\end{document}
