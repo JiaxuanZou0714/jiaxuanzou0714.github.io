@@ -1,15 +1,13 @@
 /* ==========================================================================
-   SINGLE PAGE/POST
+   SINGLE PAGE/POST - Apple Minimal Design
    ========================================================================== */
 
 #main {
   @include container;
   @include clearfix;
   margin-top: 2em;
-  padding-left: 1em;
-  padding-right: 1em;
-  animation: intro 0.3s both;
-  animation-delay: 0.35s;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
 
   @include breakpoint($x-large) {
     max-width: $x-large;
@@ -38,7 +36,7 @@
   margin-top: 0;
   line-height: 1;
 
-  & + .page__meta {
+  &+.page__meta {
     margin-top: -0.5em;
   }
 }
@@ -51,12 +49,30 @@
 .page__content {
 
   h2 {
-    padding-bottom: 0.5em;
-    border-bottom: 1px solid var(--global-border-color);
+    margin-top: 3em;
+    margin-bottom: 1em;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-size: 1.5em;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--global-text-color);
   }
 
-  p, li, dl {
+  h3 {
+    margin-top: 2em;
+    margin-bottom: 0.75em;
+    font-size: 1.1em;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--global-text-color);
+  }
+
+  p,
+  li,
+  dl {
     font-size: 1em;
+    line-height: 1.75;
   }
 
   /* paragraph indents */
@@ -64,8 +80,8 @@
     margin: 0 0 $indent-var;
 
     /* sibling indentation*/
-    @if $paragraph-indent == true {
-      & + p {
+    @if $paragraph-indent ==true {
+      &+p {
         text-indent: $indent-var;
         margin-top: -($indent-var);
       }
@@ -73,13 +89,17 @@
   }
 
   a {
-    text-decoration: underline;
+    text-decoration: none;
+    color: var(--global-link-color);
+    border-bottom: 1px solid rgba(26, 26, 46, 0.2);
+    transition: all 0.2s ease;
 
     &:hover {
-      text-decoration: underline;
+      color: var(--global-link-color-hover);
+      border-bottom-color: var(--global-primary-color);
 
       img {
-        box-shadow: 0 0 10px rgba(#000, 0.25);
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
       }
     }
   }
@@ -101,9 +121,16 @@
   }
 
   /* blockquote citations */
-  blockquote + .small {
+  blockquote+.small {
     margin-top: -1.5em;
     padding-left: 1.25rem;
+  }
+
+  /* Clean list styling */
+  ul {
+    li {
+      margin-bottom: 0.5em;
+    }
   }
 }
 
@@ -300,6 +327,7 @@
   transition: $global-transition;
 
   &.disabled {
+
     input,
     button,
     textarea,

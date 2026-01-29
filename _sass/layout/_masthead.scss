@@ -1,18 +1,15 @@
 /* ==========================================================================
-   MASTHEAD
+   MASTHEAD - Refined Academic Design
    ========================================================================== */
 
 .masthead {
   position: fixed;
-  background: var(--global-bg-color);
+  background: rgba(250, 250, 250, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   height: fit-content;
   top: 0;
   width: 100%;
-
-  -webkit-animation: intro 0.3s both;
-          animation: intro 0.3s both;
-  -webkit-animation-delay: 0.15s;
-          animation-delay: 0.15s;
   z-index: 20;
 
   &::after {
@@ -27,7 +24,7 @@
   &__inner-wrap {
     @include container;
     @include clearfix;
-    padding: 0.5em 1em;
+    padding: 0.75em 1.5em;
     font-family: $sans-serif-narrow;
 
     @include breakpoint($x-large) {
@@ -40,6 +37,22 @@
 
     a {
       text-decoration: none;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 1.5px;
+        background: var(--global-primary-color);
+        transition: width 0.25s ease;
+      }
+
+      &:hover::after {
+        width: 100%;
+      }
     }
   }
 }
@@ -55,10 +68,21 @@
 }
 
 .masthead__menu-item {
-  background-color: var(--global-bg-color);
+  background-color: transparent;
   display: block;
   list-style-type: none;
   white-space: nowrap;
+  transition: $global-transition;
+
+  a {
+    padding: 0.5em 0.75em;
+    border-radius: $border-radius-sm;
+    transition: $global-transition;
+
+    &:hover {
+      color: var(--global-primary-color);
+    }
+  }
 
   &--lg {
     padding-right: 2em;

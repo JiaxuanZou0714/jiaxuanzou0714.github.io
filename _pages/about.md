@@ -4,8 +4,8 @@ title: "About Me"
 author_profile: true
 layout: single
 classes: wide
-toc: true
-toc_sticky: true
+toc: false
+toc_sticky: false
 excerpt: "Undergraduate at Xi'an Jiaotong University. Research interests: mechanistic interpretability, optimization, AI for science."
 redirect_from:
   - /about/
@@ -27,7 +27,7 @@ I work on mechanistic understanding and interpretability of deep learning. My ap
 
 ### Gaoling School of Artificial Intelligence, Renmin University of China
 
-*Research Intern (Advised by Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong))* | *Jun. 2025 – Present*
+**Research Intern** · Advised by Prof. [Yong Liu](https://gsai.ruc.edu.cn/liuyong) · Jun. 2025 – Present
 
 - Investigate latent reasoning mechanisms in LLMs through mechanistic interpretability.
 - Develop a theoretical framework for the exploration–execution trade-off in Latent Chain-of-Thought.
@@ -37,7 +37,7 @@ I work on mechanistic understanding and interpretability of deep learning. My ap
 
 ### School of Mathematics and Statistics, Xi’an Jiaotong University
 
-*Undergraduate Researcher (Advised by Prof. [Naihao Liu](https://gr.xjtu.edu.cn/en/web/naihao_liu))* | *Sep. 2024 – Present*
+**Undergraduate Researcher** · Advised by Prof. [Naihao Liu](https://gr.xjtu.edu.cn/en/web/naihao_liu) · Sep. 2024 – Present
 
 - Build a channel-independent multi-scale framework for seismic horizon picking with extremely limited labeled data; submitted to *Geophysics*.
 - Design a Mamba-based (State Space Model) U-Net for automatic seismic interpretation, improving feature fusion and long-range dependency modeling; to appear in *IEEE TGRS*.
