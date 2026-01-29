@@ -19,7 +19,16 @@
 </div>
 {% endif %}
 
+<!-- 不蒜子访客统计 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
 <div class="page__footer-copyright">
   &copy; {{ site.time | date: '%Y' }} {{ site.name | default: site.title }}, {{ site.data.ui-text[site.locale].powered_by | default: "Powered by" }} <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://github.com/academicpages/academicpages.github.io">AcademicPages</a>, a fork of <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.<br />
-  Site last updated {{ "now" | date: '%Y-%m-%d' }}
+  Site last updated {{ "now" | date: '%Y-%m-%d' }}<br />
+  <span id="busuanzi_container_site_pv" style="display:none">
+    <i class="fa fa-eye" aria-hidden="true"></i> Total visits: <span id="busuanzi_value_site_pv"></span> |
+  </span>
+  <span id="busuanzi_container_site_uv" style="display:none">
+    <i class="fa fa-user" aria-hidden="true"></i> Visitors: <span id="busuanzi_value_site_uv"></span>
+  </span>
 </div>
