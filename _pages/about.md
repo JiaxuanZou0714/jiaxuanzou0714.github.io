@@ -16,14 +16,14 @@ I am currently an undergraduate student at the School of Mathematics and Statist
 
 I work on mechanistic understanding and interpretability of deep learning. My approach is phenomenon-driven: start from empirical behaviors, then build first-principles mechanisms that explain *why* a model works (or fails) and *where* certain behaviors come from.
 
-## Research Interests
+# Research Interests
 
 - Mechanistic interpretability of LLMs
 - Deep learning theory & optimization
 - AI for scientific discovery and scientific modeling
 
 
-## Research Experience
+# Research Experience
 
 ### Gaoling School of Artificial Intelligence, Renmin University of China
 
@@ -42,7 +42,7 @@ I work on mechanistic understanding and interpretability of deep learning. My ap
 - Build a channel-independent multi-scale framework for seismic horizon picking with extremely limited labeled data; submitted to *Geophysics*.
 - Design a Mamba-based (State Space Model) U-Net for automatic seismic interpretation, improving feature fusion and long-range dependency modeling; to appear in *IEEE TGRS*.
 
-## Selected Publications
+# Selected Publications
 
 ### Conference Papers
 
@@ -52,3 +52,9 @@ I work on mechanistic understanding and interpretability of deep learning. My ap
 
 2. **<u>Zou, J.</u>, Liu, N., Zhang, T., He, J., Li, T., & Gao, J.** *Seismic Horizon Picking Using Channel-Independent Multi-Scale Network with Limited Training Samples*. Submitted to *Geophysics* (Under review).
 3. **Zhang, T., He, J., Liu, N., <u>Zou, J.</u>, & Jiang, Y.** *Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation*. *IEEE TGRS* (Accepted).
+
+---
+
+<div style="text-align: center; margin-top: 2rem;">
+<script type="text/javascript" id="mapmyvisitors" src="//mapmyvisitors.com/map.js?d=3b1PLEw1iS4vAyz3qNhribXKGJDvvektcQGLsAF8hEY&cl=ffffff&w=a"></script>
+</div>
