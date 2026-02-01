@@ -1,4 +1,5 @@
 # this file uses prebuilt image in dockerhub
+name: al-folio
 services:
   jekyll:
     image: amirpourmand/al-folio:v0.16.3
