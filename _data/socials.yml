@@ -1,0 +1,33 @@
+# this file contains the social media links and usernames of the author
+# the socials will be displayed in the order they are defined here
+# for more information, please refer to the documentation of jekyll-socials plugin: https://github.com/george-gca/jekyll-socials
+cv_pdf: /assets/pdf/example_pdf.pdf # path to your CV PDF file
+email: 3140143497@qq.com # your email address
+# inspirehep_id: 1010907 # Inspire HEP author ID
+# rss_icon: true # comment this line to hide the RSS icon
+scholar_userid: YE6iiwUAAAAJ # your Google Scholar ID
+# Custom Socials
+bilibili_social:
+  logo: https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/bilibili.svg
+  title: Bilibili
+  url: https://space.bilibili.com/282545566?spm_id_from=333.1007.0.0
+xiaohongshu_social:
+  logo: https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/xiaohongshu.svg
+  title: XiaoHongShu
+  url: https://www.xiaohongshu.com/user/profile/65fc3374000000000b00d833
+wechat_social:
+  logo: https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/wechat.svg
+  title: "WeChat: Jiaxuan_Zou"
+  url: "#"
+
+
+
+# bilibili_social: ...
+
+# wechat: Jiaxuan_Zou # WeChat usually requires a QR code via wechat_qr or just text in bio
+# wechat_qr: # filename of your wechat qr-code saved as an image (e.g., wechat-qr.png if saved to assets/img/wechat-qr.png)
+# whatsapp_number: # your WhatsApp number (full phone number in international format. Omit any zeroes, brackets, or dashes when adding the phone number in international format.)
+# custom_social: # can be any name here other than the ones already defined in the jekyll-socials plugin
+#   logo: https://www.alberteinstein.com/wp-content/uploads/2024/03/cropped-favicon-192x192.png # can be png, svg, jpg
+#   title: Custom Social
+#   url: https://www.alberteinstein.com/
