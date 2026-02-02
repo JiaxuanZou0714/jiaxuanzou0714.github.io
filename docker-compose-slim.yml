@@ -7,7 +7,12 @@ services:
     ports:
       - 8080:8080
       - 35729:35729
+    command: /srv/jekyll/bin/entry_point.sh
     volumes:
       - .:/srv/jekyll
+      - bundle-cache:/usr/local/bundle
     environment:
       - JEKYLL_ENV=development
+
+volumes:
+  bundle-cache:
