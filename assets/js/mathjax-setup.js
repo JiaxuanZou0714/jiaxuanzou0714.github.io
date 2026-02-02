@@ -16,6 +16,11 @@ window.MathJax = {
           .mjx-container {
             color: inherit;
           }
+          mjx-container[display="true"] {
+            display: block;
+            overflow-x: auto;
+            overflow-y: hidden;
+          }
         `;
           document.head.appendChild(style);
         },
