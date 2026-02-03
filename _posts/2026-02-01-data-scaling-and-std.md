@@ -372,3 +372,27 @@ $$
         %}
     </div>
 </div>
+
+这个结果可以很容易推广到多层relu网络。设网络满足：
+
+
+- $h_0=x$
+- $h_\ell=\phi(W_\ell h_{\ell-1})$, $\ell=1,\dots,K-1$
+- $f(x;W)=W_K h_{K-1}$
+
+
+并且初始化时所有层 $W_\ell\sim \mathcal N(0,\sigma^2)$。定义归一化后的模型输出：
+
+
+$$
+\tilde f_\sigma(x;W)=\frac{1}{\sigma^K}f(x;W).
+$$
+
+只要选：
+
+
+$$
+\eta_\sigma=\sigma^2 \eta_0
+$$
+
+就可以同时对齐 forward 和 backward 过程。
