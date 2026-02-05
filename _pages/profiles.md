@@ -3,7 +3,7 @@ layout: profiles
 permalink: /autobiography/
 title: Autobiography
 description: Personal Autobiography
-nav: true
+nav: false
 nav_order: 7
 
 profiles:
