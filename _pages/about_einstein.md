@@ -1,5 +1,9 @@
-Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](https://www.reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder.
+Autobiography
 
-Put your address / P.O. box / other info right below your picture. You can also disable any these elements by editing `profile` property of the YAML header of your `_pages/about.md`. Edit `_bibliography/papers.bib` and Jekyll will render your [publications page](/al-folio/publications/) automatically.
+I study mathematics and artificial intelligence as an undergraduate at Xi'an Jiaotong University and currently work as a research intern at the Gaoling School of Artificial Intelligence, Renmin University of China.
 
-Link to your social media connections, too. This theme is set up to use [Font Awesome icons](https://fontawesome.com/) and [Academicons](https://jpswalsh.github.io/academicons/), like the ones below. Add your Facebook, Twitter, LinkedIn, Google Scholar, or just disable all of them.
+My path into research has been guided by curiosity for learning systems and optimization. I enjoy building clean implementations, writing, and sharing ideas that make complex topics accessible.
+
+Highlights that shaped my journey include collaborative projects, independent reading, and hands-on experimentation. I value clarity, reproducibility, and rigorous thinking.
+
+Looking ahead, I aim to deepen my understanding of machine learning theory and develop practical methods that solve real problems. Outside work, I read widely and build useful tools.
