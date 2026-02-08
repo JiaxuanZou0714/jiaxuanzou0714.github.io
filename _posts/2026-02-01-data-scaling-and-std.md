@@ -11,7 +11,7 @@ toc:                      # 目录配置
   sidebar: left           # 侧边栏目录 (left/right)
 ---
 ## 现象
-我们在 [上一篇 blog]({% post_url 2025-12-30-scaling-law %}) 中讨论了 scaling law 到底是如何产生的。我们在其预印本中增加了实验章节，其中有一系列图展示了不同 $\alpha$ 下的 data scaling 曲线，比如其中一张图，展示了在数据受限的情况下，loss 与 datasize 的关系
+我们在 上一篇 blog ([Can We Derive Scaling Law From First Principles]({% post_url 2025-12-30-scaling-law %})) 中讨论了 scaling law 到底是如何产生的。我们在其预印本中增加了实验章节，其中有一系列图展示了不同 $\alpha$ 下的 data scaling 曲线，比如其中一张图，展示了在数据受限的情况下，loss 与 datasize 的关系
 
 {% include figure.liquid 
     path="assets/img/post-02-01/data-scaling-0p01.png" 
