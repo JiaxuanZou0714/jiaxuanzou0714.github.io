@@ -396,3 +396,17 @@ $$
 $$
 
 就可以同时对齐 forward 和 backward 过程。
+
+## 引用
+
+如果您需要引用本文，请参考：
+
+```bibtex
+@article{zou2026scaling,
+  title={如何对齐不同初始化大小下的 Data scaling 曲线},
+  author={Zou, Jiaxuan},
+  journal={Jiaxuan's Blog},
+  year={2026},
+  url={https://jiaxuanzou0714.github.io/blog/2026/data-scaling-and-std/}
+}
+```
