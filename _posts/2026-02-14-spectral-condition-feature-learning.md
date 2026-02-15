@@ -308,7 +308,7 @@ $$
 
 ## 6. 实验验证
 
-为了验证上述理论推导，论文在不同宽度的 MLP 上进行了实验。下图展示了在 Standard Parametrization (NTP) 和 Maximal Update Parametrization (μP) 下，网络内部特征和权重变化的 scaling 行为。
+为了验证上述理论推导，论文在不同宽度的 MLP 上进行了实验。下图展示了在 NTP 和 μP 缩放下，网络内部特征和权重变化的 scaling 行为。
 
 {% include figure.liquid 
     path="assets/img/post-02-14/experiments.png" 
@@ -319,8 +319,8 @@ $$
 %}
 
 可以看到：
-1. **特征变化量（左上 A 图）**：在 μP 下，特征变化量 $$\frac{\|\boldsymbol{h}_2(\boldsymbol{x}) - \boldsymbol{h}_2^0(\boldsymbol{x})\|_2}{\|\boldsymbol{h}_2^0(\boldsymbol{x})\|_2}$$ 保持常数级别 $$\Theta(1)$$，与宽度无关；而在 NTP 下，特征变化量随宽度增加呈 $$n^{-1/2}$$ 衰减。这意味着在 NTP 下，随着模型变宽，特征学习会逐渐消失，最终退化为 Lazy Regime。
-2. **权重变化量（右上 B, D 图）**：在 μP 下，权重的谱范数变化 $$\frac{\|\boldsymbol{W}_2 - \boldsymbol{W}_2^0\|_*}{\|\boldsymbol{W}_2^0\|_*}$$ 也不随宽度衰减（保持 $$\Theta(1)$$），而 NTP 下则显著衰减。
+1. 特征变化量（左上 A 图）：在 μP 缩放下，特征变化量 $$\frac{\|\boldsymbol{h}_2(\boldsymbol{x}) - \boldsymbol{h}_2^0(\boldsymbol{x})\|_2}{\|\boldsymbol{h}_2^0(\boldsymbol{x})\|_2}$$ 保持常数级别 $$\Theta(1)$$，与宽度无关；而在 NTP 缩放下，特征变化量随宽度增加呈 $$n^{-1/2}$$ 衰减。这意味着在 NTP 缩放下，随着模型变宽，特征学习会逐渐消失，最终退化为 Lazy Regime。
+2. 权重变化量（右上 B图）：在 μP 缩放下，权重的谱范数变化 $$\frac{\|\boldsymbol{W}_2 - \boldsymbol{W}_2^0\|_*}{\|\boldsymbol{W}_2^0\|_*}$$ 也不随宽度衰减（保持 $$\Theta(1)$$），而 NTP 缩放下则显著衰减。
 
 这证实了只有 μP 能够在大宽度的极限下保持非平凡的特征学习。
 
