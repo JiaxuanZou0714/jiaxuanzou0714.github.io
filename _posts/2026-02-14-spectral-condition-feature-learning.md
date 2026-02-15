@@ -297,13 +297,7 @@ $$
 | μP / Spectral | $$1/n$$ | $$\Theta(1)$$ | ✓ |
 {: .table .table-striped}
 
-{% include figure.liquid 
-    path="assets/img/post-02-14/experiments.png" 
-    class="img-fluid rounded z-depth-1 mx-auto d-block" 
-    width="auto" 
-    zoomable=true   
-    alt="不同参数化方案下的训练表现" 
-%}
+
 ---
 
 ## 6. 实验验证
