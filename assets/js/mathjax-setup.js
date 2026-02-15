@@ -1,10 +1,12 @@
 window.MathJax = {
+  loader: { load: ["[tex]/boldsymbol"] },
   tex: {
     tags: "ams",
     inlineMath: [
       ["$", "$"],
       ["\\(", "\\)"],
     ],
+    packages: { "[+]": ["boldsymbol"] },
   },
   options: {
     renderActions: {
