@@ -5,7 +5,7 @@ date: 2026-03-02 19:33:00
 description: "本文对 Tensor Programs 导出的极大更新参数化（μP）的核心理论推导进行系统性梳理。Tensor Programs 理论在推导神经网络缩放法则时，其最基础且最核心的洞察在于：必须根据权重张量生成机制的不同，严格区分并应用大数定律（LLN）与中心极限定理（CLT）。"
 tags: [deep-learning, tensor-programs, muP, feature-learning]
 categories: [deep-learning]
-featured: true
+featured: false
 giscus_comments: true
 toc:
   sidebar: left

@@ -5,7 +5,7 @@ date: 2026-02-14 17:00:00
 description: "本文介绍 Greg Yang 的 Tensor Programs 系列的入门论文——A Spectral Condition for Feature Learning，从谱范数的视角推导出 feature learning 所需的 scaling 条件，并由此重新推导 maximal update parametrization（μP）。"
 tags: [deep-learning, tensor-programs, muP, feature-learning]
 categories: [deep-learning]
-featured: true
+featured: false
 giscus_comments: true
 toc:
   sidebar: left
