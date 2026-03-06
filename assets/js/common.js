@@ -23,6 +23,16 @@ $(document).ready(function () {
     $(".publications h2").each(function () {
       $(this).attr("data-toc-skip", "");
     });
+
+    // Fix heading IDs that start with digits — CSS selectors used by
+    // Bootstrap ScrollSpy (querySelector) don't allow IDs starting with
+    // a digit, which silently breaks scroll tracking.
+    $("h1, h2, h3, h4, h5, h6").each(function () {
+      if (this.id && /^\d/.test(this.id)) {
+        this.id = "sec-" + this.id;
+      }
+    });
+
     var navSelector = "#toc-sidebar";
     var $myNav = $(navSelector);
     Toc.init($myNav);
@@ -30,6 +40,14 @@ $(document).ready(function () {
       target: navSelector,
       offset: 100,
     });
+
+    // Refresh scrollspy after MathJax finishes rendering,
+    // since equations change page height and heading positions.
+    if (typeof MathJax !== "undefined" && MathJax.startup) {
+      MathJax.startup.promise.then(function () {
+        $("body").scrollspy("refresh");
+      });
+    }
   }
 
   // add css to jupyter notebooks
