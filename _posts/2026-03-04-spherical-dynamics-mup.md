@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "从球面动力学到 μP"
+title: "球面之上：从球面动力学到 μP"
 date: 2026-03-05 08:47:35
 description: "本文脱离 Tensor Programs 的概率论框架，从连续时间的球面动力学视角，严格推导在应用 RMSNorm 的网络架构中，如何通过对齐超球面上的动力学来实现大小网络的对齐。"
 tags: [deep-learning, spherical-dynamics, muP, rmsnorm]
@@ -185,7 +185,7 @@ $$
 
 ```bibtex
 @article{zou2026sphericaltomup,
-  title={从球面动力学到 μP},
+  title={球面之上：从球面动力学到 μP},
   author={Zou, Jiaxuan},
   journal={Jiaxuan's Blog},
   year={2026},
