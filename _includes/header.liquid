@@ -66,47 +66,45 @@
                 align-items: center;
                 margin-left: 0.75rem;
               }
-              #google_translate_element .goog-te-gadget {
-                color: var(--global-text-color);
-                font-size: 0.85rem;
-                line-height: 1.2;
-              }
-              #google_translate_element .goog-te-gadget-simple {
+              .translate-toggle {
                 display: inline-flex;
                 align-items: center;
-                gap: 0.35rem;
-                margin: 0;
-                padding: 0.25rem 0.55rem;
                 border: 1px solid var(--global-divider-color);
                 border-radius: 999px;
-                background: transparent;
+                overflow: hidden;
               }
-              #google_translate_element .goog-te-gadget-icon {
-                display: none;
-              }
-              #google_translate_element .goog-te-menu-value {
-                margin: 0;
-                color: var(--global-text-color) !important;
-              }
-              #google_translate_element .goog-te-menu-value span {
-                border-left: none !important;
-                color: var(--global-text-color) !important;
-               }
-              #google_translate_element .goog-te-menu-value span:last-child {
-                display: none;
-              }
-              #google_translate_element .goog-te-menu-value::after {
-                content: " \25BE";
-                font-size: 0.75rem;
-              }
-              #google_translate_element .goog-te-combo {
-                margin: 0;
-                border-radius: 999px;
-                padding: 0.2rem 0.5rem;
-                font-size: 0.85rem;
-                border: 1px solid var(--global-divider-color);
+              .translate-toggle button {
+                border: 0;
                 background: transparent;
                 color: var(--global-text-color);
+                font-size: 0.8rem;
+                line-height: 1;
+                padding: 0.35rem 0.65rem;
+                transition: background-color 0.2s ease, color 0.2s ease;
+              }
+              .translate-toggle button + button {
+                border-left: 1px solid var(--global-divider-color);
+              }
+              .translate-toggle button:hover {
+                color: var(--global-theme-color);
+                background: var(--global-bg-color);
+              }
+              .translate-toggle button.active {
+                background: var(--global-theme-color);
+                color: var(--global-bg-color);
+              }
+              #google_translate_element {
+                position: absolute;
+                width: 0;
+                height: 0;
+                overflow: hidden;
+                opacity: 0;
+                pointer-events: none;
+              }
+              #google_translate_element .goog-te-gadget,
+              #google_translate_element .goog-te-combo,
+              #google_translate_element .goog-te-gadget-simple {
+                font-size: 0;
               }
               @media (max-width: 575.98px) {
                 .nav-translate {
@@ -202,7 +200,27 @@
           {% if site.google_translate and site.google_translate.enabled %}
             <!-- Google Translate -->
             <li class="nav-item nav-translate">
-              <div id="google_translate_element" aria-label="Translate page"></div>
+              <div class="translate-toggle" aria-label="切换语言">
+                <button
+                  type="button"
+                  class="translate-toggle-button"
+                  data-lang="zh-CN"
+                  aria-pressed="false"
+                  onclick="setGoogleTranslateLanguage('zh-CN')"
+                >
+                  中
+                </button>
+                <button
+                  type="button"
+                  class="translate-toggle-button"
+                  data-lang="en"
+                  aria-pressed="false"
+                  onclick="setGoogleTranslateLanguage('en')"
+                >
+                  EN
+                </button>
+              </div>
+              <div id="google_translate_element" aria-hidden="true"></div>
             </li>
           {% endif %}
           {% if site.enable_darkmode %}

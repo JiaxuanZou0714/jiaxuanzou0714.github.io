@@ -316,16 +316,65 @@
 {% if site.google_translate and site.google_translate.enabled %}
   <!-- Google Translate -->
   <script>
+    window.googleTranslateConfig = {
+      pageLanguage: "{{ site.google_translate.page_language | default: site.lang | default: 'en' }}",
+      includedLanguages: "{{ site.google_translate.included_languages | default: 'en,zh-CN' }}"
+    };
+
+    window.getGoogleTranslateLanguage = function () {
+      var sourceLanguage = window.googleTranslateConfig.pageLanguage;
+      var match = document.cookie.match(/(?:^|; )googtrans=([^;]+)/);
+
+      if (!match) {
+        return sourceLanguage;
+      }
+
+      var parts = decodeURIComponent(match[1]).split('/');
+      var targetLanguage = parts[parts.length - 1];
+
+      if (!targetLanguage || targetLanguage === parts[parts.length - 2]) {
+        return sourceLanguage;
+      }
+
+      return targetLanguage;
+    };
+
+    window.updateGoogleTranslateToggleState = function () {
+      var currentLanguage = window.getGoogleTranslateLanguage();
+      var buttons = document.querySelectorAll('.translate-toggle-button');
+
+      buttons.forEach(function (button) {
+        var isActive = button.dataset.lang === currentLanguage;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+    };
+
+    window.setGoogleTranslateLanguage = function (language) {
+      var sourceLanguage = window.googleTranslateConfig.pageLanguage;
+      var cookieValue = '/'+ sourceLanguage + '/' + language;
+
+      document.cookie = 'googtrans=' + encodeURIComponent(cookieValue) + ';path=/;max-age=31536000';
+      window.updateGoogleTranslateToggleState();
+      window.location.reload();
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      window.updateGoogleTranslateToggleState();
+    });
+
     window.googleTranslateElementInit = function () {
       new google.translate.TranslateElement(
         {
-          pageLanguage: "{{ site.google_translate.page_language | default: site.lang | default: 'en' }}",
-          includedLanguages: "{{ site.google_translate.included_languages | default: 'en,zh-CN' }}",
+          pageLanguage: window.googleTranslateConfig.pageLanguage,
+          includedLanguages: window.googleTranslateConfig.includedLanguages,
           layout: google.translate.TranslateElement.InlineLayout.{{ site.google_translate.layout | default: 'SIMPLE' }},
           autoDisplay: false
         },
         "google_translate_element"
       );
+
+      window.updateGoogleTranslateToggleState();
     };
   </script>
   <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
