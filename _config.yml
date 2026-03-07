@@ -61,6 +61,11 @@ search_enabled: true
 socials_in_search: true
 posts_in_search: true
 bib_search: true
+google_translate:
+  enabled: true
+  page_language: zh-CN
+  included_languages: en,zh-CN
+  layout: SIMPLE
 
 # Dimensions
 max_width: 930px

@@ -313,6 +313,24 @@
   </script>
 {% endif %}
 
+{% if site.google_translate and site.google_translate.enabled %}
+  <!-- Google Translate -->
+  <script>
+    window.googleTranslateElementInit = function () {
+      new google.translate.TranslateElement(
+        {
+          pageLanguage: "{{ site.google_translate.page_language | default: site.lang | default: 'en' }}",
+          includedLanguages: "{{ site.google_translate.included_languages | default: 'en,zh-CN' }}",
+          layout: google.translate.TranslateElement.InlineLayout.{{ site.google_translate.layout | default: 'SIMPLE' }},
+          autoDisplay: false
+        },
+        "google_translate_element"
+      );
+    };
+  </script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+{% endif %}
+
 {% if site.search_enabled %}
   <!-- Search -->
   <script type="module" src="{{ '/assets/js/search/ninja-keys.min.js' | relative_url | bust_file_cache }}"></script>
