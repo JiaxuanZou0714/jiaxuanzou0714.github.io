@@ -16,7 +16,7 @@ toc:
 由于归一化特征满足 $\lVert z \rVert_2 = \sqrt{n}$，跨宽度对齐时无需再关心特征模长本身，$z$ 的分量已经满足 $\lvert z_i \rvert = \Theta(1)$，只需保证：
 > 保证归一化特征 $z$ 的演化速率 $\lvert \left(\frac{dz}{dt}\right)_i \rvert = \Theta(1)$ 始终维持在稳定量级。
 
-下文先说明标准优化器的问题，再推导 Wen et al. [[1]](https://tinyurl.com/muonh) 提出的 Hyperball 系列优化器的缩放规律。
+下文先说明标准优化器的问题，再推导 Wen et al. [[1]](https://tinyurl.com/muonh) 提出的 Hyperball 系列优化器的缩放规律。如果你还没看过这条几何路线的前一篇，可以先读 [《球面之上：从球面动力学到 μP》]({% post_url 2026-03-04-spherical-dynamics-mup %})；那篇文章先在没有 Hyperball 约束的情况下，建立了 RMSNorm 架构中球面动力学与 $\mu$P 学习率缩放之间的基本对应关系。
 
 ## 1. 基础设定与连续时间球面映射
 
@@ -246,6 +246,8 @@ $$
 
 ### 4.2 AdamH 的对齐推导
 
+这里对 AdamH 与后文 MuonH 共同使用的 $\lVert u_t \rVert_F = \Theta(n)$ 假设，只保留结果本身。更细的 Frobenius 范数估计可参见 [《Adam 与 Muon 优化器更新矩阵的 Frobenius 范数估计》]({% post_url 2026-03-08-optimizer-update-matrix-norm %})，那篇文章专门把这一步单独展开说明。
+
 提取梯度的符号矩阵后，更新矩阵 $u_t$ 含有 $n^2$ 个绝对值为 $1$ 的元素，因此其范数为：
 
 $$
@@ -297,7 +299,7 @@ $$
 
 ## 6. 结语
 
-传统优化依赖内生权重范数去寻找自然平衡点，但这一机制深度耦合了网络宽度、调度策略和模型架构，因此在模型规模变化时无法保证球面角速度的跨尺度一致性。Hyperball 通过超球面上的几何投影约束消除了这种内生依赖，使雅可比前置系数化简为标量常数。推导表明，只有把 $\lvert \left(\frac{dz}{dt}\right)_i \rvert = \Theta(1)$ 作为统一对齐基准，并切断内生权重范数与超参数之间的耦合，优化器超参数的缩放规律才能被清楚刻画。
+传统优化依赖内生权重范数去寻找自然平衡点，但这一机制深度耦合了网络宽度、调度策略和模型架构，因此在模型规模变化时无法保证球面角速度的跨尺度一致性。Hyperball 通过超球面上的几何投影约束消除了这种内生依赖，使雅可比前置系数化简为标量常数。推导表明，只有把 $\lvert \left(\frac{dz}{dt}\right)_i \rvert = \Theta(1)$ 作为统一对齐基准，并切断内生权重范数与超参数之间的耦合，优化器超参数的缩放规律才能被清楚刻画。若想继续补齐本文里 AdamH / MuonH 使用的更新矩阵范数假设，可以继续读 [《Adam 与 Muon 优化器更新矩阵的 Frobenius 范数估计》]({% post_url 2026-03-08-optimizer-update-matrix-norm %})。
 
 ## 参考文献
 

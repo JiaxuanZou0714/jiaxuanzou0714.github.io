@@ -12,7 +12,7 @@ toc:
 ---
 
 
-本文对 Tensor Programs 导出的极大更新参数化（$\mu$P）的核心理论推导进行系统性梳理。Tensor Programs 理论在推导神经网络缩放法则时，其最基础且最核心的洞察在于：必须根据权重张量生成机制的不同，严格区分并应用大数定律（LLN）与中心极限定理（CLT）。
+本文对 Tensor Programs 导出的极大更新参数化（$\mu$P）的核心理论推导进行系统性梳理。Tensor Programs 理论在推导神经网络缩放法则时，其最基础且最核心的洞察在于：必须根据权重张量生成机制的不同，严格区分并应用大数定律（LLN）与中心极限定理（CLT）。如果你还没看过这个系列的起点，可以先读 [《Tensor Programs (一)：从Feature Learning 的谱条件到 μP》]({% post_url 2026-02-14-spectral-condition-feature-learning %})；那一篇从谱条件出发解释了为什么需要 $\mu$P，而本文则进一步把初始化与学习率的缩放规律拆开讲清楚。
 
 ## 1. 概率论基础与核心统计定理
 
@@ -147,6 +147,7 @@ $$
 | 输入层初始化 | $W \in \mathbb{R}^{n \times d}$ | 常数维度 $d$ 内的有限求和 | 无 (常数级操作) | $\Theta(1)$ | 权重方差设为 $\Theta(1)$ |
 | 输入层更新 | $\Delta W \in \mathbb{R}^{n \times d}$ | 常数维度 $d$ 内的有限求和 | 无 (常数级操作) | $\Theta(1)$ | 学习率设为 $\Theta(1)$ |
 {: .table .table-striped .table-sm style="font-size: 0.8em;"}
+如果把本文看作 Tensor Programs 路线下的概率论版本，那么与之对应的几何版本可以参考 [《球面之上：从球面动力学到 μP》]({% post_url 2026-03-04-spherical-dynamics-mup %})。那篇文章绕开 LLN / CLT 的形式化推导，直接从 RMSNorm 下的球面动力学出发，得到同样的学习率缩放结论；而在此基础上进一步加入优化器与范数约束，则可继续看 [《球面之上：带有 Hyperball 机制的优化器的 μP 缩放》]({% post_url 2026-03-06-spherical-hyperball %})。
 
 ## 引用
 
