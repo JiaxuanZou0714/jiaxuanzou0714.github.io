@@ -11,9 +11,9 @@ toc:
   sidebar: left
 ---
 
-在现代神经网络训练中，跨模型规模迁移超参数始终是核心问题。对含归一化的架构而言，关键不再是参数本身，而是特征在超球面上的演化 [[2]](https://arxiv.org/abs/2006.08419)。
+在现代神经网络训练中，跨模型规模迁移超参数始终是核心问题。对含归一化（如rmsnorm）的架构而言，关键不再是参数本身，而是特征在超球面上的演化 [[2]](https://arxiv.org/abs/2006.08419)。
 
-由于归一化特征满足 $\lVert z \rVert_2 = \sqrt{n}$，跨宽度对齐时无需再关心特征模长本身，只需保证：
+由于归一化特征满足 $\lVert z \rVert_2 = \sqrt{n}$，跨宽度对齐时无需再关心特征模长本身，$z$ 的分量已经满足 $\lvert z_i \rvert = \Theta(1)$，只需保证：
 > 保证归一化特征 $z$ 的演化速率 $\lvert \left(\frac{dz}{dt}\right)_i \rvert = \Theta(1)$ 始终维持在稳定量级。
 
 下文先说明标准优化器的问题，再推导 Wen et al. [[1]](https://tinyurl.com/muonh) 提出的 Hyperball 系列优化器的缩放规律。
