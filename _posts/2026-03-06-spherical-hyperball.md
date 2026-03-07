@@ -66,7 +66,7 @@ $$
 \eta = \frac{\Theta(\lVert W_t \rVert_F)}{\sqrt{n} \lvert (P_y (U_t x))_i \rvert}
 $$
 
-## 2. 标准优化器的内生半径依赖与动力学平衡困境
+## 2. 标准优化器的内生半径依赖与动力学平衡困境 [[2]](https://arxiv.org/abs/2006.08419)
 
 由上式可见，真正决定特征球面角速度的不是基础学习率 $\eta$，而是有效球面步长 $\eta_{\mathrm{eff}}^{(i)}(t)$：
 
