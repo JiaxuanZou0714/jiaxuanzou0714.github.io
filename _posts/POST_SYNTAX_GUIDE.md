@@ -154,8 +154,8 @@ redirect: /assets/pdf/example.pdf # 重定向到其他页面或文件
 **图片滑块 (Swiper)：**
 ```html
 <swiper-container keyboard="true" navigation="true" pagination="true">
-  <swiper-slide>{% include figure.liquid path="assets/img/1.jpg" class="img-fluid" %}</swiper-slide>
-  <swiper-slide>{% include figure.liquid path="assets/img/2.jpg" class="img-fluid" %}</swiper-slide>
+  <swiper-slide>{% include figure.liquid path="assets/img/headshot.png" class="img-fluid" %}</swiper-slide>
+  <swiper-slide>{% include figure.liquid path="assets/img/prof_pic_color.png" class="img-fluid" %}</swiper-slide>
 </swiper-container>
 ```
 
