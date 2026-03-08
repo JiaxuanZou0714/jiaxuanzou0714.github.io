@@ -1,6 +1,8 @@
 ---
 layout: about
 title: About
+description: Jiaxuan Zou's academic homepage, with research notes and publications on mechanistic interpretability, deep learning theory, optimization, and scaling laws.
+keywords: academic homepage, mechanistic interpretability, deep learning theory, optimization, scaling laws
 permalink: /
 subtitle: Undergraduate Student @ XJTU | Research Intern @ GSAI, RUC
 
@@ -23,7 +25,7 @@ announcements:
 latest_posts:
   enabled: true
   scrollable: true # adds a vertical scroll bar if there are more than 3 new posts items
-  limit: 3 # leave blank to include all the blog posts
+  limit: 5 # leave blank to include all the blog posts
 ---
 
 Hi, I am **Jiaxuan Zou (邹嘉轩)**.
