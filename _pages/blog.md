@@ -2,6 +2,8 @@
 layout: default
 permalink: /blog/
 title: Blog
+description: Notes on mechanistic interpretability, deep learning theory, optimization, and scaling laws by Jiaxuan Zou.
+keywords: mechanistic interpretability, deep learning theory, optimization, scaling laws, muP, tensor programs
 nav: true
 nav_order: 1
 pagination:
@@ -27,7 +29,11 @@ pagination:
     <h1>{{ site.blog_name }}</h1>
     <h2>{{ site.blog_description }}</h2>
   </div>
-  {% endif %}
+  <p>
+    This page collects my long-form notes on mechanistic interpretability, deep learning theory, optimization, and scaling laws.
+    If you are new here, start from the latest posts below.
+  </p>
+{% endif %}
 
 {% if site.display_tags and site.display_tags.size > 0 or site.display_categories and site.display_categories.size > 0 %}
 
