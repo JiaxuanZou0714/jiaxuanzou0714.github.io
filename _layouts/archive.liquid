@@ -24,6 +24,12 @@ layout: default
             <td>
               {% if document.redirect == blank %}
                 <a class="post-link" href="{{ document.url | relative_url }}">{{ document.title }}</a>
+                {% if site.enable_goatcounter_analytics %}
+                  <div class="archive-views post-views" data-goatcounter-path="{{ document.url | relative_url | replace:'index.html','' }}">
+                    <i class="fa-regular fa-eye"></i>
+                    <span class="goatcounter-count">--</span> views
+                  </div>
+                {% endif %}
               {% elsif document.redirect contains '://' %}
                 <a class="post-link" href="{{ document.redirect }}" target="_blank">{{ document.title }}</a>
               {% else %}

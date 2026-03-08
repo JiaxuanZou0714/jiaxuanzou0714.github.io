@@ -22,6 +22,12 @@ layout: default
       {% assign last_date = page.last_modified_at | default: page.last_updated %}
       {% if last_date %}, last updated on {{ last_date | date: '%B %d, %Y' }}{% endif %}
       {% if page.meta %}• {{ page.meta }}{% endif %}
+      {% if site.enable_goatcounter_analytics %}
+        <span class="post-views" data-goatcounter-path="{{ page.url | relative_url | replace:'index.html','' }}">
+          &nbsp; &middot; &nbsp;<i class="fa-regular fa-eye"></i>
+          <span class="goatcounter-count">--</span> views
+        </span>
+      {% endif %}
     </p>
     <p class="post-tags">
       {% if url_beginning == '/blog/' %}

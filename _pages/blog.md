@@ -93,6 +93,13 @@ pagination:
                       {{ read_time }} min read &nbsp; &middot; &nbsp;
                       <a href="{{ year | prepend: '/blog/' | relative_url }}">
                         <i class="fa-solid fa-calendar fa-sm"></i> {{ year }} </a>
+                      {% if site.enable_goatcounter_analytics and post.redirect == blank %}
+                        &nbsp; &middot; &nbsp;
+                        <span class="post-views" data-goatcounter-path="{{ post.url | relative_url | replace:'index.html','' }}">
+                          <i class="fa-regular fa-eye"></i>
+                          <span class="goatcounter-count">--</span> views
+                        </span>
+                      {% endif %}
                     </p>
                   </div>
                 </div>
@@ -151,6 +158,13 @@ pagination:
         {{ post.date | date: '%B %d, %Y' }}
         {% if post.external_source %}
         &nbsp; &middot; &nbsp; {{ post.external_source }}
+        {% endif %}
+        {% if site.enable_goatcounter_analytics and post.redirect == blank %}
+        &nbsp; &middot; &nbsp;
+        <span class="post-views" data-goatcounter-path="{{ post.url | relative_url | replace:'index.html','' }}">
+          <i class="fa-regular fa-eye"></i>
+          <span class="goatcounter-count">--</span> views
+        </span>
         {% endif %}
       </p>
       <p class="post-tags">

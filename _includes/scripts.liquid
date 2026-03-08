@@ -230,6 +230,16 @@
   <script defer src="{{ '/assets/js/google-analytics-setup.js' | relative_url }}"></script>
 {% endif %}
 
+{% if site.enable_goatcounter_analytics %}
+  <!-- GoatCounter Analytics -->
+  <script
+    data-goatcounter="https://{{ site.goatcounter_analytics }}.goatcounter.com/count"
+    async
+    src="https://gc.zgo.at/count.js"
+  ></script>
+  <script defer src="{{ '/assets/js/goatcounter-analytics-setup.js' | relative_url | bust_file_cache }}"></script>
+{% endif %}
+
 {% if site.enable_cronitor_analytics %}
   <!-- Cronitor RUM -->
   <script async src="https://rum.cronitor.io/script.js"></script>

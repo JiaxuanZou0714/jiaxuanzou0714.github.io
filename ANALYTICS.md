@@ -32,6 +32,7 @@ Analytics help you understand your website visitors: where they come from, which
 Currently implemented in al-folio:
 
 - **Google Analytics** – Free, feature-rich, but collects user data
+- **GoatCounter** – Privacy-friendly analytics with embeddable per-page view counters
 - **Pirsch Analytics** – GDPR-compliant, free tier available, European servers
 - **Openpanel Analytics** – Open-source option, privacy-focused
 - **Cronitor** – Uptime monitoring with Real User Monitoring (RUM) analytics
@@ -71,6 +72,35 @@ Google Analytics is free and widely used. It provides detailed insights into vis
    - You should see your visit appear within a few seconds
 
 **Note:** Google Analytics takes 24-48 hours to start showing data trends.
+
+---
+
+## GoatCounter
+
+GoatCounter is a lightweight, privacy-friendly analytics service that works especially well for static blogs. It can both track pageviews and expose a public per-page counter, which makes it a good fit if you want to display reading counts directly on post pages and blog indexes.
+
+### Setup Steps
+
+1. **Create a GoatCounter account:**
+  - Visit [GoatCounter](https://www.goatcounter.com)
+  - Create a site and choose your code name
+  - Your hosted site URL will look like `https://YOURCODE.goatcounter.com`
+
+2. **Enable in your site:**
+  - Open `_config.yml`
+  - Set `enable_goatcounter_analytics: true`
+  - Add your site code: `goatcounter_analytics: YOURCODE`
+
+3. **Allow public counters in GoatCounter:**
+  - In GoatCounter settings, enable the visitor counter / public counter option
+  - This is required for the page-level reading counts shown on the blog to load
+
+4. **Verify it works:**
+  - Visit one of your blog posts
+  - Wait a few seconds and refresh once if needed
+  - The reading count should appear next to the post metadata and in the blog listing
+
+**Note:** Ad blockers may block GoatCounter scripts, so your own browser may not always count visits during testing.
 
 ---
 
@@ -171,6 +201,7 @@ If you're in the European Union or serve EU visitors, consider GDPR requirements
 | Service              | Free         | GDPR                | Setup  | Features         | Best for                   |
 | -------------------- | ------------ | ------------------- | ------ | ---------------- | -------------------------- |
 | **Google Analytics** | ✅           | ⚠️ Requires consent | Easy   | Detailed reports | Detailed tracking          |
+| **GoatCounter**      | ✅           | ✅                  | Easy   | Page counters    | Static blogs with view counts |
 | **Pirsch**           | ✅ Free tier | ✅                  | Easy   | Balanced         | GDPR compliance            |
 | **Openpanel**        | ✅           | ✅                  | Medium | Modern dashboard | Privacy-focused developers |
 | **Cronitor**         | Paid         | ⚠️ Requires consent | Easy   | Uptime + RUM     | Uptime monitoring          |

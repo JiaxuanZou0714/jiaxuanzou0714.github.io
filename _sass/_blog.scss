@@ -157,6 +157,24 @@
   }
 }
 
+.post-views {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+
+  .goatcounter-count {
+    min-width: 1.5rem;
+    display: inline-block;
+  }
+}
+
+.archive-views {
+  color: var(--global-text-color-light);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
 .featured-posts {
   a {
     color: var(--global-text-color-light);
