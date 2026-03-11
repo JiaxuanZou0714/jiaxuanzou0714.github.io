@@ -2,7 +2,7 @@
 layout: post
 title: "有限宽度下随机高斯矩阵谱范数的偏置与涨落"
 date: 2026-03-11 12:00:00
-description: "本文从 Wishart 随机矩阵理论出发，推导元素方差为 1/n 的高斯矩阵谱范数在有限宽度下的展开式，说明其不仅收敛到宏观极限 2，还带有 n^{-2/3} 级别的系统性偏置和 Tracy-Widom 型随机涨落。"
+description: "本文从 Wishart 随机矩阵理论出发，推导元素方差为 1/n 的高斯矩阵谱范数在有限宽度下的展开式，说明其不仅收敛到宏观极限 2，还带有 $n^{-2/3}$ 级别的偏置和 Tracy-Widom 型随机涨落。"
 tags: [random-matrix, spectral-norm, wishart, tracy-widom, finite-width]
 categories: [deep-learning]
 featured: false
