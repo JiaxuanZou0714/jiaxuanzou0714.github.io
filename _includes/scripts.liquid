@@ -196,31 +196,65 @@
 {% endif %}
 
 {% if site.enable_math %}
-  <!-- MathJax -->
-  <script
-    defer
-    type="text/javascript"
-    id="MathJax-script"
-    src="{{ site.third_party_libraries.mathjax.url.js }}"
-    integrity="{{ site.third_party_libraries.mathjax.integrity.js }}"
-    crossorigin="anonymous"
-  ></script>
-  {% unless page.pseudocode %}
-    <script src="{{ '/assets/js/mathjax-setup.js' | relative_url | bust_file_cache }}"></script>
+  {% assign should_load_math = false %}
+  {% if page.math != false %}
+    {% capture math_content %}
+      {{ page.title }}
+      {{ page.description }}
+      {{ page.content }}
+      {{ content }}
+      {% if paginator and paginator.posts %}
+        {% assign listed_posts = paginator.posts %}
+        {% for listed_post in listed_posts %}
+          {{ listed_post.title }}
+          {{ listed_post.description }}
+        {% endfor %}
+      {% elsif page.url == '/blog/' %}
+        {% assign listed_posts = site.posts %}
+        {% for listed_post in listed_posts %}
+          {{ listed_post.title }}
+          {{ listed_post.description }}
+        {% endfor %}
+      {% endif %}
+      {% if page.layout == 'archive' and page.documents %}
+        {% for document in page.documents %}
+          {{ document.title }}
+          {{ document.description }}
+        {% endfor %}
+      {% endif %}
+    {% endcapture %}
+    {% if page.math == true or math_content contains '$' or math_content contains '\(' or math_content contains '\[' %}
+      {% assign should_load_math = true %}
+    {% endif %}
+  {% endif %}
+
+  {% if should_load_math %}
+    <!-- MathJax -->
     <script
       defer
-      src="{{ site.third_party_libraries.polyfill.url.js }}"
-      crossorigin="anonymous"
-    ></script>
-  {% else %}
-    <script src="{{ '/assets/js/pseudocode-setup.js' | relative_url | bust_file_cache }}"></script>
-    <script
       type="text/javascript"
-      src="{{ site.third_party_libraries.pseudocode.url.js }}"
-      integrity="{{ site.third_party_libraries.pseudocode.integrity.js }}"
+      id="MathJax-script"
+      src="{{ site.third_party_libraries.mathjax.url.js }}"
+      integrity="{{ site.third_party_libraries.mathjax.integrity.js }}"
       crossorigin="anonymous"
     ></script>
-  {% endunless %}
+    {% unless page.pseudocode %}
+      <script src="{{ '/assets/js/mathjax-setup.js' | relative_url | bust_file_cache }}"></script>
+      <script
+        defer
+        src="{{ site.third_party_libraries.polyfill.url.js }}"
+        crossorigin="anonymous"
+      ></script>
+    {% else %}
+      <script src="{{ '/assets/js/pseudocode-setup.js' | relative_url | bust_file_cache }}"></script>
+      <script
+        type="text/javascript"
+        src="{{ site.third_party_libraries.pseudocode.url.js }}"
+        integrity="{{ site.third_party_libraries.pseudocode.integrity.js }}"
+        crossorigin="anonymous"
+      ></script>
+    {% endunless %}
+  {% endif %}
 {% endif %}
 
 {% if site.enable_google_analytics %}

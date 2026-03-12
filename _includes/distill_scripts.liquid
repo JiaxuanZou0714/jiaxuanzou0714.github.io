@@ -171,22 +171,37 @@
 <!-- Removed Badges -->
 
 {% if site.enable_math %}
-  <!-- MathJax -->
-  <script
-    defer
-    type="text/javascript"
-    id="MathJax-script"
-    src="{{ site.third_party_libraries.mathjax.url.js }}"
-    integrity="{{ site.third_party_libraries.mathjax.integrity.js }}"
-    crossorigin="anonymous"
-  ></script>
-  <script src="{{ '/assets/js/mathjax-setup.js' | relative_url | bust_file_cache }}"></script>
-  <script
-    defer
-    src="{{ site.third_party_libraries.polyfill.url.js }}"
-    crossorigin="anonymous"
-  ></script>
-  <!-- Removed Pseudocode -->
+  {% assign should_load_math = false %}
+  {% if page.math != false %}
+    {% capture math_content %}
+      {{ page.title }}
+      {{ page.description }}
+      {{ page.content }}
+      {{ content }}
+    {% endcapture %}
+    {% if page.math == true or math_content contains '$' or math_content contains '\(' or math_content contains '\[' %}
+      {% assign should_load_math = true %}
+    {% endif %}
+  {% endif %}
+
+  {% if should_load_math %}
+    <!-- MathJax -->
+    <script
+      defer
+      type="text/javascript"
+      id="MathJax-script"
+      src="{{ site.third_party_libraries.mathjax.url.js }}"
+      integrity="{{ site.third_party_libraries.mathjax.integrity.js }}"
+      crossorigin="anonymous"
+    ></script>
+    <script src="{{ '/assets/js/mathjax-setup.js' | relative_url | bust_file_cache }}"></script>
+    <script
+      defer
+      src="{{ site.third_party_libraries.polyfill.url.js }}"
+      crossorigin="anonymous"
+    ></script>
+    <!-- Removed Pseudocode -->
+  {% endif %}
 {% endif %}
 
 {% if site.enable_google_analytics %}
