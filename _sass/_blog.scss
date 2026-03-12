@@ -34,6 +34,9 @@
 }
 
 .post-title {
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+
   mjx-container[jax="CHTML"][display="true"] {
     display: unset;
   }
@@ -138,6 +141,7 @@
     color: var(--global-text-color-light);
     font-size: 0.875rem;
     margin-bottom: 0;
+    overflow-wrap: anywhere;
   }
 
   .post-tags {
@@ -145,6 +149,7 @@
     font-size: 0.875rem;
     padding-top: 0.25rem;
     padding-bottom: 1rem;
+    overflow-wrap: anywhere;
 
     a {
       color: var(--global-text-color-light);
@@ -154,6 +159,101 @@
         color: var(--global-theme-color);
       }
     }
+  }
+}
+
+.post-header,
+.post-content,
+#markdown-content,
+#table-of-contents,
+#toc-sidebar {
+  min-width: 0;
+}
+
+.post-header {
+  margin-bottom: 2rem;
+}
+
+.post-meta + .post-tags {
+  margin-top: 0.5rem;
+}
+
+.post-title,
+.post-description,
+#table-of-contents,
+#toc-sidebar,
+#markdown-content h1,
+#markdown-content h2,
+#markdown-content h3,
+#markdown-content h4,
+#markdown-content h5,
+#markdown-content h6,
+#markdown-content p,
+#markdown-content li,
+#markdown-content blockquote,
+#markdown-content figcaption,
+#markdown-content .caption,
+#markdown-content a,
+#markdown-content td,
+#markdown-content th {
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+#markdown-content :not(pre) > code,
+#markdown-content kbd,
+#markdown-content samp {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+#markdown-content pre,
+#markdown-content .highlight,
+#markdown-content .highlight pre,
+#markdown-content table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+#markdown-content pre,
+#markdown-content .highlight pre {
+  white-space: pre;
+}
+
+#markdown-content table {
+  display: block;
+  -webkit-overflow-scrolling: touch;
+}
+
+#markdown-content img,
+#markdown-content svg,
+#markdown-content video,
+#markdown-content iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+#table-of-contents {
+  margin-bottom: 1.5rem;
+}
+
+#toc-sidebar {
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+}
+
+#toc-sidebar.sticky-top {
+  top: 5rem;
+  padding-bottom: 1rem;
+}
+
+@media (max-width: 575.98px) {
+  .post-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .post-title {
+    margin-bottom: 0.5rem;
   }
 }
 

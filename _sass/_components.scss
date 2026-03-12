@@ -38,18 +38,22 @@ ul.task-list input[type="checkbox"] {
 
 .card {
   background-color: var(--global-card-bg-color);
+  min-width: 0;
 
   .card-img {
     width: 100%;
     padding-top: 1.25rem;
   }
 
-  .card-title {
+  .card-title,
+  .card-text {
     color: var(--global-text-color);
+    overflow-wrap: anywhere;
   }
 
   .card-body {
     padding: 1.25rem 1.25rem 1.25rem 1.25rem;
+    min-width: 0;
   }
 }
 
@@ -62,6 +66,7 @@ ul.task-list input[type="checkbox"] {
     margin-bottom: 5px;
     margin-top: 5px;
     font-family: monospace;
+    overflow-wrap: anywhere;
 
     p {
       display: inline-block;
@@ -115,6 +120,16 @@ ul.task-list input[type="checkbox"] {
   background-color: transparent;
   border: none;
   color: var(--global-text-color);
+}
+
+.table-cv,
+.table-cv td,
+.table-cv th,
+.repo,
+.projects .card,
+.projects .card .card-body {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .date-column {

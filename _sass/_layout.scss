@@ -33,6 +33,13 @@ body.sticky-bottom-footer {
   max-width: v.$max-content-width;
 }
 
+.container,
+.container-fluid,
+.row,
+[class*="col-"] {
+  min-width: 0;
+}
+
 // Profile
 .profile {
   img {

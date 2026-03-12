@@ -446,6 +446,7 @@ nav[data-toggle="toc"] {
 
 #toc-sidebar {
   z-index: 1;
+  scrollbar-gutter: stable;
 }
 
 .echarts {

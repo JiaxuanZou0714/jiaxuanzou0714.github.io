@@ -19,6 +19,16 @@ layout: default
       <div class="profile float-{% if page.profile.align == 'left' %}left{% else %}right{% endif %}">
         {% if page.profile.image %}
           {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
+          {% capture profile_image_alt %}
+            {% if page.profile.alt %}
+              {{ page.profile.alt }}
+            {% elsif site.title == 'blank' %}
+              {{ site.first_name }} {{ site.middle_name }} {{ site.last_name }}
+            {% else %}
+              {{ site.title }}
+            {% endif %}
+          {% endcapture %}
+          {% assign profile_image_alt = profile_image_alt | strip %}
           {% if page.profile.image_circular %}
             {% assign profile_image_class = 'img-fluid z-depth-1 rounded-circle' %}
           {% else %}
@@ -28,7 +38,7 @@ layout: default
           {% capture sizes %}(min-width: {{ site.max_width }}) {{ site.max_width | minus: 30 | times: 0.3}}px, (min-width: 576px)
       30vw, 95vw"{% endcapture %}
           {%
-            include figure.liquid loading="eager" path=profile_image_path class=profile_image_class sizes=sizes alt=page.profile.image
+            include figure.liquid loading="eager" decoding="async" fetchpriority="high" path=profile_image_path class=profile_image_class sizes=sizes alt=profile_image_alt
             cache_bust=true
           %}
         {% endif %}

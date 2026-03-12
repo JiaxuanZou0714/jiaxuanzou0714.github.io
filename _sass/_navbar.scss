@@ -9,6 +9,11 @@
   border-bottom: 1px solid var(--global-divider-color);
   background-color: var(--global-bg-color);
   opacity: 0.95;
+
+  .container {
+    gap: 0.75rem;
+    min-width: 0;
+  }
 }
 
 .navbar .dropdown-menu,
@@ -31,6 +36,9 @@
 
 .dropdown-item {
   color: var(--global-text-color);
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
 
   &:hover {
     color: var(--global-hover-color);
@@ -53,14 +61,24 @@
     &:hover {
       text-decoration: none;
     }
+
+    &:focus-visible {
+      outline: 2px solid var(--global-theme-color);
+      outline-offset: 3px;
+      border-radius: 0.35rem;
+    }
   }
 
   .navbar-brand {
     color: var(--global-text-color);
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .navbar-nav .nav-item .nav-link {
     color: var(--global-text-color);
+    white-space: normal;
+    overflow-wrap: anywhere;
 
     &:hover {
       color: var(--global-hover-color);
@@ -113,6 +131,46 @@
       }
     }
   }
+}
+
+.navbar-collapse {
+  min-width: 0;
+}
+
+.navbar-nav {
+  min-width: 0;
+  row-gap: 0.25rem;
+}
+
+.navbar-nav .nav-item,
+.navbar-nav .nav-link,
+.nav-translate,
+.translate-toggle {
+  min-width: 0;
+}
+
+.navbar-nav .nav-link,
+.dropdown-item,
+#search-toggle,
+#light-toggle,
+.translate-toggle button,
+.navbar-toggler {
+  transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--global-theme-color);
+    outline-offset: 3px;
+    border-radius: 0.35rem;
+  }
+}
+
+.navbar-nav .nav-link,
+.dropdown-item {
+  padding-inline: 0.45rem;
+}
+
+.navbar-toggler {
+  border-color: transparent;
 }
 
 .navbar-toggler {
@@ -183,8 +241,34 @@
   border: 0;
   background-color: inherit;
   color: var(--global-text-color);
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
 
   &:hover {
     color: var(--global-hover-color);
+  }
+}
+
+#search-toggle .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.translate-toggle button {
+  min-height: 2rem;
+}
+
+@media (max-width: 575.98px) {
+  .navbar-collapse {
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+  }
+
+  .navbar-nav .nav-link,
+  .dropdown-item {
+    padding-inline: 0;
   }
 }
