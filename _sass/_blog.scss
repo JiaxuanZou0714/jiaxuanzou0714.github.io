@@ -10,7 +10,10 @@
 
   h1 {
     color: var(--global-theme-color);
-    font-size: 5rem;
+    font-size: var(--text-4xl);
+    font-family: var(--font-serif);
+    font-weight: 700;
+    letter-spacing: -0.03em;
   }
 }
 
@@ -42,42 +45,46 @@
   }
 }
 
-// Reduce post body font size for better information density
+// Post body with refined type scale for dense academic content
 .post {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
+  line-height: 1.75;
 
   h1 {
-    font-size: 2.2rem;
+    font-size: var(--text-3xl);
+    margin-top: 2em;
   }
 
   h2 {
-    font-size: 1.75rem;
+    font-size: var(--text-2xl);
+    margin-top: 1.75em;
   }
 
   h3 {
-    font-size: 1.5rem;
+    font-size: var(--text-xl);
+    margin-top: 1.5em;
   }
 
   h4 {
-    font-size: 1.3rem;
+    font-size: var(--text-lg);
   }
 
   h5 {
-    font-size: 1.1rem;
+    font-size: var(--text-lg);
   }
 
   h6 {
-    font-size: 0.875rem;
+    font-size: var(--text-base);
   }
 
   blockquote {
-    font-size: 1rem;
+    font-size: var(--text-base);
   }
 }
 
 .post-list {
   margin: 0;
-  margin-bottom: 40px;
+  margin-bottom: 2.5rem;
   padding: 0;
 
   li {
@@ -88,13 +95,13 @@
 
     .post-meta {
       color: var(--global-text-color-light);
-      font-size: 0.875rem;
+      font-size: var(--text-sm);
       margin-bottom: 0;
     }
 
     .post-tags {
       color: var(--global-text-color-light);
-      font-size: 0.875rem;
+      font-size: var(--text-sm);
       padding-top: 0.25rem;
       padding-bottom: 0;
     }
@@ -119,14 +126,15 @@
     .page-link {
       color: var(--global-text-color);
       padding: 0.75rem 1.15rem;
+      transition: color 0.15s ease;
 
       &:hover {
-        color: #000;
+        color: var(--global-text-color);
       }
     }
 
     &.active .page-link {
-      color: #fff;
+      color: var(--global-hover-text-color);
       background-color: var(--global-theme-color);
 
       &:hover {
@@ -139,14 +147,14 @@
 .post {
   .post-meta {
     color: var(--global-text-color-light);
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     margin-bottom: 0;
     overflow-wrap: anywhere;
   }
 
   .post-tags {
     color: var(--global-text-color-light);
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     padding-top: 0.25rem;
     padding-bottom: 1rem;
     overflow-wrap: anywhere;
@@ -271,7 +279,7 @@
 
 .archive-views {
   color: var(--global-text-color-light);
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   margin-top: 0.25rem;
 }
 
@@ -297,7 +305,7 @@
 
   .post-meta {
     color: var(--global-text-color-light);
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     margin-bottom: 0;
     padding-top: 0.5rem;
   }
@@ -305,7 +313,7 @@
 
 .post-description {
   margin-bottom: 2rem;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 
   a {
     color: inherit;

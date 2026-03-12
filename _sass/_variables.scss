@@ -29,13 +29,31 @@ $grey-color-light: color.adjust($grey-color, $lightness: 40%);
 $grey-color-dark: #1c1c1d;
 $grey-900: #212529;
 
-$white-color: #ffffff !default;
-$black-color: #000000 !default;
+$white-color: #faf9f7 !default;
+$black-color: #1a1a1e !default;
 
 // Theme colors
 
 $code-bg-color-light: rgba($purple-color, 0.05);
 $code-bg-color-dark: #2c3237 !default;
+
+// Typography
+$font-family-serif: "Newsreader", Georgia, "Songti SC", "SimSun", serif !default;
+$font-family-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+  "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif !default;
+$font-family-mono: "SFMono-Regular", "Cascadia Code", "Fira Code", Menlo,
+  Consolas, monospace !default;
+
+// Fluid type scale (Major Third — 1.25)
+$text-xs: clamp(0.7rem, 0.65rem + 0.25vw, 0.75rem) !default;
+$text-sm: clamp(0.8rem, 0.76rem + 0.2vw, 0.875rem) !default;
+$text-base: clamp(0.9rem, 0.87rem + 0.15vw, 1rem) !default;
+$text-lg: clamp(1.05rem, 0.97rem + 0.4vw, 1.25rem) !default;
+$text-xl: clamp(1.25rem, 1.12rem + 0.65vw, 1.5rem) !default;
+$text-2xl: clamp(1.45rem, 1.25rem + 1vw, 1.875rem) !default;
+$text-3xl: clamp(1.75rem, 1.45rem + 1.5vw, 2.25rem) !default;
+$text-4xl: clamp(2.1rem, 1.7rem + 2vw, 3rem) !default;
+$text-5xl: clamp(2.6rem, 1.9rem + 3vw, 4rem) !default;
 
 // Font awesome location
 $fa-font-path: "../webfonts";

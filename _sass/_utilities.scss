@@ -181,12 +181,13 @@ nav[data-toggle="toc"] {
   top: 5rem;
 
   .nav .nav > li > a {
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
   }
 
   .nav > li > a {
     color: var(--global-text-color);
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
+    transition: color 0.15s ease;
 
     &:hover {
       color: var(--global-hover-color);
@@ -197,7 +198,7 @@ nav[data-toggle="toc"] {
   .nav-link.active {
     color: var(--global-theme-color);
     border-left-color: var(--global-theme-color);
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
 
     &:hover {
       color: var(--global-hover-color);
@@ -506,7 +507,7 @@ figure.cover {
   }
 
   figcaption.abandoned {
-    font-family: monospace;
+    font-family: var(--font-mono);
     color: #23212d;
     text-transform: uppercase;
     background-color: #ee5f5b;
@@ -514,28 +515,28 @@ figure.cover {
 
   figcaption.finished,
   figcaption.watched {
-    font-family: monospace;
+    font-family: var(--font-mono);
     color: #23212d;
     text-transform: uppercase;
     background-color: #62c462;
   }
 
   figcaption.interested {
-    font-family: monospace;
+    font-family: var(--font-mono);
     color: #23212d;
     text-transform: uppercase;
     background-color: #7691db;
   }
 
   figcaption.paused {
-    font-family: monospace;
+    font-family: var(--font-mono);
     color: #23212d;
     text-transform: uppercase;
     background-color: #bdac7e;
   }
 
   figcaption.queued {
-    font-family: monospace;
+    font-family: var(--font-mono);
     color: #23212d;
     text-transform: uppercase;
     background-color: #9e76b5;
@@ -543,7 +544,7 @@ figure.cover {
 
   figcaption.reading,
   figcaption.watching {
-    font-family: monospace;
+    font-family: var(--font-mono);
     color: #23212d;
     text-transform: uppercase;
     background-color: #f89406;
@@ -551,14 +552,14 @@ figure.cover {
 
   figcaption.reread,
   figcaption.rewatch {
-    font-family: monospace;
+    font-family: var(--font-mono);
     color: #23212d;
     text-transform: uppercase;
     background-color: #a6517d;
   }
 
   figcaption.uncategorized {
-    font-family: monospace;
+    font-family: var(--font-mono);
     color: #23212d;
     text-transform: uppercase;
     background-color: #b0abb3;

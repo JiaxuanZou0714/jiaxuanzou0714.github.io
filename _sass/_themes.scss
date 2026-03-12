@@ -19,6 +19,20 @@
   --global-distill-app-color: #{v.$grey-color};
   --global-divider-color: rgba(0, 0, 0, 0.1);
   --global-card-bg-color: #{v.$white-color};
+
+  // Typography tokens
+  --font-serif: #{v.$font-family-serif};
+  --font-sans: #{v.$font-family-sans};
+  --font-mono: #{v.$font-family-mono};
+  --text-xs: #{v.$text-xs};
+  --text-sm: #{v.$text-sm};
+  --text-base: #{v.$text-base};
+  --text-lg: #{v.$text-lg};
+  --text-xl: #{v.$text-xl};
+  --text-2xl: #{v.$text-2xl};
+  --text-3xl: #{v.$text-3xl};
+  --text-4xl: #{v.$text-4xl};
+  --text-5xl: #{v.$text-5xl};
   --global-highlight-color: #{v.$red-color-dark};
   --global-back-to-top-bg-color: rgba(
     #{color.channel(v.$black-color, "red", v.$space: rgb)},

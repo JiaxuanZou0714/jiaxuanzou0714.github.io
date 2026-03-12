@@ -9,7 +9,8 @@
 
   h1 {
     color: var(--global-theme-color);
-    font-size: 2rem;
+    font-size: var(--text-3xl);
+    font-family: var(--font-serif);
     text-align: center;
     margin-top: 1em;
     margin-bottom: 1em;
@@ -19,7 +20,7 @@
     margin-bottom: 1rem;
 
     span {
-      font-size: 1.5rem;
+      font-size: var(--text-xl);
     }
   }
 
@@ -107,6 +108,7 @@
           padding-top: 0.25rem;
           padding-bottom: 0.25rem;
           margin-left: 0;
+          transition: color 0.15s ease, border-color 0.15s ease;
 
           &:hover {
             color: var(--global-theme-color);
@@ -138,11 +140,7 @@
         max-height: 0px;
         overflow: hidden;
         text-align: justify;
-        transition-property: 0.15s ease;
-        -moz-transition: 0.15s ease;
-        -ms-transition: 0.15s ease;
-        -o-transition: 0.15s ease;
-        transition: all 0.15s ease;
+        transition: max-height 0.25s ease;
 
         p {
           line-height: 1.4em;
@@ -158,11 +156,7 @@
 
       .hidden.open {
         max-height: 100em;
-        transition-property: 0.15s ease;
-        -moz-transition: 0.15s ease;
-        -ms-transition: 0.15s ease;
-        -o-transition: 0.15s ease;
-        transition: all 0.15s ease;
+        transition: max-height 0.35s ease;
       }
 
       div.abstract.hidden {

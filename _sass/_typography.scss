@@ -4,6 +4,19 @@
 
 @use "variables" as v;
 
+// ── Base ────────────────────────────────────────────────────────────────────
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 p,
 h1,
 h2,
@@ -19,25 +32,67 @@ strong {
   color: var(--global-text-color);
 }
 
-hr {
-  border-top: 1px solid var(--global-divider-color);
+// ── Headings ────────────────────────────────────────────────────────────────
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
 }
 
-table {
-  td,
-  th {
-    font-size: 1rem;
-    padding: 1px 1rem 1px 0;
-  }
-
-  th {
-    font-weight: bold;
-  }
+h1 {
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
+
+h2 {
+  font-size: var(--text-3xl);
+}
+
+h3 {
+  font-size: var(--text-2xl);
+}
+
+h4 {
+  font-size: var(--text-xl);
+}
+
+h5 {
+  font-size: var(--text-lg);
+}
+
+h6 {
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+// ── Body text ───────────────────────────────────────────────────────────────
+
+p {
+  margin-bottom: 1.25em;
+  max-width: 72ch;
+}
+
+// ── Links ───────────────────────────────────────────────────────────────────
 
 a,
 table.table a {
   color: var(--global-theme-color);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+  text-decoration: none;
+  transition: color 0.15s ease;
 
   &:hover {
     color: var(--global-theme-color);
@@ -49,6 +104,33 @@ table.table a {
   }
 }
 
+// ── Horizontal rule ─────────────────────────────────────────────────────────
+
+hr {
+  border-top: 1px solid var(--global-divider-color);
+}
+
+// ── Tables ──────────────────────────────────────────────────────────────────
+
+table {
+  td,
+  th {
+    font-size: var(--text-sm);
+    padding: 0.25rem 1rem 0.25rem 0;
+  }
+
+  th {
+    font-weight: 600;
+    font-family: var(--font-sans);
+    letter-spacing: 0.01em;
+  }
+
+  // Align numbers in data columns
+  td {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
 .table-dark {
   background-color: transparent;
   &.table-bordered {
@@ -56,12 +138,16 @@ table.table a {
   }
 }
 
+// ── Blockquotes ─────────────────────────────────────────────────────────────
+
 blockquote {
   background: var(--global-bg-color);
-  border-left: 5px solid var(--global-theme-color);
+  border-left: 3px solid var(--global-theme-color);
   margin: 1.5em 0;
-  padding: 1em;
-  font-size: 1.2rem;
+  padding: 0.75em 1.25em;
+  font-size: var(--text-base);
+  font-family: var(--font-sans);
+  line-height: 1.7;
 
   p {
     margin-bottom: 0;
@@ -133,4 +219,32 @@ blockquote {
       color: var(--global-danger-block-title);
     }
   }
+}
+
+// ── Code ────────────────────────────────────────────────────────────────────
+
+code,
+pre,
+kbd {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+}
+
+code {
+  font-size: 0.875em;
+}
+
+// ── Small / caption text ────────────────────────────────────────────────────
+
+small,
+.text-small {
+  font-size: var(--text-sm);
+}
+
+// ── Abbreviations ───────────────────────────────────────────────────────────
+
+abbr[title] {
+  font-variant-caps: all-small-caps;
+  text-decoration: none;
+  cursor: help;
 }

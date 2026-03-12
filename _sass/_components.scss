@@ -28,7 +28,7 @@ ul.task-list input[type="checkbox"] {
 // Caption
 
 .caption {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   margin-top: 0.75rem;
   margin-bottom: 1.5rem;
   text-align: center;
@@ -65,7 +65,8 @@ ul.task-list input[type="checkbox"] {
   .more-info {
     margin-bottom: 5px;
     margin-top: 5px;
-    font-family: monospace;
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
     overflow-wrap: anywhere;
 
     p {
@@ -98,7 +99,7 @@ ul.task-list input[type="checkbox"] {
 // CV
 
 .cv {
-  margin-bottom: 40px;
+  margin-bottom: 2.5rem;
 
   .card {
     background-color: var(--global-card-bg-color);
