@@ -92,7 +92,7 @@ table.table a {
   text-decoration-thickness: 1px;
   text-underline-offset: 0.15em;
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--transition-fast);
 
   &:hover {
     color: var(--global-theme-color);

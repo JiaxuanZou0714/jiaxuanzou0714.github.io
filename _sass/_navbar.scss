@@ -65,7 +65,7 @@
     &:focus-visible {
       outline: 2px solid var(--global-theme-color);
       outline-offset: 3px;
-      border-radius: 0.35rem;
+      border-radius: var(--radius-md);
     }
   }
 
@@ -79,7 +79,7 @@
     color: var(--global-text-color);
     white-space: normal;
     overflow-wrap: anywhere;
-    transition: color 0.15s ease;
+    transition: color var(--transition-fast);
 
     &:hover {
       color: var(--global-hover-color);
@@ -122,7 +122,7 @@
 
       i::before {
         color: var(--global-text-color);
-        transition: color 0.2s ease-in-out;
+        transition: color var(--transition-base);
       }
 
       &:hover {

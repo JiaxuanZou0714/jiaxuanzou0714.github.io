@@ -59,7 +59,7 @@ d-article {
     margin-top: 0;
     padding: 8px 12px;
     position: relative;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     display: block;
     margin-bottom: 20px;
     grid-column: text;

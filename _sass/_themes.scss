@@ -33,6 +33,18 @@
   --text-3xl: #{v.$text-3xl};
   --text-4xl: #{v.$text-4xl};
   --text-5xl: #{v.$text-5xl};
+
+  // Layout tokens
+  --radius-xs: #{v.$radius-xs};
+  --radius-sm: #{v.$radius-sm};
+  --radius-md: #{v.$radius-md};
+  --radius-lg: #{v.$radius-lg};
+  --shadow-sm: #{v.$shadow-sm};
+  --shadow-md: #{v.$shadow-md};
+  --transition-fast: #{v.$transition-fast};
+  --transition-base: #{v.$transition-base};
+  --transition-slow: #{v.$transition-slow};
+
   --global-highlight-color: #{v.$red-color-dark};
   --global-back-to-top-bg-color: rgba(
     #{color.channel(v.$black-color, "red", v.$space: rgb)},

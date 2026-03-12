@@ -18,19 +18,19 @@ table.table-cv {
 a.btncv {
   color: var(--global-text-color) !important;
   border: 1px solid var(--global-text-color) !important;
-  border-radius: 0.125rem;
+  border-radius: var(--radius-xs);
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   text-decoration: none;
   font-weight: 400;
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   text-align: center;
   vertical-align: middle;
   text-transform: uppercase;
   white-space: nowrap;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
 }
 
 a.btncv:hover {
@@ -44,25 +44,25 @@ a.btncv:hover {
  *****************************/
 
 p.location {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   white-space: nowrap;
 }
 
 i.iconlocation {
   color: var(--global-theme-color);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 i.iconinstitution {
   color: var(--global-theme-color);
-  font-size: 0.95rem;
-  margin-right: 0.3rem;
+  font-size: var(--text-base);
+  margin-right: 0.25rem;
 }
 
 i.icondepartment {
   color: var(--global-theme-color);
-  font-size: 0.8rem;
-  margin-right: 0.3rem;
+  font-size: var(--text-sm);
+  margin-right: 0.25rem;
 }
 
 table.institution {
@@ -70,7 +70,7 @@ table.institution {
 }
 
 td.department {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 div.container-links {
@@ -121,29 +121,29 @@ td.list-group-category {
 }
 
 td.list-group-category-icon {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--global-theme-color);
   width: 1.4rem;
   padding-right: 0.4rem;
 }
 
 td.list-group-name {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 td.list-group-level {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   padding-left: 0.5rem;
 }
 
 td.list-group-school {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   padding-left: 0.5rem;
   text-align: center;
 }
 
 p.list-group-time {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   padding-left: 0.5rem;
 }
 
@@ -177,7 +177,7 @@ ul.timeline li {
 span.badge-toc {
   color: var(--global-bg-color);
   background-color: var(--global-theme-color);
-  border-radius: 0.125rem;
+  border-radius: var(--radius-xs);
   padding: 0.125rem 0.5rem 0.125rem 0.5rem;
   font-weight: 700 !important;
   display: inline-block;

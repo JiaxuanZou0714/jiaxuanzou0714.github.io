@@ -126,7 +126,7 @@
     .page-link {
       color: var(--global-text-color);
       padding: 0.75rem 1.15rem;
-      transition: color 0.15s ease;
+      transition: color var(--transition-fast);
 
       &:hover {
         color: var(--global-text-color);

@@ -108,7 +108,7 @@
           padding-top: 0.25rem;
           padding-bottom: 0.25rem;
           margin-left: 0;
-          transition: color 0.15s ease, border-color 0.15s ease;
+          transition: color var(--transition-fast), border-color var(--transition-fast);
 
           &:hover {
             color: var(--global-theme-color);
@@ -156,7 +156,7 @@
 
       .hidden.open {
         max-height: 100em;
-        transition: max-height 0.35s ease;
+        transition: max-height var(--transition-slow);
       }
 
       div.abstract.hidden {

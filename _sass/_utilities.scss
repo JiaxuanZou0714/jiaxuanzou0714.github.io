@@ -25,7 +25,7 @@ figure.highlight {
 pre {
   color: var(--global-theme-color);
   background-color: var(--global-code-bg-color);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: 6px 12px;
 
   // Responsive behavior for code blocks
@@ -47,7 +47,7 @@ pre {
 code {
   color: var(--global-theme-color);
   background-color: var(--global-code-bg-color);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   padding: 3px 3px;
 
   // Inline code should wrap
@@ -130,7 +130,7 @@ html.transition *:after {
   .copy {
     background: var(--global-card-bg-color);
     border-color: var(--global-bg-color);
-    border-radius: 0.3rem;
+    border-radius: var(--radius-md);
     border-style: none;
     color: var(--global-text-color);
     font-size: medium;
@@ -187,7 +187,7 @@ nav[data-toggle="toc"] {
   .nav > li > a {
     color: var(--global-text-color);
     font-size: var(--text-xs);
-    transition: color 0.15s ease;
+    transition: color var(--transition-fast);
 
     &:hover {
       color: var(--global-hover-color);
@@ -297,8 +297,8 @@ nav[data-toggle="toc"] {
   max-width: 350px;
   min-width: 100px;
   box-sizing: border-box;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px;
-  border-radius: 6px;
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
   padding: 8px 12px;
 }
 
@@ -317,8 +317,8 @@ nav[data-toggle="toc"] {
   align-items: center;
   flex-direction: row;
   padding: 9px 17px;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px;
-  border-radius: 6px;
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
   text-align: center;
   font-style: normal;
   font-weight: 500;
@@ -338,8 +338,8 @@ nav[data-toggle="toc"] {
   align-items: center;
   flex-direction: row;
   padding: 9px 17px;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px;
-  border-radius: 6px;
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
   text-align: center;
   font-style: normal;
   font-weight: 500;
@@ -508,84 +508,84 @@ figure.cover {
 
   figcaption.abandoned {
     font-family: var(--font-mono);
-    color: #23212d;
+    color: v.$black-color;
     text-transform: uppercase;
-    background-color: #ee5f5b;
+    background-color: v.$book-abandoned;
   }
 
   figcaption.finished,
   figcaption.watched {
     font-family: var(--font-mono);
-    color: #23212d;
+    color: v.$black-color;
     text-transform: uppercase;
-    background-color: #62c462;
+    background-color: v.$book-finished;
   }
 
   figcaption.interested {
     font-family: var(--font-mono);
-    color: #23212d;
+    color: v.$black-color;
     text-transform: uppercase;
-    background-color: #7691db;
+    background-color: v.$book-interested;
   }
 
   figcaption.paused {
     font-family: var(--font-mono);
-    color: #23212d;
+    color: v.$black-color;
     text-transform: uppercase;
-    background-color: #bdac7e;
+    background-color: v.$book-paused;
   }
 
   figcaption.queued {
     font-family: var(--font-mono);
-    color: #23212d;
+    color: v.$black-color;
     text-transform: uppercase;
-    background-color: #9e76b5;
+    background-color: v.$book-queued;
   }
 
   figcaption.reading,
   figcaption.watching {
     font-family: var(--font-mono);
-    color: #23212d;
+    color: v.$black-color;
     text-transform: uppercase;
-    background-color: #f89406;
+    background-color: v.$book-reading;
   }
 
   figcaption.reread,
   figcaption.rewatch {
     font-family: var(--font-mono);
-    color: #23212d;
+    color: v.$black-color;
     text-transform: uppercase;
-    background-color: #a6517d;
+    background-color: v.$book-reread;
   }
 
   figcaption.uncategorized {
     font-family: var(--font-mono);
-    color: #23212d;
+    color: v.$black-color;
     text-transform: uppercase;
-    background-color: #b0abb3;
+    background-color: v.$book-uncategorized;
   }
 
   /* mouse over link */
   a.cover-link:hover {
-    color: #23212d !important;
+    color: v.$black-color !important;
   }
 }
 
 // Calendar
 
 .calendar-toggle-btn {
-  background-color: #007acc;
-  color: white;
+  background-color: var(--global-theme-color);
+  color: var(--global-hover-text-color);
   padding: 0.5em 1em;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 1em;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: opacity var(--transition-fast);
 }
 
 .calendar-toggle-btn:hover {
-  background-color: #005fa3;
+  opacity: 0.85;
 }
 
 .google-calendar-embed {

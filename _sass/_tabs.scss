@@ -22,7 +22,7 @@
   border-bottom-color: transparent;
   font-size: 0.75rem;
   text-transform: uppercase;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
   line-height: 20px;
 }
 
