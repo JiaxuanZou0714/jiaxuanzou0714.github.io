@@ -265,6 +265,7 @@ sass:
 # -----------------------------------------------------------------------------
 
 jekyll-minifier:
+  compress_css: false # sass compressed output is already minified; re-compressing breaks clamp() by removing required whitespace around +/- operators
   compress_javascript: false # set to false since we are using terser as the js minifier
   exclude: ["robots.txt", "assets/js/search/*.js"]
 
