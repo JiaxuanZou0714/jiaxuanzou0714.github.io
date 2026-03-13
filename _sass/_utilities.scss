@@ -484,6 +484,7 @@ ninja-keys {
   --ninja-accent-color: var(--global-theme-color);
   --ninja-icon-size: 0px;
   --ninja-modal-background: var(--global-bg-color);
+  --ninja-selected-background: var(--global-hover-color);
   --ninja-z-index: 1031;
 }
 
@@ -493,6 +494,28 @@ ninja-keys::part(ninja-input) {
 
 ninja-keys::part(ninja-input-wrapper) {
   background: var(--global-bg-color);
+}
+
+.ninja-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  margin-left: 0.4rem;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.ninja-category {
+  background-color: var(--global-theme-color);
+  color: var(--global-bg-color);
+}
+
+.ninja-tag {
+  background-color: var(--global-code-bg-color);
+  color: var(--global-text-color);
+  border: 1px solid var(--global-divider-color);
 }
 
 // Books shelf
