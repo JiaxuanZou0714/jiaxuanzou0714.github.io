@@ -5,7 +5,7 @@ window.MathJax = {
     ready() {
       MathJax.startup.defaultReady();
 
-      const mathRoots = Array.from(document.querySelectorAll(".post, d-title, d-article, d-appendix"));
+      const mathRoots = Array.from(document.querySelectorAll(".post, d-title, d-article, d-appendix, #toc-sidebar"));
       const elements = mathRoots.length > 0 ? mathRoots : [document.body];
 
       MathJax.startup.promise = MathJax.startup.promise.then(() => MathJax.typesetPromise(elements));

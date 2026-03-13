@@ -65,6 +65,21 @@ ninja.data = [
           title: "{{ title | truncatewords: 13 }}",
         {% endif %}
         description: "{{ post.description | strip_html | strip_newlines | escape | strip }}",
+        {%- assign post_aliases = "" -%}
+        {%- if post.categories -%}
+          {%- assign category_aliases = post.categories | join: ", " -%}
+          {%- assign post_aliases = post_aliases | append: category_aliases -%}
+        {%- endif -%}
+        {%- if post.tags -%}
+          {%- assign tag_aliases = post.tags | join: ", " -%}
+          {%- if post_aliases != "" -%}
+            {%- assign post_aliases = post_aliases | append: ", " -%}
+          {%- endif -%}
+          {%- assign post_aliases = post_aliases | append: tag_aliases -%}
+        {%- endif -%}
+        {%- if post_aliases != "" -%}
+        aliases: "{{ post_aliases | escape }}",
+        {%- endif -%}
         section: "Posts",
         handler: () => {
           {% if post.redirect == blank %}
