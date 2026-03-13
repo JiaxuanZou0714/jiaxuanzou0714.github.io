@@ -362,6 +362,31 @@
 {% if site.google_translate and site.google_translate.enabled %}
   <!-- Google Translate -->
   <script>
+    function applyNoTranslateToElements() {
+      // Protect code and structured math elements from being translated
+      var protectedSelectors = [
+        'code',
+        'pre',
+        '.highlight',
+        '.MathJax',
+        '.MathJax_Display',
+        'mjx-container',
+        'math',
+        '.equation',
+        'script[type^="math/tex"]'
+      ];
+      document.querySelectorAll(protectedSelectors.join(', ')).forEach(function(el) {
+        el.classList.add('notranslate');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', applyNoTranslateToElements);
+    
+    // Catch dynamic math elements that load later (like MathJax rendering)
+    window.addEventListener('load', function() {
+      setTimeout(applyNoTranslateToElements, 1000);
+    });
+
     window.googleTranslateConfig = {
       pageLanguage: "{{ site.google_translate.page_language | default: site.lang | default: 'en' }}",
       includedLanguages: "{{ site.google_translate.included_languages | default: 'en,zh-CN' }}"
