@@ -4,7 +4,7 @@ title: μP Map
 permalink: /mup-map/
 description: μP 相关博客的阅读导航与脉络梳理。
 nav: true
-nav_order: 3
+nav_order: 2
 ---
 
 这是一页专门整理 μP 相关文章脉络的导航页。与其把这些文章看成几篇彼此分散的 blog，我更希望把它们看成围绕同一个核心问题展开的几条互相补充的推导路线：为什么大模型在放宽宽度时仍然能够保持 feature learning，以及相应的初始化、学习率和优化器缩放规律到底应该如何理解。

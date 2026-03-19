@@ -1,4 +1,3 @@
-Autobiography
 
 I study mathematics and artificial intelligence as an undergraduate at Xi'an Jiaotong University and currently work as a research intern at the Gaoling School of Artificial Intelligence, Renmin University of China.
 
