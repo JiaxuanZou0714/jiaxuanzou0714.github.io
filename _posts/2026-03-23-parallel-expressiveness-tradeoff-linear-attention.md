@@ -205,23 +205,23 @@ $$d_{\mathfrak A,L}(n)$$ 刻画了在架构族 $$\mathfrak A$$ 内表达 $$L$$ �
 
 ## 参考文献
 
-[1] William Merrill, Ashish Sabharwal, and Noah A. Smith. *Saturated Transformers are Constant-Depth Threshold Circuits.* TACL, 2022.
+[1] William Merrill, Ashish Sabharwal, and Noah A. Smith. *[Saturated Transformers are Constant-Depth Threshold Circuits](https://aclanthology.org/2022.tacl-1.49/).* TACL, 2022.
 
-[2] Zhiyuan Li, Hong Liu, Denny Zhou, and Tengyu Ma. *Chain of Thought Empowers Transformers to Solve Inherently Serial Problems.* ICLR, 2024.
+[2] Zhiyuan Li, Hong Liu, Denny Zhou, and Tengyu Ma. *[Chain of Thought Empowers Transformers to Solve Inherently Serial Problems](https://openreview.net/forum?id=3EWTEy9MTM).* ICLR, 2024.
 
-[3] William Merrill, Jackson Petty, and Ashish Sabharwal. *The Illusion of State in State-Space Models.* ICML, 2024.
+[3] William Merrill, Jackson Petty, and Ashish Sabharwal. *[The Illusion of State in State-Space Models](https://proceedings.mlr.press/v235/merrill24a.html).* ICML, 2024.
 
-[4] William Merrill and Ashish Sabharwal. *A Little Depth Goes a Long Way: The Expressive Power of Log-Depth Transformers.* 2025.
+[4] William Merrill and Ashish Sabharwal. *[A Little Depth Goes a Long Way: The Expressive Power of Log-Depth Transformers](https://openreview.net/forum?id=5pHfYe10iX).* 2025.
 
-[5] William Merrill and Ashish Sabharwal. *Exact Expressive Power of Transformers with Padding.* 2025.
+[5] William Merrill and Ashish Sabharwal. *[Exact Expressive Power of Transformers with Padding](https://openreview.net/forum?id=O1abxStFcy).* 2025.
 
-[6] Bo Peng et al. *RWKV-7 "Goose" with Expressive Dynamic State Evolution.* 2025.
+[6] Bo Peng et al. *[RWKV-7 "Goose" with Expressive Dynamic State Evolution](https://openreview.net/forum?id=ayB1PACN5j).* 2025.
 
-[7] Yiding Hao, Dana Angluin, and Robert Frank. *Formal Language Recognition by Hard Attention Transformers: Perspectives from Circuit Complexity.* TACL, 2022.
+[7] Yiding Hao, Dana Angluin, and Robert Frank. *[Formal Language Recognition by Hard Attention Transformers: Perspectives from Circuit Complexity](https://aclanthology.org/2022.tacl-1.46/).* TACL, 2022.
 
-[8] Neil Immerman and Susan Landau. *The Complexity of Iterated Multiplication.* Information and Computation, 1995.
+[8] Neil Immerman and Susan Landau. *[The Complexity of Iterated Multiplication](https://www.cs.umass.edu/~immerman/pub/mult.pdf).* Information and Computation, 1995.
 
-[9] Sanjeev Arora and Boaz Barak. *Computational Complexity: A Modern Approach.* 2009.
+[9] Sanjeev Arora and Boaz Barak. *[Computational Complexity: A Modern Approach](https://theory.cs.princeton.edu/complexity/).* 2009.
 
 
 ## 引用
