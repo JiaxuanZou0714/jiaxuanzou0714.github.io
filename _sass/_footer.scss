@@ -33,3 +33,25 @@ footer.sticky-bottom {
     text-align: center;
   }
 }
+
+footer {
+  background-color: var(--global-footer-bg-color);
+  border-top: 1px solid var(--global-divider-color);
+  padding-top: 40px;
+  padding-bottom: 40px;
+  font-size: var(--text-sm);
+
+  .container {
+    color: var(--global-footer-text-color);
+    text-align: center;
+  }
+
+  a {
+    color: var(--global-footer-link-color);
+
+    &:hover {
+      color: var(--global-theme-color);
+      text-decoration: none;
+    }
+  }
+}
