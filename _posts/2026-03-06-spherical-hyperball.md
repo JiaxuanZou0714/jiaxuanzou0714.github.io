@@ -209,7 +209,7 @@ $$
 | | 无 hyperball  | 有 Hyperball  |
 | :--- | :--- | :--- |
 | 学习率约束 | $\eta = \Theta\left(\frac{\lVert W_t \rVert_F}{\sqrt{n} \lvert (P_y (U_t x))_i \rvert}\right)$ | $\eta = \Theta\left(\frac{\lVert u_t \rVert_F}{\sqrt{n} \lvert (P_y (u_t x))_i \rvert}\right)$ |
-{: .table .table-striped .table-sm style="font-size: 0.5em;"}
+{: .table .table-striped .table-sm .w-auto .mx-auto style="font-size: 0.8em;"}
 
 
 > 这种转换切断了超参数对齐与系统收敛状态之间的耦合。没有 Hyperball 时，要得到正确的球面角速度，网络必须依靠权重衰减与梯度正交性达到平衡态 $\lVert W_t \rVert_F = \Theta(\sqrt{n})$；有了 Hyperball 后，$\lVert u_t \rVert_F$ 被显式提到学习率分子中，$\eta$ 的设定只取决于当前更新步骤的梯度结构，而不再受权重范数历史轨迹的制约。
@@ -295,7 +295,7 @@ $$
 | SGDH | $\Theta(n)$ | $\Theta(1/\sqrt{n})$ |
 | AdamH | $\Theta(n)$ | $\Theta(1)$ |
 | MuonH | $\Theta(n)$ | $\Theta(1)$ |
-{: .table .table-striped .table-sm style="font-size: 0.5em;"}
+{: .table .table-striped .table-sm .w-auto .mx-auto style="font-size: 0.8em;"}
 
 ## 6. 结语
 

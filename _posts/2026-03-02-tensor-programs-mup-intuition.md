@@ -146,7 +146,7 @@ $$
 | 输出层更新 | $\Delta W \in \mathbb{R}^{1 \times n}$ | 保证输出的数值保真度 | 大数定律 (LLN)<br>非零均值、高度相关变量求和 | $\Theta(1/n)$ | 学习率必须设为 $\Theta(1/n)$ |
 | 输入层初始化 | $W \in \mathbb{R}^{n \times d}$ | 常数维度 $d$ 内的有限求和 | 无 (常数级操作) | $\Theta(1)$ | 权重方差设为 $\Theta(1)$ |
 | 输入层更新 | $\Delta W \in \mathbb{R}^{n \times d}$ | 常数维度 $d$ 内的有限求和 | 无 (常数级操作) | $\Theta(1)$ | 学习率设为 $\Theta(1)$ |
-{: .table .table-striped .table-sm style="font-size: 0.8em;"}
+{: .table .table-striped .table-sm .w-auto .mx-auto style="font-size: 0.8em;"}
 如果把本文看作 Tensor Programs 路线下的概率论版本，那么与之对应的几何版本可以参考 [《球面之上：从球面动力学到 μP》]({% post_url 2026-03-04-spherical-dynamics-mup %})。那篇文章绕开 LLN / CLT 的形式化推导，直接从 RMSNorm 下的球面动力学出发，得到同样的学习率缩放结论；而在此基础上进一步加入优化器与范数约束，则可继续看 [《球面之上：带有 Hyperball 机制的优化器的 μP 缩放》]({% post_url 2026-03-06-spherical-hyperball %})。
 
 ## 引用

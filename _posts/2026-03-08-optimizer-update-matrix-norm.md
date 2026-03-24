@@ -161,7 +161,7 @@ $$
 | **Adam** | 稀疏更新 ($k_{\mathrm{eff}}$) | $\mathcal{O}(1)$ | $\mathcal{O}(\alpha \sqrt{k_{\mathrm{eff}}})$ | - |
 | **Muon** (理论原始) | 满秩极分解 | $\Theta(1/\sqrt{\max(m,n)})$ | $\Theta(\alpha \sqrt{\min(m, n)})$ | $\Theta(\alpha \sqrt{n})$ |
 | **Muon** (工程缩放) | 均方根对齐 | $\Theta(1)$ | $\Theta(\alpha \sqrt{mn})$ | $\Theta(\alpha n)$ |
-{: .table .table-striped .table-sm style="font-size: 0.3em;"}
+{: .table .table-striped .table-sm .w-auto .mx-auto style="font-size: 0.8em;"}
 
 ## 引用
 
