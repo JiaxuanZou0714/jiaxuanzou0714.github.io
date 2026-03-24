@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "并行性与表达能力的权衡：从 AC⁰/TC⁰ 到 Linear Attention 的理论边界"
+title: "并行性与表达能力的权衡：从 $AC^0$/$TC^0$ 到 Linear Attention 的理论边界"
 date: 2026-03-23 12:00:00
 description: "从电路复杂度的视角，统一解释为什么常数深度 Transformer 无法精确完成任意长度整数乘法，以及为什么更强的 linear attention 变体往往无法保持完全 token 并行性。"
 tags: [llm, reasoning, transformer, linear-attention, complexity-theory]
@@ -11,7 +11,7 @@ toc:
   sidebar: left
 ---
 
-> 本文整理自半年前我的一篇笔记。最近有人重新翻出那篇笔记，我发现其中部分内容已过时，遂重新梳理后以blog的形式发出来。
+> 本文整理自半年前我的一篇笔记，名叫《当我们谈论LLM reasoning的时候，我们在谈论什么》，那个时候我刚加入高瓴，做llm latent reasoning相关方向（虽然现在我觉得无论是cot还是latent reasoning，都没触及到本质）。最近有人重新翻出那篇笔记，我发现其中部分内容已过时，遂重新梳理后以blog的形式发出来。
 
 ## 1. 两个问题
 
