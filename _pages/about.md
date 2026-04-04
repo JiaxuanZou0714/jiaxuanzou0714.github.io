@@ -34,6 +34,8 @@ I am currently an undergraduate student at the School of Mathematics and Statist
 
 I work on mechanistic understanding and interpretability of deep learning. My approach is phenomenon-driven: start from empirical behaviors, then build first-principles mechanisms that explain *why* a model works (or fails) and *where* certain behaviors come from.
 
+I occasionally publish my notes and informal research on my blog. I am always open to collaborating with researchers worldwide, so please feel free to contact me. Currently, I am seeking industry internship opportunities focused on LLM pre-training and AI theory research, as well as PhD positions for Fall 2028.
+
 # Research Interests
 
 - Mechanistic interpretability of LLMs
