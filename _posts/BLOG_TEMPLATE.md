@@ -70,3 +70,6 @@ toc:
 | 左对齐 | 居中对齐 | 右对齐 |
 {: .table .table-striped .table-sm style="font-size: 0.5em;"}
 ```
+
+公式用法：
+行内行间的公式都直接用 $$ 包裹，行间公式会自动居中
