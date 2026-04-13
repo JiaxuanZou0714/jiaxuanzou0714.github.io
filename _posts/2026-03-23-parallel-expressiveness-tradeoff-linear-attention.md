@@ -152,7 +152,7 @@ $$
 | $$O(\log n)$$ | $$\mathsf{NC}^1$$ | log-depth looping [4] |
 | $$O(\mathrm{polylog}(n))$$ | $$\mathsf{NC}$$ | — |
 | $$O(\mathrm{poly}(n))$$ | $$\mathsf{P}$$ | CoT，强状态依赖递归模型 |
-{: .table .table-striped .table-sm style="font-size: 0.5em;"}
+{: .table .table-striped .table-sm .w-auto .mx-auto style="font-size: 0.8em;"}
 
 对 constant-precision fixed-depth Transformer，虽然 $$D(n) = O(1)$$，但数值语义的进一步限制使其从 $$\mathsf{TC}^0$$ 收紧到 $$\mathsf{AC}^0$$。
 
