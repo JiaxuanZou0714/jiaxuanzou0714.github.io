@@ -30,9 +30,9 @@ latest_posts:
 
 Hi, I am **Jiaxuan Zou (邹嘉轩)**.
 
-I am currently an undergraduate student at the School of Mathematics and Statistics, Xi'an Jiaotong University, and a research intern at the [Gaoling School of Artificial Intelligence](http://ai.ruc.edu.cn/), Renmin University of China, advised by [Prof. Yong Liu](https://gsai.ruc.edu.cn/liuyong).
+I am currently an undergraduate student at the School of Mathematics and Statistics, Xi'an Jiaotong University. Concurrently, I serve as a research intern at the [Gaoling School of Artificial Intelligence](http://ai.ruc.edu.cn/), Renmin University of China, advised by [Prof. Yong Liu](https://gsai.ruc.edu.cn/liuyong), and as an AI Technical Consultant for a Tsinghua-affiliated AI startup. In this consulting role, our team is collaborating with the Beijing Dongcheng District Education Commission to develop "AI + Basic Education" (primary and secondary education) products.
 
-I work on mechanistic understanding and interpretability of deep learning. My approach is phenomenon-driven: start from empirical behaviors, then build first-principles mechanisms that explain *why* a model works (or fails) and *where* certain behaviors come from.
+I work on the mechanistic understanding and interpretability of deep learning. My approach is phenomenon-driven: start from empirical behaviors, then build first-principles mechanisms that explain *why* a model works (or fails) and *where* certain behaviors come from.
 
 I occasionally publish my notes and informal research on my blog. I am always open to collaborating with researchers worldwide, so please feel free to contact me. Currently, I am seeking industry internship opportunities focused on LLM pre-training and AI theory research, as well as PhD positions for Fall 2028.
 
