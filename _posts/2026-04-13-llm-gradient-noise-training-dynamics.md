@@ -113,9 +113,9 @@ $$
 
 第二条性质看似简单，但它蕴含了极其深刻的后果：输入的整体缩放不影响输出。这意味着无论噪声 $\sigma_r$ 有多大，输出 $\phi_r(g_r)$ 的幅值始终不变——噪声的增长被"截断"了。
 
-### 3.2 雅可比矩阵的缩放律：$1/\sigma$ 衰减
+### 3.2 从齐次性到噪声压缩：一阶响应的衰减
 
-零次齐次性的直接推论是：映射对扰动的一阶响应随输入尺度的增大而严格衰减。
+有了这两条性质，下一个自然的问题是：当输入 $g_r = s_r + \sigma_r z_r$ 中的噪声项 $\sigma_r z_r$ 远大于信号 $s_r$ 时，映射的输出会如何响应信号的微弱变化？回答这个问题需要分析 $\phi_r$ 对扰动的一阶敏感度，即雅可比矩阵的缩放行为。
 
 对任意非零向量 $g$ 和微小扰动方向 $h$，考虑缩放 $c$ 倍后的输入：
 
@@ -137,11 +137,7 @@ $$
 
 类似地，二阶导数满足 $\nabla^2\phi_r(cg) = \frac{1}{c^2}\nabla^2\phi_r(g)$。
 
-这条缩放律是理解归一化优势的关键。直观地说：当输入被噪声 $\sigma_r$ 放大时，映射对信号的一阶响应被 $1/\sigma_r$ 压缩，但输出的总幅值并不增长。信号变弱了，但噪声也被"管住"了。
-
-### 3.3 高噪声区的期望漂移与协方差
-
-现在来精确计算归一化更新在 $\rho_r \ll 1$ 时的统计行为。由于噪声 $\sigma_r z_r$ 远大于信号 $s_r$，我们在噪声点 $\sigma_r z_r$ 处对 $\phi_r(s_r + \sigma_r z_r)$ 进行泰勒展开：
+这条缩放律直接回答了前面的问题。现在我们可以利用它来精确计算 $\rho_r \ll 1$ 时归一化更新 $u_r$ 的统计行为。由于噪声项 $\sigma_r z_r$ 远大于信号 $s_r$，自然的做法是在噪声点 $\sigma_r z_r$ 处对 $\phi_r(s_r + \sigma_r z_r)$ 进行泰勒展开：
 
 $$
 u_r = \phi_r(\sigma_r z_r) + J_{\phi_r}(\sigma_r z_r)s_r + \mathcal{O}\left(\frac{\lVert s_r \rVert^2}{\sigma_r^2}\right)
@@ -171,29 +167,9 @@ $$
 u_r \approx \frac{1}{\sigma_r} A_r s_r + \zeta_r, \quad \mathbb{E}[\zeta_r \mid x] = 0, \quad \operatorname{Cov}(\zeta_r \mid x) \approx B_r
 $$
 
-> 这个结果的物理意义非常清晰：归一化将原始的随机梯度 $s_r + \sigma_r z_r$ 改造为两部分——一个被 $1/\sigma_r$ 缩小的有效漂移项，加上一个幅值严格有界、不随 $\sigma_r$ 增长的残余噪声 $\zeta_r$。这与 SGD 中噪声随 $\sigma_r$ 线性放大形成了鲜明对比。
+> 归一化将原始的随机梯度 $s_r + \sigma_r z_r$ 改造为两部分——一个被 $1/\sigma_r$ 缩小的有效漂移项，加上一个幅值严格有界、不随 $\sigma_r$ 增长的残余噪声 $\zeta_r$。这与 SGD 中噪声随 $\sigma_r$ 线性放大形成了鲜明对比。
 
-### 3.4 $L_2$ 归一化的特殊情况
-
-以最常用的 $L_2$ 归一化 $\phi_r(g) = \frac{g}{\lVert g \rVert_2}$ 为例，给出上述抽象结果的具体表达。其雅可比矩阵为：
-
-$$
-J_{\phi_r}(g) = \frac{1}{\lVert g \rVert_2} \left( I - \frac{g g^\top}{\lVert g \rVert_2^2} \right)
-$$
-
-假设噪声近似各向同性高斯 $z_r \sim \mathcal{N}(0, I_{d_r})$，由旋转对称性可得 $A_r = a_{d_r} I_{d_r}$，其中：
-
-$$
-a_{d_r} = \frac{d_r-1}{d_r} \mathbb{E}\left[\frac{1}{\lVert z_r \rVert_2}\right] = \frac{d_r-1}{d_r\sqrt{2}} \frac{\Gamma\left(\frac{d_r-1}{2}\right)}{\Gamma\left(\frac{d_r}{2}\right)} \sim d_r^{-1/2}
-$$
-
-期望漂移化简为：
-
-$$
-\mathbb{E}[u_r \mid x] \approx \frac{a_{d_r}}{\sigma_r} s_r
-$$
-
-由于 $u_r$ 在单位球面上近似均匀分布，其协方差满足 $\mathbb{E}[u_r u_r^\top] \approx \frac{1}{d_r}I_{d_r}$，且有严格的二阶矩约束 $\mathbb{E}\lVert u_r \rVert_2^2 = 1$。
+以最常用的 $L_2$ 归一化为例做一个 sanity check。假设噪声近似各向同性高斯 $z_r \sim \mathcal{N}(0, I_{d_r})$，由旋转对称性可得 $A_r = a_{d_r} I_{d_r}$，其中 $a_{d_r} \sim d_r^{-1/2}$，期望漂移化简为 $\mathbb{E}[u_r \mid x] \approx \frac{a_{d_r}}{\sigma_r} s_r$，且有严格的二阶矩约束 $\mathbb{E}\lVert u_r \rVert_2^2 = 1$。这些都与直觉一致。
 
 ## 4. 动力学后果：稳定性与误差的重构
 
