@@ -57,28 +57,10 @@ $$
 \lvert\langle g_r, v \rangle\rvert \le \lVert g_r \rVert_{p+1} \lVert v \rVert_q
 $$
 
-为使内积取到负的极值，需要不等式取等号。其取等条件是存在常数 $c > 0$ 使得：
+当不等式取等时（即 $|v_{r,i}|^q \propto |g_{r,i}|^{p+1}$），结合范数约束 $\lVert v \rVert_q = 1$ 和共轭条件 $q = \frac{p+1}{p}$，可以唯一解出各分量的绝对值：
 
 $$
-\lvert v_{r,i} \rvert^q = c \lvert g_{r,i} \rvert^{p+1}
-$$
-
-由共轭条件 $q = \frac{p+1}{p}$，代入可得各分量的绝对值：
-
-$$
-\lvert v_{r,i} \rvert = c^{\frac{1}{q}} \lvert g_{r,i} \rvert^{\frac{p+1}{q}} = c^{\frac{p}{p+1}} \lvert g_{r,i} \rvert^p
-$$
-
-再由范数约束 $\lVert v \rVert_q = 1$ 解出常数 $c$：
-
-$$
-\sum_i \lvert v_{r,i} \rvert^q = c \sum_i \lvert g_{r,i} \rvert^{pq} = c \sum_i \lvert g_{r,i} \rvert^{p+1} = c \lVert g_r \rVert_{p+1}^{p+1} = 1
-$$
-
-得 $c = \lVert g_r \rVert_{p+1}^{-(p+1)}$，代回可得：
-
-$$
-\lvert v_{r,i} \rvert = \left( \lVert g_r \rVert_{p+1}^{-(p+1)} \right)^{\frac{p}{p+1}} \lvert g_{r,i} \rvert^p = \frac{\lvert g_{r,i} \rvert^p}{\lVert g_r \rVert_{p+1}^p}
+\lvert v_{r,i} \rvert = \frac{\lvert g_{r,i} \rvert^p}{\lVert g_r \rVert_{p+1}^p}
 $$
 
 加上使内积为负所需的符号条件 $\operatorname{sign}(v_{r,i}) = -\operatorname{sign}(g_{r,i})$，剔除负号后即严格导出了前述的更新公式。两个重要的特例：
@@ -213,7 +195,9 @@ $$
 
 ### 4.2 局部收敛：稳态误差地板的降低
 
-在最优点附近，考察局部二次模型 $F(x) = \frac{1}{2} \sum_{r=1}^m \lambda_r \lVert x_r \rVert_2^2$，其中 $s_r = \lambda_r x_r$。
+上节分析了"步长能取多大"的问题。但更根本的问题是：即便选择了稳定的步长，训练最终能收敛到多好？在随机优化中，噪声的存在使得参数不会精确收敛到最优点，而是在其附近波动，形成一个稳态误差地板。下面通过局部二次模型来定量分析这个地板。
+
+设 $F(x) = \frac{1}{2} \sum_{r=1}^m \lambda_r \lVert x_r \rVert_2^2$，其中 $s_r = \lambda_r x_r$。
 
 归一化方法的参数演化为：
 
@@ -250,7 +234,7 @@ $$
 
 前面的分析逐块展开，隐含的假设是每个参数块可以独立调控学习率。但在实际的 LLM 训练中，情况远非如此理想，有两个关键的现实约束：
 
-第一，不同参数块的噪声水平差异悬殊。例如，embedding 层的梯度高度稀疏——每个 mini-batch 只激活词表中的一小部分 token，导致采样方差极大；而中间层的 attention 和 FFN 权重通常获得较为稠密的梯度信号。同一个 Transformer 层内，$W_Q$ 和 $W_V$ 由于功能差异，其梯度的噪声尺度也可能相差数倍。这种参数块间噪声水平的系统性差异，在统计学中被称为异方差（heteroscedasticity）。
+第一，不同参数块的噪声水平差异悬殊——例如 embedding 层因梯度稀疏而方差极大，中间层则获得较稠密的信号，$\sigma_r$ 可跨越数个量级。这种系统性差异即异方差（heteroscedasticity）。
 
 第二，学习率调度器通常只提供一个全局标量 $\eta$。尽管存在分层学习率（layer-wise learning rate）等技巧，主流训练管线仍然以单一学习率为主。这意味着全局 $\eta$ 必须同时满足所有参数块的稳定性要求。
 
@@ -302,7 +286,7 @@ $$
 2. 降低误差阶数：稳态误差从 $\mathcal{O}(\sigma^2)$ 降至 $\mathcal{O}(\sigma)$，最大稳定步长从 $\mathcal{O}(1/\sigma^2)$ 升至 $\mathcal{O}(1/\sigma)$；
 3. 隐式逆方差加权：在异方差参数块间自适应分配有效步长，避免高噪声块拖垮全局收敛。
 
-这三个效果共同构成了归一化优化器在训练后期的理论优势基础。
+这三个效果共同构成了归一化优化器在训练后期的理论优势基础。对于优化器设计，本文的分析给出的核心指导是：在噪声主导的 setting 下，更新规则的零次齐次性——而非对曲率的更精细估计——才是决定训练稳定性的关键结构性质。任何保持这一性质的归一化方案都能自动获得上述三重优势。
 
 ## 参考文献
 
