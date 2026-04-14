@@ -288,6 +288,78 @@ $$
 
 这三个效果共同构成了归一化优化器在训练后期的理论优势基础。对于优化器设计，本文的分析给出的核心指导是：在噪声主导的 setting 下，更新规则的零次齐次性——而非对曲率的更精细估计——才是决定训练稳定性的关键结构性质。任何保持这一性质的归一化方案都能自动获得上述三重优势。
 
+## 7. 数值验证
+
+为验证上文核心结论，我们进行了 5 组 Monte Carlo 数值实验。
+
+### 7.1 方向不变性（归一化不修正单步方向）
+
+{% include figure.liquid
+  path="assets/img/post-04-14/01_direction_invariance.png"
+  class="img-fluid rounded z-depth-1"
+  width="100%"
+  caption="方向不变性验证"
+  zoomable=true
+  alt="方向不变性验证"
+%}
+
+散点几乎完全落在 $$y=x$$ 上，且数值上 $$\max \lvert \cos(g,s)-\cos(g/\lVert g \rVert,s) \rvert=1.11\times10^{-16}$$，说明归一化不会提升单步方向精度，而是改变了更新幅值的统计结构。
+
+### 7.2 噪声压缩与漂移缩放
+
+{% include figure.liquid
+  path="assets/img/post-04-14/02_noise_compression.png"
+  class="img-fluid rounded z-depth-1"
+  width="100%"
+  caption="噪声压缩与漂移缩放"
+  zoomable=true
+  alt="噪声压缩与漂移缩放"
+%}
+
+实验显示：SGD 的噪声协方差迹随 $$\sigma^2$$ 增长（斜率约 $$2.00$$），归一化更新协方差迹近似常数（斜率约 $$0.00$$）；同时归一化漂移项随 $$1/\sigma$$ 衰减（斜率约 $$-0.99$$），与第 3 节推导一致。
+
+### 7.3 最大稳定步长缩放
+
+{% include figure.liquid
+  path="assets/img/post-04-14/03_eta_scaling.png"
+  class="img-fluid rounded z-depth-1"
+  width="100%"
+  caption="最大稳定步长缩放"
+  zoomable=true
+  alt="最大稳定步长缩放"
+%}
+
+数值估计的最大稳定学习率满足：SGD 约为 $$\eta_{\max}\propto 1/\sigma^2$$（斜率约 $$-1.99$$），归一化约为 $$\eta_{\max}\propto 1/\sigma$$（斜率约 $$-0.99$$），验证了第 4.1 节结论。
+
+### 7.4 稳态误差地板缩放
+
+{% include figure.liquid
+  path="assets/img/post-04-14/04_steady_state_scaling.png"
+  class="img-fluid rounded z-depth-1"
+  width="100%"
+  caption="稳态误差地板缩放"
+  zoomable=true
+  alt="稳态误差地板缩放"
+%}
+
+稳态误差满足：SGD 约为 $$\mathcal{O}(\sigma^2)$$（斜率约 $$2.00$$），归一化约为 $$\mathcal{O}(\sigma)$$（斜率约 $$1.00$$），与第 4.2 节理论吻合。
+
+### 7.5 异方差与隐式逆方差加权
+
+{% include figure.liquid
+  path="assets/img/post-04-14/05_heteroscedastic_blocks.png"
+  class="img-fluid rounded z-depth-1"
+  width="100%"
+  caption="异方差与隐式逆方差加权"
+  zoomable=true
+  alt="异方差与隐式逆方差加权"
+%}
+
+在两块异方差噪声设定（$$\sigma_{\text{low}}=0.5,\ \sigma_{\text{high}}=4.0$$）下，归一化低噪声块的有效收缩系数约为高噪声块的 $$7.49$$ 倍，接近噪声比 $$8$$，体现了无需额外超参数的隐式逆方差加权。
+
+综合来看，数值实验同时支持本文三点核心结论：方向不修正、噪声阶数压缩、以及异方差条件下的自适应逆噪声加权。
+
+
 ## 参考文献
 
 [1] Shazeer, N., & Stern, M. (2018). [Adafactor: Adaptive Learning Rates with Sublinear Memory Cost](https://proceedings.mlr.press/v80/shazeer18a.html). In *Proceedings of the 35th International Conference on Machine Learning (ICML 2018)*, *Proceedings of Machine Learning Research*, 80, 4596–4604.
