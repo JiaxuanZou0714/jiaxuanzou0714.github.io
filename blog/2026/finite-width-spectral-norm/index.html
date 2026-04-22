@@ -1,0 +1,183 @@
+<!DOCTYPE html> <html lang="en" dir="ltr"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta name="google-site-verification" content="6008LP9GeEsSEbJ0uBNp0GaBeYKF9egqGOamp3RtjOg"> <meta http-equiv="Permissions-Policy" content="interest-cohort=()"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> 有限宽度下随机高斯矩阵谱范数的偏置与涨落 | Jiaxuan Zou </title> <meta name="author" content="Jiaxuan Zou"> <meta name="description" content="本文从 Wishart 随机矩阵理论出发，推导元素方差为 1/n 的高斯矩阵谱范数在有限宽度下的展开式，说明其不仅收敛到宏观极限 2，还带有 $n^{-2/3}$ 级别的偏置和 Tracy-Widom 型随机涨落。"> <meta name="keywords" content="mechanistic interpretability, deep learning theory, optimization, scaling laws, academic homepage, machine learning research"> <meta property="og:site_name" content="Jiaxuan Zou"> <meta property="og:type" content="article"> <meta property="og:title" content="Jiaxuan Zou | 有限宽度下随机高斯矩阵谱范数的偏置与涨落"> <meta property="og:url" content="https://jiaxuanzou0714.github.io/blog/2026/finite-width-spectral-norm/"> <meta property="og:description" content="本文从 Wishart 随机矩阵理论出发，推导元素方差为 1/n 的高斯矩阵谱范数在有限宽度下的展开式，说明其不仅收敛到宏观极限 2，还带有 $n^{-2/3}$ 级别的偏置和 Tracy-Widom 型随机涨落。"> <meta property="og:locale" content="en"> <meta name="twitter:card" content="summary"> <meta name="twitter:title" content="有限宽度下随机高斯矩阵谱范数的偏置与涨落"> <meta name="twitter:description" content="本文从 Wishart 随机矩阵理论出发，推导元素方差为 1/n 的高斯矩阵谱范数在有限宽度下的展开式，说明其不仅收敛到宏观极限 2，还带有 $n^{-2/3}$ 级别的偏置和 Tracy-Widom 型随机涨落。"> <script type="application/ld+json">
+    {
+        "author":
+        {
+            "@type": "Person",
+            "name": "Jiaxuan Zou"
+        },
+        "url": "https://jiaxuanzou0714.github.io/blog/2026/finite-width-spectral-norm/",
+        "@type": "BlogPosting",
+        "description": "本文从 Wishart 随机矩阵理论出发，推导元素方差为 1/n 的高斯矩阵谱范数在有限宽度下的展开式，说明其不仅收敛到宏观极限 2，还带有 $n^{-2/3}$ 级别的偏置和 Tracy-Widom 型随机涨落。",
+        "headline": "有限宽度下随机高斯矩阵谱范数的偏置与涨落",
+        
+        "sameAs": [null,"https://scholar.google.com/citations?user=YE6iiwUAAAAJ","https://space.bilibili.com/282545566?spm_id_from=333.1007.0.0","https://www.xiaohongshu.com/user/profile/65fc3374000000000b00d833","#"],
+        
+        "name": "Jiaxuan Zou",
+        "@context": "https://schema.org"
+    }
+  </script> <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;"> <link rel="dns-prefetch" href="https://cdn.jsdelivr.net"> <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin> <link rel="dns-prefetch" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="dns-prefetch" href="https://fonts.gstatic.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link rel="stylesheet" href="/assets/css/bootstrap.min.css?v=a4b3f509e79c54a512b890d73235ef04"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="/assets/css/academicons.min.css?v=f0b7046b84e425c55f3463ac249818f5"> <link defer rel="stylesheet" href="/assets/css/scholar-icons.css?v=62b2ac103a88034e6882a5be5f3e2772"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&amp;family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;family=Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link defer href="/assets/css/bootstrap-toc.min.css?v=6f5af0bb9aab25d79b2448143cbeaa88" rel="stylesheet"> <link rel="shortcut icon" href="/assets/img/favicon.png?v=b35afd813064e628008c6adc1069d782"> <link rel="stylesheet" href="/assets/css/main.css?v=d41d8cd98f00b204e9800998ecf8427e"> <link rel="canonical" href="https://jiaxuanzou0714.github.io/blog/2026/finite-width-spectral-norm/"> <script src="/assets/js/theme.js?v=48c9b5bd7f2e0605e39e579400e22553"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+    initTheme();
+  </script> </head> <body class="fixed-top-nav sticky-bottom-footer"> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title" href="/"> Jiaxuan Zou </a> <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse text-right" id="navbarNav"> <ul class="navbar-nav ml-auto flex-nowrap"> <style>
+              body {
+                top: 0 !important;
+              }
+              .goog-te-banner-frame.skiptranslate {
+                display: none !important;
+              }
+              .skiptranslate iframe {
+                display: none !important;
+              }
+              #goog-gt-tt,
+              .goog-te-balloon-frame {
+                display: none !important;
+              }
+              .goog-text-highlight {
+                background: transparent !important;
+                box-shadow: none !important;
+              }
+              .nav-translate {
+                display: flex;
+                align-items: center;
+                margin-left: 0.75rem;
+              }
+              .translate-toggle {
+                display: inline-flex;
+                align-items: center;
+                border: 1px solid var(--global-divider-color);
+                border-radius: 999px;
+                overflow: hidden;
+              }
+              .translate-toggle button {
+                border: 0;
+                background: transparent;
+                color: var(--global-text-color);
+                font-size: 0.8rem;
+                line-height: 1;
+                padding: 0.35rem 0.65rem;
+                transition: background-color 0.2s ease, color 0.2s ease;
+              }
+              .translate-toggle button + button {
+                border-left: 1px solid var(--global-divider-color);
+              }
+              .translate-toggle button:hover {
+                color: var(--global-theme-color);
+                background: var(--global-bg-color);
+              }
+              .translate-toggle button.active {
+                background: transparent;
+                color: var(--global-theme-color);
+                font-weight: bold;
+              }
+              #google_translate_element {
+                position: absolute;
+                width: 0;
+                height: 0;
+                overflow: hidden;
+                opacity: 0;
+                pointer-events: none;
+              }
+              #google_translate_element .goog-te-gadget,
+              #google_translate_element .goog-te-combo,
+              #google_translate_element .goog-te-gadget-simple {
+                font-size: 0;
+              }
+              @media (max-width: 575.98px) {
+                .nav-translate {
+                  justify-content: flex-end;
+                  margin: 0.5rem 0 0;
+                }
+              }
+            </style> <li class="nav-item "> <a class="nav-link" href="/">About </a> </li> <li class="nav-item active"> <a class="nav-link" href="/blog/">Blog </a> </li> <li class="nav-item "> <a class="nav-link" href="/mup-map/">μP Map </a> </li> <li class="nav-item "> <a class="nav-link" href="/projects/">Projects </a> </li> <li class="nav-item "> <a class="nav-link" href="/publications/">Publications </a> </li> <li class="nav-item "> <a class="nav-link" href="/autobiography/">Q&amp;A </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search" onclick="openSearchModal()"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="nav-item nav-translate"> <div class="translate-toggle" aria-label="切换语言"> <button type="button" class="translate-toggle-button" data-lang="zh-CN" aria-pressed="false" onclick="setGoogleTranslateLanguage('zh-CN')"> 中 </button> <button type="button" class="translate-toggle-button" data-lang="en" aria-pressed="false" onclick="setGoogleTranslateLanguage('en')"> EN </button> </div> <div id="google_translate_element" aria-hidden="true"></div> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> </header> <div class="container mt-5" role="main"> <div class="row"> <div class="col-sm-3"> <nav id="toc-sidebar" class="sticky-top"></nav> </div> <div class="col-sm-9"> <div class="post"> <header class="post-header"> <h1 class="post-title">有限宽度下随机高斯矩阵谱范数的偏置与涨落</h1> <p class="post-meta"> Created on March 11, 2026 <span class="post-views" data-goatcounter-path="/blog/2026/finite-width-spectral-norm/">   ·  <i class="fa-regular fa-eye"></i> <span class="goatcounter-count">--</span> views </span> </p> <p class="post-tags"> <a href="/blog/2026"> <i class="fa-solid fa-calendar fa-sm"></i> 2026 </a>   ·   <a href="/blog/tag/random-matrix"> <i class="fa-solid fa-hashtag fa-sm"></i> random-matrix</a>   <a href="/blog/tag/spectral-norm"> <i class="fa-solid fa-hashtag fa-sm"></i> spectral-norm</a>   <a href="/blog/tag/wishart"> <i class="fa-solid fa-hashtag fa-sm"></i> wishart</a>   <a href="/blog/tag/tracy-widom"> <i class="fa-solid fa-hashtag fa-sm"></i> tracy-widom</a>   <a href="/blog/tag/finite-width"> <i class="fa-solid fa-hashtag fa-sm"></i> finite-width</a>   ·   <a href="/blog/category/deep-learning"> <i class="fa-solid fa-tag fa-sm"></i> deep-learning</a> </p> </header> <article class="post-content"> <div id="markdown-content"> <blockquote> <p><strong>写在前面</strong>：在前面的几篇 blog 对 mup 的探讨中，我们经常要处理随机矩阵、矩阵的谱范数或者 Frobenius 范数等量。对于这些量，Tensor Program 一个核心的 insight 就是，在大宽度极限下，这些量的渐进性态往往非常稳定。作者 greg yang 说，我们在刻画 scaling law 时候，实际上是想要试图刻画网络在极限状态下的性态（宽度/深度/训练时间极限），于是我们很自然地使用大数定律和中心极限定理来分析这些量的极限行为。但是我认为这种有限宽度的网络必然会带来一些系统性的偏置和随机的涨落，这些效应在大宽度极限里是被忽略掉的，但在实际网络中却可能是非常重要的（比如它可能影响我们的 mup 缩放，或者优化器的设计）。本文就以谱范数为例，来分析一下它在有限宽度下的行为。</p> </blockquote> <p>在很多宽度缩放理论里，我们习惯把随机初始化矩阵的谱范数看作一个稳定的 $\Theta(1)$ 量；例如，当矩阵元素服从零均值、方差为 $1/n$ 的高斯分布时，直觉上它的谱范数应该“接近常数”。但如果我们真的关心有限宽度网络，就不能只停留在大宽度极限上，因为对于随机矩阵，谱范数本身并不是一个没有波动的确定性量。它不仅有随机性，而且这种随机性并不服从最常见的中心极限定理尺度，而是带有更精细的边缘涨落结构。</p> <p>本文从矩阵形式出发，讨论一个 $n\times n$ 高斯随机矩阵</p> \[W=\frac{1}{\sqrt n}X,\qquad X_{ij}\overset{\text{i.i.d.}}{\sim}\mathcal N(0,1),\] <p>也就是 $W_{ij}\sim\mathcal N(0,1/n)$ 的情形。我们的目标是估计其谱范数 $|W|_2$ 在有限宽度下的行为，并把它拆成三部分：宏观主极限、有限宽度偏置，以及有限宽度随机涨落。</p> <h2 id="1-从谱范数到-wishart-矩阵">1. 从谱范数到 <a href="https://zh.wikipedia.org/wiki/%E5%A8%81%E6%B2%99%E7%89%B9%E5%88%86%E4%BD%88" rel="external nofollow noopener" target="_blank">Wishart 矩阵</a> </h2> <p>谱范数最自然的切入点是协方差矩阵：</p> \[S=W^\top W=\frac1n X^\top X.\] <p>于是</p> \[\|W\|_2=\sqrt{\lambda_{\max}(S)}.\] <p>这一步很关键。因为一旦转到 $S$，问题就变成了典型的 <a href="https://zh.wikipedia.org/wiki/%E5%A8%81%E6%B2%99%E7%89%B9%E5%88%86%E4%BD%88" rel="external nofollow noopener" target="_blank">Wishart 矩阵</a>最大特征值问题，而这正是随机矩阵理论最成熟的对象之一。</p> <p>在大宽度极限 $n\to\infty$ 下，$S$ 的经验谱分布服从 <a href="https://en.wikipedia.org/wiki/Marchenko%E2%80%93Pastur_distribution#" rel="external nofollow noopener" target="_blank">Marchenko–Pastur 定律</a>。对于这里的正方形情形，纵横比为 $1$，谱支撑集为 $[0,4]$。进一步，有，</p> \[\lambda_{\max}(S)\xrightarrow{\text{a.s.}}4,\] <p>因此</p> \[\|W\|_2\xrightarrow{\text{a.s.}}2.\] <p>这给出了最常见的零阶结论：当宽度足够大时，元素方差为 $1/n$ 的高斯矩阵，其谱范数主量级稳定在 $2$ 附近。很多缩放分析正是建立在这个 $\Theta(1)$ 的宏观标度之上的。</p> <h2 id="2-宏观极限之外最大特征值的边缘涨落">2. 宏观极限之外：最大特征值的边缘涨落</h2> <p>但“趋于 2”并不等于“等于 2”。如果我们关心有限宽度修正，就必须研究 $\lambda_{\max}(S)$ 在边缘 $4$ 附近如何波动。</p> <p>对标准实 <a href="https://zh.wikipedia.org/wiki/%E5%A8%81%E6%B2%99%E7%89%B9%E5%88%86%E4%BD%88" rel="external nofollow noopener" target="_blank">Wishart 矩阵</a> $X^\top X$，<a href="https://projecteuclid.org/journals/annals-of-statistics/volume-29/issue-2/On-the-distribution-of-the-largest-eigenvalue-in-principal-components/10.1214/aos/1009210544.full?utm_source=chatgpt.com" rel="external nofollow noopener" target="_blank">Johnstone (2001)</a> 证明：若</p> \[\mu_{np}=(\sqrt{n-1}+\sqrt p)^2,\qquad \sigma_{np}=(\sqrt{n-1}+\sqrt p)\Bigl(\frac1{\sqrt{n-1}}+\frac1{\sqrt p}\Bigr)^{1/3},\] <p>则</p> \[\frac{\lambda_{\max}(X^\top X)-\mu_{np}}{\sigma_{np}} \xrightarrow{d} TW_1.\] <p>在本文关心的正方形情形 (p=n) 下，</p> \[\mu_{nn}=4n+o(n^{1/3}),\qquad \sigma_{nn}=2^{4/3}n^{1/3}(1+o(1)),\] <p>因此等价地可写成</p> \[\frac{\lambda_{\max}(X^\top X)-4n}{2^{4/3}n^{1/3}} \xrightarrow{d}TW_1.\] <p>其中 $TW_1$ 表示一阶 <a href="https://en.wikipedia.org/wiki/Tracy%E2%80%93Widom_distribution" rel="external nofollow noopener" target="_blank">Tracy–Widom 分布</a>。</p> <p>由于 $S=\frac1n X^\top X$，把上式改写到 $S$ 上可得</p> \[\frac{n^{2/3}(\lambda_{\max}(S)-4)}{2^{4/3}} =: \xi_n \xrightarrow{d}TW_1,\] <p>于是</p> <blockquote> \[\lambda_{\max}(S)=4+2^{4/3}n^{-2/3}\xi_n+o_p(n^{-2/3}),\qquad \xi_n \Rightarrow TW_1.\] </blockquote> <p>这个式子已经揭示了有限宽度分析里最重要的一点：最大特征值的修正尺度不是常见的由 CLT 带来的 $n^{-1/2}$，而是更精细的$n^{-2/3}$。</p> <h2 id="3-谱范数的有限宽度展开">3. 谱范数的有限宽度展开</h2> <p>我们真正关心的是谱范数本身，而不是 $\lambda_{\max}(S)$。因此还需要把上面的结果传回到</p> \[\|W\|_2=\sqrt{\lambda_{\max}(S)}.\] <p>对函数 $f(x)=\sqrt x$ 在 $x=4$ 附近做泰勒展开：</p> \[\sqrt{4+h}=2+\frac14 h-\frac1{64}h^2+\mathcal O(h^3).\] <p>令</p> \[h=2^{4/3}n^{-2/3}\xi_n + o_p(n^{-2/3}),\] <p>代入后得到</p> \[\|W\|_2 =2+\frac14\left(2^{4/3}n^{-2/3}\xi_n\right)+o_p(n^{-2/3}),\] <p>也就是</p> \[\|W\|_2 =2+2^{-2/3}n^{-2/3}\,\xi_n+o_p(n^{-2/3}), \qquad \xi_n \Rightarrow TW_1.\] <p>这就是我们想要的有限宽度展开式。它比单纯的“谱范数约等于 2”更丰富，因为它告诉我们：</p> <ol> <li>极限是 $2$；</li> <li>第一阶修正是 $n^{-2/3}$ 级别；</li> <li>这个修正项本身是随机的，并且服从 Tracy–Widom 型统计。</li> </ol> <p>进一步，<a href="https://en.wikipedia.org/wiki/Tracy%E2%80%93Widom_distribution" rel="external nofollow noopener" target="_blank">$\beta=1$ 的 Tracy–Widom 分布</a>的均值与方差为</p> \[\mu_{TW}\approx -1.206,\qquad \sigma_{TW}^2\approx 1.608,\] <p>那么立刻得到</p> <blockquote> \[\|W\|_2 = \underbrace{2}_{\text{宏观极限}} + \underbrace{2^{-2/3}\mu_{TW}n^{-2/3}}_{\text{有限宽度偏置}} + \underbrace{2^{-2/3}n^{-2/3}(\xi_n-\mu_{TW})}_{\text{有限宽度随机涨落}} + o_p(n^{-2/3}).\] </blockquote> <p>取期望可得</p> \[\mathbb E[\|W\|_2]\approx 2+2^{-2/3}\mu_{TW}n^{-2/3},\] <p>以及</p> \[\mathrm{Std}(\|W\|_2)\approx 2^{-2/3}\sigma_{TW}n^{-2/3}.\] <p>这两条结论分别对应有限宽度下的系统性偏置和随机涨落，也正是后面数值验证要检查的对象。</p> <h2 id="4-数值验证">4. 数值验证</h2> <p>上面的理论结论可以直接用数值实验来检查。对每个宽度 $n$，独立生成多次高斯随机矩阵</p> \[W^{(1)},W^{(2)},\dots,W^{(M)},\] <p>并记第 $k$ 次实验的谱范数为</p> \[s_k=\|W^{(k)}\|_2.\] <p>图中的三个统计量都是对这组样本 ${s_k}_{k=1}^M$ 计算出来的：</p> \[\mathrm{Mean}(n)=\frac1M\sum_{k=1}^M s_k,\] \[\mathrm{Bias}(n)=2-\mathrm{Mean}(n),\] \[\mathrm{Std}(n)=\sqrt{\frac1M\sum_{k=1}^M\bigl(s_k-\mathrm{Mean}(n)\bigr)^2}.\] <p>这里把 bias 定义为“相对于无穷宽极限值 $2$ 的正偏差量”，也就是均值比 $2$ 低多少；因此图中 bias 为正，且理论上满足</p> \[\mathrm{Bias}(n)\approx -2^{-2/3}\mu_{TW}n^{-2/3},\] <p>而标准差满足</p> \[\mathrm{Std}(n)\approx 2^{-2/3}\sigma_{TW}n^{-2/3}.\] <p>下图左、中、右三栏分别对应 $\mathrm{Mean}(n)$、$\mathrm{Bias}(n)$ 和 $\mathrm{Std}(n)$。因此这组图并不只是笼统地展示“谱范数会收敛”，而是在分别检验三件事：均值从下方逼近 $2$，系统性偏置按 $n^{-2/3}$ 衰减，随机涨落的标准差也按同一标度衰减。</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/post-03-11/image-480.webp 480w,/assets/img/post-03-11/image-800.webp 800w,/assets/img/post-03-11/image-1400.webp 1400w," type="image/webp" sizes="(min-width: 1200px) 1050px, 95vw"></source> <img src="/assets/img/post-03-11/image.png" class="img-fluid rounded z-depth-1 mx-auto d-block" width="100%" height="auto" style=" max-width: 1050px; " alt="有限宽度下随机高斯矩阵谱范数的数值验证" data-zoomable="" loading="lazy" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"> </picture> <figcaption class="caption">左图为样本均值 $\mathrm{Mean}(n)$，中图为相对极限值 $2$ 的偏置 $\mathrm{Bias}(n)=2-\mathrm{Mean}(n)$，右图为样本标准差 $\mathrm{Std}(n)$。</figcaption> </figure> <p>从这组图上也能更直观地看出，有限宽度效应并不只是“多一点随机噪声”这么简单。均值曲线本身就存在稳定的下偏。</p> <h2 id="5-一个更适合后续建模的总结写法">5. 一个更适合后续建模的总结写法</h2> <p>如果后续要把这个结果代入网络前向、归一化或者优化动力学中，一个方便的表达式是：</p> \[\|W\|_2 = 2 + \delta_n^{\text{bias}} + \delta_n^{\text{fluc}} + o_p(n^{-2/3}),\] <p>其中</p> \[\delta_n^{\text{bias}} = 2^{-2/3}\mu_{TW}n^{-2/3}, \qquad \delta_n^{\text{fluc}} = 2^{-2/3}n^{-2/3}(\xi_n-\mu_{TW}).\] <p>这样写的好处是，后面一旦某个量依赖于随机矩阵 $|W|_2$，就可以直接把它拆成：</p> <ol> <li>宏观极限项；</li> <li>有限宽度导致的确定性漂移；</li> <li>有限宽度导致的随机扰动。</li> </ol> <h2 id="参考文献">参考文献</h2> <p>[1] <a href="http://www.ledoit.net/V_A_Mar%C4%8Denko_1967_Math._USSR_Sb._1_457.pdf" rel="external nofollow noopener" target="_blank">V. A. Marchenko and L. A. Pastur, <em>Distribution of eigenvalues for some sets of random matrices</em>, Mathematics of the USSR-Sbornik, 1967.</a></p> <p>[2] <a href="https://projecteuclid.org/journals/annals-of-probability/volume-21/issue-3/Limit-of-the-Smallest-Eigenvalue-of-a-Large-Dimensional-Sample/10.1214/aop/1176989118.full" rel="external nofollow noopener" target="_blank">Z. D. Bai and Y. Q. Yin, <em>Limit of the smallest eigenvalue of a large dimensional sample covariance matrix</em>, Annals of Probability, 1993.</a></p> <p>[3] <a href="https://www.jstor.org/stable/2674106" rel="external nofollow noopener" target="_blank">I. M. Johnstone, <em>On the distribution of the largest eigenvalue in principal components analysis</em>, Annals of Statistics, 2001.</a></p> <p>[4] <a href="https://arxiv.org/abs/hep-th/9211141" rel="external nofollow noopener" target="_blank">C. A. Tracy and H. Widom, <em>Level-spacing distributions and the Airy kernel</em>, Communications in Mathematical Physics, 1994.</a></p> <h2 id="引用">引用</h2> <p>如果您需要引用本文，请参考：</p> <div class="language-bibtex highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">@article</span><span class="p">{</span><span class="nl">zou2026finite-width-spectral-norm</span><span class="p">,</span>
+  <span class="na">title</span><span class="p">=</span><span class="s">{有限宽度下随机高斯矩阵谱范数的偏置与涨落}</span><span class="p">,</span>
+  <span class="na">author</span><span class="p">=</span><span class="s">{Zou, Jiaxuan}</span><span class="p">,</span>
+  <span class="na">journal</span><span class="p">=</span><span class="s">{Jiaxuan's Blog}</span><span class="p">,</span>
+  <span class="na">year</span><span class="p">=</span><span class="s">{2026}</span><span class="p">,</span>
+  <span class="na">url</span><span class="p">=</span><span class="s">{https://jiaxuanzou0714.github.io/blog/2026/finite-width-spectral-norm/}</span>
+<span class="p">}</span>
+</code></pre></div></div> </div> </article> <br> <hr> <br> <ul class="list-disc pl-8"></ul> <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2> <p class="mb-2">Here are some more articles you might like to read next:</p> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/llm-gradient-noise-training-dynamics/">在 LLM 语境下，梯度里的噪声会如何影响 training dynamics？</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/parallel-expressiveness-tradeoff-linear-attention/">并行性与表达能力的权衡：从 $AC^0$/$TC^0$ 到 Linear Attention 的理论边界</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/optimizer-update-matrix-norm/">Adam 与 Muon 优化器更新矩阵的 Frobenius 范数估计</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/spherical-hyperball/">球面之上：带有 Hyperball 机制的优化器的 μP 缩放</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/spherical-dynamics-mup/">球面之上：从球面动力学到 μP</a> </li> <div id="giscus_thread" style="max-width: 930px; margin: 0 auto;"> <br> <script defer src="/assets/js/giscus-setup.js"></script> <noscript> Please enable JavaScript to view the <a href="http://giscus.app/?ref_noscript" rel="external nofollow noopener" target="_blank">comments powered by giscus.</a> </noscript> </div> </div> </div> </div> </div> <footer class="mt-5" role="contentinfo"> <div class="container"> © Copyright 2026 Jiaxuan Zou. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. </div> </footer> <script defer src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <script defer src="/assets/js/bootstrap.bundle.min.js"></script> <script defer src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script> <script defer src="/assets/js/bootstrap-toc.min.js?v=c82ff4de8b0955d6ff14f5b05eed7eb6"></script> <script defer src="/assets/js/no_defer.js?v=2781658a0a2b13ed609542042a859126"></script> <script defer src="/assets/js/common.js?v=628cda93f090b0d9c88f9fcc94d82899"></script> <script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?v=d9f17b6adc2311cbabd747f4538bb15f"></script> <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script> <script async src="https://badge.dimensions.ai/badge.js"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" integrity="sha256-Cm3tWrvOEzMWWN0jnzQ4Kr0GSSx0txth6MqoES7FX6U=" crossorigin="anonymous"></script> <script src="/assets/js/mathjax-setup.js?v=0bff3820f1d16b7afbcd8d8c515dd1a4"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script data-goatcounter="https://jiaxuanzou.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script> <script defer src="/assets/js/goatcounter-analytics-setup.js?v=314d2e28ac09516d998ee7737807b2f6"></script> <script>
+    function applyNoTranslateToElements() {
+      // Protect code and structured math elements from being translated
+      var protectedSelectors = [
+        'code',
+        'pre',
+        '.highlight',
+        '.MathJax',
+        '.MathJax_Display',
+        'mjx-container',
+        'math',
+        '.equation',
+        'script[type^="math/tex"]'
+      ];
+      document.querySelectorAll(protectedSelectors.join(', ')).forEach(function(el) {
+        el.classList.add('notranslate');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', applyNoTranslateToElements);
+    
+    // Catch dynamic math elements that load later (like MathJax rendering)
+    window.addEventListener('load', function() {
+      setTimeout(applyNoTranslateToElements, 1000);
+    });
+
+    window.googleTranslateConfig = {
+      pageLanguage: "zh-CN",
+      includedLanguages: "en,zh-CN"
+    };
+
+    window.getGoogleTranslateLanguage = function () {
+      var sourceLanguage = window.googleTranslateConfig.pageLanguage;
+      var match = document.cookie.match(/(?:^|; )googtrans=([^;]+)/);
+
+      if (!match) {
+        return sourceLanguage;
+      }
+
+      var parts = decodeURIComponent(match[1]).split('/');
+      var targetLanguage = parts[parts.length - 1];
+
+      if (!targetLanguage || targetLanguage === parts[parts.length - 2]) {
+        return sourceLanguage;
+      }
+
+      return targetLanguage;
+    };
+
+    window.updateGoogleTranslateToggleState = function () {
+      var currentLanguage = window.getGoogleTranslateLanguage();
+      var buttons = document.querySelectorAll('.translate-toggle-button');
+
+      buttons.forEach(function (button) {
+        var isActive = button.dataset.lang === currentLanguage;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+    };
+
+    window.setGoogleTranslateLanguage = function (language) {
+      var sourceLanguage = window.googleTranslateConfig.pageLanguage;
+      var cookieValue = '/'+ sourceLanguage + '/' + language;
+
+      document.cookie = 'googtrans=' + encodeURIComponent(cookieValue) + ';path=/;max-age=31536000';
+      window.updateGoogleTranslateToggleState();
+      window.location.reload();
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      window.updateGoogleTranslateToggleState();
+    });
+
+    window.googleTranslateElementInit = function () {
+      new google.translate.TranslateElement(
+        {
+          pageLanguage: window.googleTranslateConfig.pageLanguage,
+          includedLanguages: window.googleTranslateConfig.includedLanguages,
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false
+        },
+        "google_translate_element"
+      );
+
+      window.updateGoogleTranslateToggleState();
+    };
+  </script> <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> <script defer src="/assets/js/search-loader.js?v=82e0188f0f9f8f5a8e0d55b01239fbeb"></script> </body> </html>

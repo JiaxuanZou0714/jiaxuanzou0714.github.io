@@ -1,0 +1,183 @@
+<!DOCTYPE html> <html lang="en" dir="ltr"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta name="google-site-verification" content="6008LP9GeEsSEbJ0uBNp0GaBeYKF9egqGOamp3RtjOg"> <meta http-equiv="Permissions-Policy" content="interest-cohort=()"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> Adam 与 Muon 优化器更新矩阵的 Frobenius 范数估计 | Jiaxuan Zou </title> <meta name="author" content="Jiaxuan Zou"> <meta name="description" content="本文严密推导并估计了 Adam 与 Muon 优化器在单步迭代中更新矩阵的 Frobenius 范数，并探讨了矩阵形状对范数量级的影响。"> <meta name="keywords" content="mechanistic interpretability, deep learning theory, optimization, scaling laws, academic homepage, machine learning research"> <meta property="og:site_name" content="Jiaxuan Zou"> <meta property="og:type" content="article"> <meta property="og:title" content="Jiaxuan Zou | Adam 与 Muon 优化器更新矩阵的 Frobenius 范数估计"> <meta property="og:url" content="https://jiaxuanzou0714.github.io/blog/2026/optimizer-update-matrix-norm/"> <meta property="og:description" content="本文严密推导并估计了 Adam 与 Muon 优化器在单步迭代中更新矩阵的 Frobenius 范数，并探讨了矩阵形状对范数量级的影响。"> <meta property="og:locale" content="en"> <meta name="twitter:card" content="summary"> <meta name="twitter:title" content="Adam 与 Muon 优化器更新矩阵的 Frobenius 范数估计"> <meta name="twitter:description" content="本文严密推导并估计了 Adam 与 Muon 优化器在单步迭代中更新矩阵的 Frobenius 范数，并探讨了矩阵形状对范数量级的影响。"> <script type="application/ld+json">
+    {
+        "author":
+        {
+            "@type": "Person",
+            "name": "Jiaxuan Zou"
+        },
+        "url": "https://jiaxuanzou0714.github.io/blog/2026/optimizer-update-matrix-norm/",
+        "@type": "BlogPosting",
+        "description": "本文严密推导并估计了 Adam 与 Muon 优化器在单步迭代中更新矩阵的 Frobenius 范数，并探讨了矩阵形状对范数量级的影响。",
+        "headline": "Adam 与 Muon 优化器更新矩阵的 Frobenius 范数估计",
+        
+        "sameAs": [null,"https://scholar.google.com/citations?user=YE6iiwUAAAAJ","https://space.bilibili.com/282545566?spm_id_from=333.1007.0.0","https://www.xiaohongshu.com/user/profile/65fc3374000000000b00d833","#"],
+        
+        "name": "Jiaxuan Zou",
+        "@context": "https://schema.org"
+    }
+  </script> <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;"> <link rel="dns-prefetch" href="https://cdn.jsdelivr.net"> <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin> <link rel="dns-prefetch" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="dns-prefetch" href="https://fonts.gstatic.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link rel="stylesheet" href="/assets/css/bootstrap.min.css?v=a4b3f509e79c54a512b890d73235ef04"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="/assets/css/academicons.min.css?v=f0b7046b84e425c55f3463ac249818f5"> <link defer rel="stylesheet" href="/assets/css/scholar-icons.css?v=62b2ac103a88034e6882a5be5f3e2772"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&amp;family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;family=Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link defer href="/assets/css/bootstrap-toc.min.css?v=6f5af0bb9aab25d79b2448143cbeaa88" rel="stylesheet"> <link rel="shortcut icon" href="/assets/img/favicon.png?v=b35afd813064e628008c6adc1069d782"> <link rel="stylesheet" href="/assets/css/main.css?v=d41d8cd98f00b204e9800998ecf8427e"> <link rel="canonical" href="https://jiaxuanzou0714.github.io/blog/2026/optimizer-update-matrix-norm/"> <script src="/assets/js/theme.js?v=48c9b5bd7f2e0605e39e579400e22553"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+    initTheme();
+  </script> </head> <body class="fixed-top-nav sticky-bottom-footer"> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title" href="/"> Jiaxuan Zou </a> <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse text-right" id="navbarNav"> <ul class="navbar-nav ml-auto flex-nowrap"> <style>
+              body {
+                top: 0 !important;
+              }
+              .goog-te-banner-frame.skiptranslate {
+                display: none !important;
+              }
+              .skiptranslate iframe {
+                display: none !important;
+              }
+              #goog-gt-tt,
+              .goog-te-balloon-frame {
+                display: none !important;
+              }
+              .goog-text-highlight {
+                background: transparent !important;
+                box-shadow: none !important;
+              }
+              .nav-translate {
+                display: flex;
+                align-items: center;
+                margin-left: 0.75rem;
+              }
+              .translate-toggle {
+                display: inline-flex;
+                align-items: center;
+                border: 1px solid var(--global-divider-color);
+                border-radius: 999px;
+                overflow: hidden;
+              }
+              .translate-toggle button {
+                border: 0;
+                background: transparent;
+                color: var(--global-text-color);
+                font-size: 0.8rem;
+                line-height: 1;
+                padding: 0.35rem 0.65rem;
+                transition: background-color 0.2s ease, color 0.2s ease;
+              }
+              .translate-toggle button + button {
+                border-left: 1px solid var(--global-divider-color);
+              }
+              .translate-toggle button:hover {
+                color: var(--global-theme-color);
+                background: var(--global-bg-color);
+              }
+              .translate-toggle button.active {
+                background: transparent;
+                color: var(--global-theme-color);
+                font-weight: bold;
+              }
+              #google_translate_element {
+                position: absolute;
+                width: 0;
+                height: 0;
+                overflow: hidden;
+                opacity: 0;
+                pointer-events: none;
+              }
+              #google_translate_element .goog-te-gadget,
+              #google_translate_element .goog-te-combo,
+              #google_translate_element .goog-te-gadget-simple {
+                font-size: 0;
+              }
+              @media (max-width: 575.98px) {
+                .nav-translate {
+                  justify-content: flex-end;
+                  margin: 0.5rem 0 0;
+                }
+              }
+            </style> <li class="nav-item "> <a class="nav-link" href="/">About </a> </li> <li class="nav-item active"> <a class="nav-link" href="/blog/">Blog </a> </li> <li class="nav-item "> <a class="nav-link" href="/mup-map/">μP Map </a> </li> <li class="nav-item "> <a class="nav-link" href="/projects/">Projects </a> </li> <li class="nav-item "> <a class="nav-link" href="/publications/">Publications </a> </li> <li class="nav-item "> <a class="nav-link" href="/autobiography/">Q&amp;A </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search" onclick="openSearchModal()"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="nav-item nav-translate"> <div class="translate-toggle" aria-label="切换语言"> <button type="button" class="translate-toggle-button" data-lang="zh-CN" aria-pressed="false" onclick="setGoogleTranslateLanguage('zh-CN')"> 中 </button> <button type="button" class="translate-toggle-button" data-lang="en" aria-pressed="false" onclick="setGoogleTranslateLanguage('en')"> EN </button> </div> <div id="google_translate_element" aria-hidden="true"></div> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> </header> <div class="container mt-5" role="main"> <div class="row"> <div class="col-sm-3"> <nav id="toc-sidebar" class="sticky-top"></nav> </div> <div class="col-sm-9"> <div class="post"> <header class="post-header"> <h1 class="post-title">Adam 与 Muon 优化器更新矩阵的 Frobenius 范数估计</h1> <p class="post-meta"> Created on March 08, 2026 <span class="post-views" data-goatcounter-path="/blog/2026/optimizer-update-matrix-norm/">   ·  <i class="fa-regular fa-eye"></i> <span class="goatcounter-count">--</span> views </span> </p> <p class="post-tags"> <a href="/blog/2026"> <i class="fa-solid fa-calendar fa-sm"></i> 2026 </a>   ·   <a href="/blog/tag/optimizer"> <i class="fa-solid fa-hashtag fa-sm"></i> optimizer</a>   <a href="/blog/tag/adam"> <i class="fa-solid fa-hashtag fa-sm"></i> adam</a>   <a href="/blog/tag/muon"> <i class="fa-solid fa-hashtag fa-sm"></i> muon</a>   <a href="/blog/tag/frobenius-norm"> <i class="fa-solid fa-hashtag fa-sm"></i> frobenius-norm</a>   ·   <a href="/blog/category/deep-learning"> <i class="fa-solid fa-tag fa-sm"></i> deep-learning</a> </p> </header> <article class="post-content"> <div id="markdown-content"> <p>在深度学习的优化过程中，理解优化器单步更新矩阵的尺度对于学习率设定与训练稳定性分析至关重要。本文旨在通过严谨的数学推导，估计 Adam 与 Muon 优化器更新矩阵的 Frobenius 范数。推导过程将从参数矩阵的逐元素更新序列出发，分别探讨极端梯度序列下的理论绝对上界、纯随机噪声状态下的统计期望，以及矩阵形状维度对最终范数量级的直接影响。</p> <p>这篇文章的一个直接动机，是对上一篇 <a href="/blog/2026/spherical-hyperball/">《球面之上：带有 Hyperball 机制的优化器的 μP 缩放》</a> 的补充。在那篇文章里，AdamH 与 MuonH 两部分推导都使用了 $\lVert u_t \rVert_F = \Theta(n)$ 这一量级假设；而本文的目标，就是把这个假设单独拆出来，对 Adam 与 Muon 的更新矩阵 Frobenius 范数做更明确的推导与估计，从而把后续学习率缩放分析的前提写清楚。</p> <h2 id="1-基础设定">1. 基础设定</h2> <p>设需要优化的参数矩阵为 $W_t \in \mathbb{R}^{m \times n}$，其元素总数为 $d = mn$。在第 $t$ 步迭代中，损失函数对该参数矩阵的梯度为 $G_t \in \mathbb{R}^{m \times n}$。基础学习率记为 $\alpha$。</p> <h2 id="2-adam-优化器更新矩阵范数估计">2. Adam 优化器更新矩阵范数估计</h2> <p>根据 Adam 算法的定义，一阶矩估计 $M_t$ 和二阶矩估计 $V_t$ 的更新公式如下：</p> \[M_t = \beta_1 M_{t-1} + (1 - \beta_1) G_t\] \[V_t = \beta_2 V_{t-1} + (1 - \beta_2) G_t^{\odot 2}\] <p>其中 $G_t^{\odot 2}$ 表示矩阵元素的逐元素平方，$\beta_1, \beta_2 \in [0, 1)$ 为指数衰减率。包含偏差校正的修正矩估计为：</p> \[\hat{M}_t = \frac{M_t}{1 - \beta_1^t}, \qquad \hat{V}_t = \frac{V_t}{1 - \beta_2^t}\] <p>参数矩阵的整体更新量 $\Delta W_t$ 定义为：</p> \[\Delta W_t = - \alpha \frac{\hat{M}_t}{\sqrt{\hat{V}_t} + \varepsilon}\] <p>更新矩阵的 Frobenius 范数精确定义为：</p> \[\lVert \Delta W_t \rVert_F = \alpha \left( \sum_{i,j} \frac{\hat{M}_{t,ij}^2}{\left(\sqrt{\hat{V}_{t,ij}} + \varepsilon\right)^2} \right)^{1/2}\] <h3 id="21-逐元素理论绝对上界">2.1 逐元素理论绝对上界</h3> <p>定义每个元素的有效比值为 \(r_{ij} = \frac{\lvert \hat{M}_{t,ij} \rvert}{\sqrt{\hat{V}_{t,ij}} + \varepsilon}\)。忽略极小的平滑常数 \(\varepsilon\)，将 \(\hat{M}_{t,ij}\) 和 \(\hat{V}_{t,ij}\) 展开为关于历史梯度元素 \(G_{k,ij}\) 的加权求和形式：</p> \[\hat{M}_{t,ij} = \frac{1 - \beta_1}{1 - \beta_1^t} \sum_{k=1}^t \beta_1^{t-k} G_{k,ij}\] \[\hat{V}_{t,ij} = \frac{1 - \beta_2}{1 - \beta_2^t} \sum_{k=1}^t \beta_2^{t-k} G_{k,ij}^2\] <p>对 $\hat{M}_{t,ij}$ 的求和表达式应用 Cauchy-Schwarz 不等式，将其重写为两项乘积并放缩：</p> \[\left( \sum_{k=1}^t \beta_1^{t-k} G_{k,ij} \right)^2 \le \left( \sum_{k=1}^t \frac{\beta_1^{2(t-k)}}{\beta_2^{t-k}} \right) \left( \sum_{k=1}^t \beta_2^{t-k} G_{k,ij}^2 \right)\] <p>右侧第二个求和项即构成 \(\hat{V}_{t,ij}\) 的非归一化形式。右侧第一个求和项为等比数列求和。要求设定的超参数满足 \(\frac{\beta_1^2}{\beta_2} &lt; 1\)，代回 \(\hat{M}_{t,ij}^2\) 表达式并移项，得到绝对值平方的上界：</p> \[\frac{\hat{M}_{t,ij}^2}{\hat{V}_{t,ij}} \le \frac{(1 - \beta_1)^2 (1 - \beta_2^t)}{(1 - \beta_1^t)^2 (1 - \beta_2) \left( 1 - \frac{\beta_1^2}{\beta_2} \right)} \left( 1 - \left( \frac{\beta_1^2}{\beta_2} \right)^t \right)\] <p>当 $t \to \infty$ 时，各项偏差校正项收敛于 $1$，极限为：</p> \[\lim_{t \to \infty} \frac{\hat{M}_{t,ij}^2}{\hat{V}_{t,ij}} \le \frac{(1 - \beta_1)^2}{1 - \beta_2} \frac{\beta_2}{\beta_2 - \beta_1^2}\] <p>代入默认参数 $\beta_1 = 0.9, \beta_2 = 0.999$，计算得该常数约为 $52.857$。即单元素更新比值严格受限于 $\lvert r_{ij} \rvert \le 7.27$。这证明了 $\lvert r_{ij} \rvert = \mathcal{O}(1)$ 的普适性。</p> <h3 id="22-平稳随机梯度下的期望估计">2.2 平稳随机梯度下的期望估计</h3> <p>若梯度呈现零均值的独立随机波动，假设 $G_{k,ij}$ 为独立同分布随机变量，$E[G_{k,ij}] = 0$，$\operatorname{Var}(G_{k,ij}) = \sigma^2$。在此假设下，\(\hat{M}_{t,ij}\) 的方差渐近收敛为：</p> \[\lim_{t \to \infty} \operatorname{Var}(\hat{M}_{t,ij}) = \frac{1 - \beta_1}{1 + \beta_1} \sigma^2\] <p>由于 $\beta_2$ 接近 $1$，二阶矩经过大样本平均高度集中于 $\sigma^2$。尺度因子均方值的期望近似为：</p> \[E \left[ \frac{\hat{M}_{t,ij}^2}{\hat{V}_{t,ij}} \right] \approx \frac{\operatorname{Var}(\hat{M}_{t,ij})}{\sigma^2} = \frac{1 - \beta_1}{1 + \beta_1}\] <h3 id="23-矩阵整体-frobenius-范数量级">2.3 矩阵整体 Frobenius 范数量级</h3> <p>根据前述推导，无论是在理论极端情况还是随机稳态下，单元素的更新比值均方根均为 $\mathcal{O}(1)$。若矩阵内 $d = mn$ 个元素均处于稠密活跃状态，整体范数为：</p> \[\lVert \Delta W_t \rVert_F \approx \alpha \sqrt{\sum_{i,j} E[r_{ij}^2]} = \mathcal{O}(\alpha \sqrt{mn})\] <p>若存在稀疏更新，仅有 $k_{\mathrm{eff}}$ 个坐标显著非零，则：</p> \[\lVert \Delta W_t \rVert_F = \mathcal{O}(\alpha \sqrt{k_{\mathrm{eff}}})\] <h2 id="3-muon-优化器更新矩阵范数估计">3. Muon 优化器更新矩阵范数估计</h2> <p>Muon 优化器的核心在于提取动量矩阵的正交成分。设动量矩阵 $M_t = U S V^\top$，近似正交化操作（如 Newton-Schulz 迭代）等价于输出最接近的半正交矩阵 $U V^\top$。</p> <h3 id="31-原始无缩放正交化矩阵">3.1 原始无缩放正交化矩阵</h3> <p>正交化后矩阵的非零奇异值全为 $1$。记 $r = \operatorname{rank}(M_t)$，基础正交化矩阵范数为：</p> \[\lVert U V^\top \rVert_F = \sqrt{r}\] <p>若动量矩阵满秩，即 $r = \min(m, n)$，则原始单步更新量级为：</p> \[\lVert \Delta W_t \rVert_F = \Theta(\alpha \sqrt{\min(m, n)})\] <p>此时，其逐元素均方根量级为 $\Theta\left(\frac{\alpha}{\sqrt{\max(m, n)}}\right)$。</p> <h3 id="32-工程缩放版更新矩阵">3.2 工程缩放版更新矩阵</h3> <p>为使 Muon 能与标准优化器无缝替换，其实际工程实现会引入显式标量放大因子，将更新矩阵的均方根提升至 $\Theta(1)$ 以对齐基础学习率尺度。</p> <p>经过均方根对齐缩放后，更新矩阵的逐元素均方根变为 $\Theta(1)$。根据反向计算，此时整体更新矩阵的 Frobenius 范数显式放大为：</p> \[\lVert \Delta W_t \rVert_F = \Theta(\alpha \sqrt{mn})\] <h2 id="4-特征宽度与矩阵维度分析">4. 特征宽度与矩阵维度分析</h2> <p>当分析特定网络架构（如设隐层特征宽度为 $n$）时，权重矩阵常表现为 $n \times n$ 的方阵。此时 $m = n$，总元素数量 $d = n^2$。</p> <p>对于 Adam 优化器与工程缩放版的 Muon 优化器，将 $d = n^2$ 代入前述结论，更新矩阵的 Frobenius 范数为：</p> \[\lVert \Delta W_t \rVert_F = \Theta(\alpha \sqrt{n^2}) = \Theta(\alpha n)\] <p>这解释了在方阵假设下，为何更新矩阵范数的量级呈现关于宽度 $n$ 的线性量级 $\Theta(n)$，而非 $\Theta(\sqrt{n})$。而仅有纯数学定义的未缩放正交矩阵，其量级为 $\Theta(\sqrt{n})$。</p> <h2 id="5-结论">5. 结论</h2> <p>不同优化器在单步更新时的矩阵范数受自适应机制与正交化缩放的显著影响。相关渐进量级总结如下表所示：</p> <table class="table table-striped table-sm w-auto mx-auto" style="font-size: 0.8em;"> <thead> <tr> <th style="text-align: left">优化器算法</th> <th style="text-align: center">更新状态</th> <th style="text-align: center">逐元素 RMS 量级</th> <th style="text-align: center">Frobenius 范数量级 (矩形 $m \times n$)</th> <th style="text-align: right">Frobenius 范数量级 (方阵 $n \times n$)</th> </tr> </thead> <tbody> <tr> <td style="text-align: left"><strong>Adam</strong></td> <td style="text-align: center">稠密更新</td> <td style="text-align: center">$\mathcal{O}(1)$</td> <td style="text-align: center">$\mathcal{O}(\alpha \sqrt{mn})$</td> <td style="text-align: right">$\mathcal{O}(\alpha n)$</td> </tr> <tr> <td style="text-align: left"><strong>Adam</strong></td> <td style="text-align: center">稀疏更新 ($k_{\mathrm{eff}}$)</td> <td style="text-align: center">$\mathcal{O}(1)$</td> <td style="text-align: center">$\mathcal{O}(\alpha \sqrt{k_{\mathrm{eff}}})$</td> <td style="text-align: right">-</td> </tr> <tr> <td style="text-align: left"> <strong>Muon</strong> (理论原始)</td> <td style="text-align: center">满秩极分解</td> <td style="text-align: center">$\Theta(1/\sqrt{\max(m,n)})$</td> <td style="text-align: center">$\Theta(\alpha \sqrt{\min(m, n)})$</td> <td style="text-align: right">$\Theta(\alpha \sqrt{n})$</td> </tr> <tr> <td style="text-align: left"> <strong>Muon</strong> (工程缩放)</td> <td style="text-align: center">均方根对齐</td> <td style="text-align: center">$\Theta(1)$</td> <td style="text-align: center">$\Theta(\alpha \sqrt{mn})$</td> <td style="text-align: right">$\Theta(\alpha n)$</td> </tr> </tbody> </table> <h2 id="引用">引用</h2> <p>如果您需要引用本文，请参考：</p> <div class="language-bibtex highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">@article</span><span class="p">{</span><span class="nl">zou2026optimizer-update-matrix-norm</span><span class="p">,</span>
+  <span class="na">title</span><span class="p">=</span><span class="s">{Adam 与 Muon 优化器更新矩阵的 Frobenius 范数估计}</span><span class="p">,</span>
+  <span class="na">author</span><span class="p">=</span><span class="s">{Zou, Jiaxuan}</span><span class="p">,</span>
+  <span class="na">journal</span><span class="p">=</span><span class="s">{Jiaxuan's Blog}</span><span class="p">,</span>
+  <span class="na">year</span><span class="p">=</span><span class="s">{2026}</span><span class="p">,</span>
+  <span class="na">url</span><span class="p">=</span><span class="s">{https://jiaxuanzou0714.github.io/blog/2026/optimizer-update-matrix-norm/}</span>
+<span class="p">}</span>
+</code></pre></div></div> </div> </article> <br> <hr> <br> <ul class="list-disc pl-8"></ul> <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2> <p class="mb-2">Here are some more articles you might like to read next:</p> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/llm-gradient-noise-training-dynamics/">在 LLM 语境下，梯度里的噪声会如何影响 training dynamics？</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/parallel-expressiveness-tradeoff-linear-attention/">并行性与表达能力的权衡：从 $AC^0$/$TC^0$ 到 Linear Attention 的理论边界</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/finite-width-spectral-norm/">有限宽度下随机高斯矩阵谱范数的偏置与涨落</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/spherical-hyperball/">球面之上：带有 Hyperball 机制的优化器的 μP 缩放</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/spherical-dynamics-mup/">球面之上：从球面动力学到 μP</a> </li> <div id="giscus_thread" style="max-width: 930px; margin: 0 auto;"> <br> <script defer src="/assets/js/giscus-setup.js"></script> <noscript> Please enable JavaScript to view the <a href="http://giscus.app/?ref_noscript" rel="external nofollow noopener" target="_blank">comments powered by giscus.</a> </noscript> </div> </div> </div> </div> </div> <footer class="mt-5" role="contentinfo"> <div class="container"> © Copyright 2026 Jiaxuan Zou. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. </div> </footer> <script defer src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <script defer src="/assets/js/bootstrap.bundle.min.js"></script> <script defer src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script> <script defer src="/assets/js/bootstrap-toc.min.js?v=c82ff4de8b0955d6ff14f5b05eed7eb6"></script> <script defer src="/assets/js/no_defer.js?v=2781658a0a2b13ed609542042a859126"></script> <script defer src="/assets/js/common.js?v=628cda93f090b0d9c88f9fcc94d82899"></script> <script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?v=d9f17b6adc2311cbabd747f4538bb15f"></script> <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script> <script async src="https://badge.dimensions.ai/badge.js"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" integrity="sha256-Cm3tWrvOEzMWWN0jnzQ4Kr0GSSx0txth6MqoES7FX6U=" crossorigin="anonymous"></script> <script src="/assets/js/mathjax-setup.js?v=0bff3820f1d16b7afbcd8d8c515dd1a4"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script data-goatcounter="https://jiaxuanzou.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script> <script defer src="/assets/js/goatcounter-analytics-setup.js?v=314d2e28ac09516d998ee7737807b2f6"></script> <script>
+    function applyNoTranslateToElements() {
+      // Protect code and structured math elements from being translated
+      var protectedSelectors = [
+        'code',
+        'pre',
+        '.highlight',
+        '.MathJax',
+        '.MathJax_Display',
+        'mjx-container',
+        'math',
+        '.equation',
+        'script[type^="math/tex"]'
+      ];
+      document.querySelectorAll(protectedSelectors.join(', ')).forEach(function(el) {
+        el.classList.add('notranslate');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', applyNoTranslateToElements);
+    
+    // Catch dynamic math elements that load later (like MathJax rendering)
+    window.addEventListener('load', function() {
+      setTimeout(applyNoTranslateToElements, 1000);
+    });
+
+    window.googleTranslateConfig = {
+      pageLanguage: "zh-CN",
+      includedLanguages: "en,zh-CN"
+    };
+
+    window.getGoogleTranslateLanguage = function () {
+      var sourceLanguage = window.googleTranslateConfig.pageLanguage;
+      var match = document.cookie.match(/(?:^|; )googtrans=([^;]+)/);
+
+      if (!match) {
+        return sourceLanguage;
+      }
+
+      var parts = decodeURIComponent(match[1]).split('/');
+      var targetLanguage = parts[parts.length - 1];
+
+      if (!targetLanguage || targetLanguage === parts[parts.length - 2]) {
+        return sourceLanguage;
+      }
+
+      return targetLanguage;
+    };
+
+    window.updateGoogleTranslateToggleState = function () {
+      var currentLanguage = window.getGoogleTranslateLanguage();
+      var buttons = document.querySelectorAll('.translate-toggle-button');
+
+      buttons.forEach(function (button) {
+        var isActive = button.dataset.lang === currentLanguage;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+    };
+
+    window.setGoogleTranslateLanguage = function (language) {
+      var sourceLanguage = window.googleTranslateConfig.pageLanguage;
+      var cookieValue = '/'+ sourceLanguage + '/' + language;
+
+      document.cookie = 'googtrans=' + encodeURIComponent(cookieValue) + ';path=/;max-age=31536000';
+      window.updateGoogleTranslateToggleState();
+      window.location.reload();
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      window.updateGoogleTranslateToggleState();
+    });
+
+    window.googleTranslateElementInit = function () {
+      new google.translate.TranslateElement(
+        {
+          pageLanguage: window.googleTranslateConfig.pageLanguage,
+          includedLanguages: window.googleTranslateConfig.includedLanguages,
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false
+        },
+        "google_translate_element"
+      );
+
+      window.updateGoogleTranslateToggleState();
+    };
+  </script> <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> <script defer src="/assets/js/search-loader.js?v=82e0188f0f9f8f5a8e0d55b01239fbeb"></script> </body> </html>
