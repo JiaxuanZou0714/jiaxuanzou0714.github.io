@@ -86,7 +86,7 @@ ul.task-list input[type="checkbox"] {
       align-items: center;
       justify-content: center;
       gap: 0.35rem 0.65rem;
-      font-size: 1.65rem;
+      font-size: var(--text-2xl);
       line-height: 1;
 
       a {
@@ -251,7 +251,7 @@ ul.task-list input[type="checkbox"] {
   text-align: center;
 
   .contact-icons {
-    font-size: 4rem;
+    font-size: var(--text-5xl);
 
     a {
       img {

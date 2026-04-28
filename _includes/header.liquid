@@ -1,6 +1,10 @@
 <header>
   <!-- Nav Bar -->
-  <nav id="navbar" class="navbar navbar-light navbar-expand-sm {% if site.navbar_fixed %}fixed-top{% else %}sticky-top{% endif %}" role="navigation">
+  <nav
+    id="navbar"
+    class="navbar navbar-light navbar-expand-sm {% if site.navbar_fixed %}fixed-top{% else %}sticky-top{% endif %}"
+    role="navigation"
+  >
     <div class="container">
       {% if page.permalink != '/' %}
         <a class="navbar-brand title" href="{{ site.baseurl }}/">
@@ -77,10 +81,12 @@
                 border: 0;
                 background: transparent;
                 color: var(--global-text-color);
-                font-size: 0.8rem;
+                font-size: var(--text-xs);
                 line-height: 1;
                 padding: 0.35rem 0.65rem;
-                transition: background-color 0.2s ease, color 0.2s ease;
+                transition:
+                  background-color var(--transition-base),
+                  color var(--transition-base);
               }
               .translate-toggle button + button {
                 border-left: 1px solid var(--global-divider-color);
@@ -92,7 +98,7 @@
               .translate-toggle button.active {
                 background: transparent;
                 color: var(--global-theme-color);
-                font-weight: bold;
+                font-weight: 600;
               }
               #google_translate_element {
                 position: absolute;
@@ -193,7 +199,13 @@
           {% if site.search_enabled %}
             <!-- Search -->
             <li class="nav-item">
-              <button id="search-toggle" type="button" title="Search" aria-label="Open search" onclick="openSearchModal()">
+              <button
+                id="search-toggle"
+                type="button"
+                title="Search"
+                aria-label="Open search"
+                onclick="openSearchModal()"
+              >
                 <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
               </button>
             </li>

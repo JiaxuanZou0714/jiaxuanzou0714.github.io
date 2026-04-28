@@ -88,7 +88,7 @@
 
   .navbar-nav .nav-item.active > .nav-link {
     background-color: inherit;
-    font-weight: bolder;
+    font-weight: 600;
     color: var(--global-theme-color);
 
     &:hover {
@@ -99,7 +99,7 @@
   .navbar-brand.social {
     padding-bottom: 0;
     padding-top: 0;
-    font-size: 1.7rem;
+    font-size: var(--text-2xl);
 
     a {
       img {
@@ -156,12 +156,15 @@
 #light-toggle,
 .translate-toggle button,
 .navbar-toggler {
-  transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    color var(--transition-base),
+    background-color var(--transition-base),
+    box-shadow var(--transition-base);
 
   &:focus-visible {
     outline: 2px solid var(--global-theme-color);
     outline-offset: 3px;
-    border-radius: 0.35rem;
+    border-radius: var(--radius-md);
   }
 }
 

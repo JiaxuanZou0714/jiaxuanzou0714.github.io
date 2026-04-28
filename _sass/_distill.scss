@@ -122,7 +122,7 @@ d-article {
       }
     }
     .figcaption {
-      line-height: 1.4em;
+      line-height: var(--leading-normal);
     }
     toc-line {
       border-right: 1px solid var(--global-divider-color);

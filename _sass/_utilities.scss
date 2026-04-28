@@ -218,7 +218,7 @@ nav[data-toggle="toc"] {
 
   /* Responsive code blocks for mobile */
   pre {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     padding: 8px 10px;
     margin: 0.5rem 0;
   }
@@ -227,13 +227,13 @@ nav[data-toggle="toc"] {
     margin: 0.5rem 0;
 
     pre {
-      font-size: 0.875rem;
+      font-size: var(--text-sm);
       padding: 8px 10px;
     }
   }
 
   code {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     padding: 2px 4px;
   }
 }
@@ -241,19 +241,19 @@ nav[data-toggle="toc"] {
 /* Extra small screens */
 @media (max-width: 400px) {
   pre {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     padding: 6px 8px;
   }
 
   figure.highlight {
     pre {
-      font-size: 0.8rem;
+      font-size: var(--text-sm);
       padding: 6px 8px;
     }
   }
 
   code {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     padding: 1px 3px;
   }
 }
@@ -261,13 +261,13 @@ nav[data-toggle="toc"] {
 /* Medium screens - optimize for tablets */
 @media (min-width: 577px) and (max-width: 768px) {
   pre {
-    font-size: 0.9rem;
+    font-size: var(--text-sm);
     padding: 8px 12px;
   }
 
   figure.highlight {
     pre {
-      font-size: 0.9rem;
+      font-size: var(--text-sm);
       padding: 8px 12px;
     }
   }
@@ -379,7 +379,7 @@ nav[data-toggle="toc"] {
   .newsletter-loading-button,
   .newsletter-success,
   .newsletter-error {
-    font-size: 16px !important;
+    font-size: var(--text-base) !important;
   }
   .newsletter-form-container {
     margin-right: 20px;
@@ -498,7 +498,7 @@ ninja-keys::part(ninja-input-wrapper) {
 
 .ninja-badge {
   display: inline-block;
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   padding: 0.15rem 0.4rem;
   margin-left: 0.4rem;
   border-radius: var(--radius-sm);
@@ -602,7 +602,7 @@ figure.cover {
   padding: 0.5em 1em;
   border: none;
   border-radius: var(--radius-md);
-  font-size: 1em;
+  font-size: var(--text-base);
   cursor: pointer;
   transition: opacity var(--transition-fast);
 }

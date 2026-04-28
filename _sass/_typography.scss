@@ -9,7 +9,8 @@
 body {
   font-family: var(--font-sans);
   font-size: var(--text-base);
-  line-height: 1.6;
+  line-height: var(--leading-normal);
+  font-optical-sizing: auto;
   font-kerning: normal;
   font-variant-ligatures: common-ligatures;
   -webkit-font-smoothing: antialiased;
@@ -42,17 +43,18 @@ h5,
 h6 {
   font-family: var(--font-serif);
   font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.015em;
+  line-height: var(--leading-title);
+  letter-spacing: 0;
   margin-top: 1.5em;
   margin-bottom: 0.5em;
+  text-wrap: balance;
 }
 
 h1 {
   font-size: var(--text-4xl);
   font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  line-height: var(--leading-tight);
+  letter-spacing: 0;
 }
 
 h2 {
@@ -122,7 +124,7 @@ table {
   th {
     font-weight: 600;
     font-family: var(--font-sans);
-    letter-spacing: 0.01em;
+    letter-spacing: 0;
   }
 
   // Align numbers in data columns
@@ -147,7 +149,7 @@ blockquote {
   padding: 0.75em 1.25em;
   font-size: var(--text-base);
   font-family: var(--font-sans);
-  line-height: 1.7;
+  line-height: var(--leading-relaxed);
 
   p {
     margin-bottom: 0;
@@ -231,7 +233,7 @@ kbd {
 }
 
 code {
-  font-size: 0.875em;
+  font-size: var(--text-sm);
 }
 
 // ── Small / caption text ────────────────────────────────────────────────────

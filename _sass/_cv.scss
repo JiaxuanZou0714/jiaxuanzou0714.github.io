@@ -30,13 +30,24 @@ a.btncv {
   vertical-align: middle;
   text-transform: uppercase;
   white-space: nowrap;
-  transition: color var(--transition-fast), border-color var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 a.btncv:hover {
   color: var(--global-theme-color) !important;
   border-color: var(--global-theme-color) !important;
   text-decoration: none !important;
+}
+
+.cv-entry-meta {
+  font-size: var(--text-sm);
+}
+
+.cv-entry-note {
+  font-size: var(--text-sm);
+  font-style: italic;
 }
 
 /*****************************

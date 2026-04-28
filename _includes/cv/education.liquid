@@ -31,7 +31,12 @@
               <tr>
                 <td>
                   {% if date %}
-                    <span class="badge font-weight-bold danger-color-dark text-uppercase align-middle" style="min-width: 75px">{{ date }}</span>
+                    <span
+                      class="badge font-weight-bold danger-color-dark text-uppercase align-middle"
+                      style="min-width: 75px"
+                    >
+                      {{- date -}}
+                    </span>
                   {% endif %}
                 </td>
               </tr>
@@ -65,11 +70,11 @@
           {% endif %}
 
           {% if entry.institution %}
-            <h6 class="ml-1 ml-md-4" style="font-size: 0.95rem">{{ entry.institution }}</h6>
+            <h6 class="cv-entry-meta ml-1 ml-md-4">{{ entry.institution }}</h6>
           {% endif %}
 
           {% if entry.area %}
-            <h6 class="ml-1 ml-md-4" style="font-size: 0.95rem; font-style: italic">{{ entry.area }}</h6>
+            <h6 class="cv-entry-note ml-1 ml-md-4">{{ entry.area }}</h6>
           {% endif %}
 
           {% if entry.courses or entry.highlights %}

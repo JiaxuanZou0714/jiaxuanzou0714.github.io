@@ -20,10 +20,12 @@
   color: var(--global-text-color-light);
   border-bottom: 2px solid transparent;
   border-bottom-color: transparent;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   text-transform: uppercase;
-  transition: color var(--transition-fast), border-color var(--transition-fast);
-  line-height: 20px;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+  line-height: var(--leading-title);
 }
 
 .tab > .active > a {

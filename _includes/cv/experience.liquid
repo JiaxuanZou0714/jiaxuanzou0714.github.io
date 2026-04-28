@@ -30,7 +30,12 @@
             <tbody>
               <tr>
                 <td>
-                  <span class="badge font-weight-bold danger-color-dark text-uppercase align-middle" style="min-width: 75px">{{ date }}</span>
+                  <span
+                    class="badge font-weight-bold danger-color-dark text-uppercase align-middle"
+                    style="min-width: 75px"
+                  >
+                    {{- date -}}
+                  </span>
                 </td>
               </tr>
               {% capture location %}
@@ -66,11 +71,11 @@
             {% if entry.name %}{{ entry.name }}{% elsif entry.company %}{{ entry.company }}{% elsif entry.organization %}{{ entry.organization }}{% endif %}
           {% endcapture %}
           {% if company_name != '' %}
-            <h6 class="ml-1 ml-md-4" style="font-size: 0.95rem">{{ company_name }}</h6>
+            <h6 class="cv-entry-meta ml-1 ml-md-4">{{ company_name }}</h6>
           {% endif %}
 
           {% if entry.summary %}
-            <h6 class="ml-1 ml-md-4" style="font-size: 0.95rem; font-style: italic">
+            <h6 class="cv-entry-note ml-1 ml-md-4">
               {{ entry.summary | markdownify | remove: '<p>' | remove: '</p>' }}
             </h6>
           {% endif %}

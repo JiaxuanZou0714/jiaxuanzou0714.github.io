@@ -16,7 +16,10 @@
               <tbody>
                 <tr>
                   <td>
-                    <span class="badge font-weight-bold danger-color-dark text-uppercase align-middle" style="min-width: 75px">
+                    <span
+                      class="badge font-weight-bold danger-color-dark text-uppercase align-middle"
+                      style="min-width: 75px"
+                    >
                       {{- start_date | split: '-' | slice: 0, 1 | join: '' -}}
                     </span>
                   </td>
@@ -34,7 +37,7 @@
             {% endif %}
 
             {% if entry.awarder %}
-              <h6 class="ml-1 ml-md-4" style="font-size: 0.95rem">{{ entry.awarder }}</h6>
+              <h6 class="cv-entry-meta ml-1 ml-md-4">{{ entry.awarder }}</h6>
             {% endif %}
 
             {% if entry.summary %}
@@ -52,7 +55,7 @@
             {% endif %}
 
             {% if entry.awarder %}
-              <h6 class="ml-1 ml-md-4" style="font-size: 0.95rem">{{ entry.awarder }}</h6>
+              <h6 class="cv-entry-meta ml-1 ml-md-4">{{ entry.awarder }}</h6>
             {% endif %}
 
             {% if entry.summary %}

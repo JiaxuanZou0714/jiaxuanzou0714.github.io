@@ -13,7 +13,7 @@
     font-size: var(--text-4xl);
     font-family: var(--font-serif);
     font-weight: 700;
-    letter-spacing: -0.03em;
+    letter-spacing: 0;
   }
 }
 
@@ -37,7 +37,7 @@
 }
 
 .post-title {
-  line-height: 1.2;
+  line-height: var(--leading-title);
   margin-bottom: 0.75rem;
 
   mjx-container[jax="CHTML"][display="true"] {
@@ -47,8 +47,8 @@
 
 // Post body with refined type scale for dense academic content
 .post {
-  font-size: 0.9rem;
-  line-height: 1.75;
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
 
   h1 {
     font-size: var(--text-3xl);
