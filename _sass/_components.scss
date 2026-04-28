@@ -75,6 +75,65 @@ ul.task-list input[type="checkbox"] {
       margin: 0;
     }
   }
+
+  .profile-social {
+    margin-top: 0.85rem;
+    text-align: center;
+
+    .contact-icons {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem 0.65rem;
+      font-size: 1.65rem;
+      line-height: 1;
+
+      a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.85rem;
+        min-height: 1.85rem;
+
+        img {
+          width: 1.55rem;
+          height: 1.55rem;
+          margin-bottom: 0;
+        }
+
+        svg {
+          width: 1.7rem;
+          height: 1.7rem;
+          margin-bottom: 0;
+
+          image {
+            width: 1.7rem;
+            height: 1.7rem;
+          }
+        }
+
+        i::before {
+          color: var(--global-text-color);
+          transition: color var(--transition-base);
+        }
+
+        &:hover {
+          text-decoration: none;
+
+          i::before {
+            color: var(--global-theme-color);
+          }
+        }
+      }
+    }
+
+    .contact-note {
+      margin-top: 0.45rem;
+      font-size: var(--text-xs);
+      line-height: var(--leading-normal);
+    }
+  }
 }
 
 .profile.float-right {
