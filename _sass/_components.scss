@@ -156,6 +156,70 @@ ul.task-list input[type="checkbox"] {
   }
 }
 
+// About page
+
+.about-home {
+  .clearfix > h2,
+  > article > h2 {
+    font-family: var(--font-sans);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    line-height: var(--leading-title);
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .news {
+    table {
+      margin-bottom: 0;
+    }
+
+    th,
+    td {
+      padding-top: 0.35rem;
+      padding-bottom: 0.35rem;
+      font-size: var(--text-base);
+      line-height: var(--leading-normal);
+      vertical-align: top;
+    }
+
+    th {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      font-family: var(--font-serif);
+    }
+  }
+
+  .publications {
+    margin-top: 1.25rem;
+
+    ol.bibliography {
+      li {
+        .title {
+          font-family: var(--font-sans);
+          font-size: var(--text-base);
+          line-height: var(--leading-title);
+        }
+
+        .author,
+        .periodical {
+          font-size: var(--text-sm);
+          line-height: var(--leading-normal);
+        }
+
+        .links a.btn {
+          font-family: var(--font-sans);
+          font-size: var(--text-xs);
+        }
+      }
+    }
+  }
+}
+
 // CV
 
 .cv {
