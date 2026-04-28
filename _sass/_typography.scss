@@ -7,7 +7,7 @@
 // ── Base ────────────────────────────────────────────────────────────────────
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-serif);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   font-optical-sizing: auto;
@@ -41,7 +41,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-weight: 600;
   line-height: var(--leading-title);
   letter-spacing: 0;
@@ -148,7 +148,7 @@ blockquote {
   margin: 1.5em 0;
   padding: 0.75em 1.25em;
   font-size: var(--text-base);
-  font-family: var(--font-sans);
+  font-family: var(--font-serif);
   line-height: var(--leading-relaxed);
 
   p {

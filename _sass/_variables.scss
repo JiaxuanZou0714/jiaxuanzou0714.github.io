@@ -6,42 +6,42 @@
 @use "sass:color";
 
 // Colors
-$red-color: #ff3636 !default;
-$red-color-dark: #b71c1c !default;
-$orange-color: #f29105 !default;
-$blue-color: #0076df !default;
-$blue-color-dark: #00369f !default;
-$cyan-color: #2698ba !default;
+$red-color: #cd5c58 !default;
+$red-color-dark: #7f2c28 !default;
+$orange-color: #d97757 !default;
+$blue-color: #6a9bcc !default;
+$blue-color-dark: #3266ad !default;
+$cyan-color: #6a9bcc !default;
 $light-cyan-color: color.adjust($cyan-color, $lightness: 25%);
-$green-color: #00ab37 !default;
-$green-color-lime: #b7d12a !default;
-$green-color-dark: #009f06 !default;
-$green-color-light: #ddffdd !default;
-$green-color-bright: #11d68b !default;
-$purple-color: #b509ac !default;
+$green-color: #788c5d !default;
+$green-color-lime: #e9f1dc !default;
+$green-color-dark: #265b19 !default;
+$green-color-light: #e9f1dc !default;
+$green-color-bright: #7ab948 !default;
+$purple-color: #d97757 !default;
 $light-purple-color: color.adjust($purple-color, $lightness: 25%);
-$pink-color: #f92080 !default;
-$pink-color-light: #ffdddd !default;
-$yellow-color: #efcc00 !default;
+$pink-color: #cd5c58 !default;
+$pink-color-light: #f7ecec !default;
+$yellow-color: #d1a041 !default;
 
-$grey-color: #828282 !default;
-$grey-color-light: color.adjust($grey-color, $lightness: 40%);
-$grey-color-dark: #1c1c1d;
-$grey-900: #212529;
+$grey-color: #73726c !default;
+$grey-color-light: #e8e6dc !default;
+$grey-color-dark: #30302e;
+$grey-900: #262624;
 
-$white-color: #faf9f7 !default;
-$black-color: #1a1a1e !default;
+$white-color: #faf9f5 !default;
+$black-color: #141413 !default;
 
 // Theme colors
 
-$code-bg-color-light: rgba($purple-color, 0.05);
-$code-bg-color-dark: #2c3237 !default;
+$code-bg-color-light: #f5f4ed;
+$code-bg-color-dark: #262624 !default;
 
 // Typography
 $font-family-serif:
-  "Source Serif 4", Georgia, "Songti SC", "STSong", "SimSun", serif !default;
+  "Lora", Georgia, "Songti SC", "STSong", "SimSun", serif !default;
 $font-family-sans:
-  "Source Sans 3",
+  "Poppins",
   -apple-system,
   BlinkMacSystemFont,
   "PingFang SC",

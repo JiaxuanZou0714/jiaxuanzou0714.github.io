@@ -484,7 +484,7 @@ third_party_libraries:
     version: "5.5.0"
   google_fonts:
     url:
-      fonts: "https://fonts.googleapis.com/css2?family=Material+Icons&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Source+Serif+4:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap"
+      fonts: "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Material+Icons&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap"
   highlightjs:
     integrity:
       css:
