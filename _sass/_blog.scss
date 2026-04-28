@@ -180,6 +180,10 @@
 
 .post-header {
   margin-bottom: 2rem;
+
+  .post-title {
+    margin-top: 0;
+  }
 }
 
 .post-meta + .post-tags {
@@ -253,6 +257,17 @@
 #toc-sidebar.sticky-top {
   top: 5rem;
   padding-bottom: 1rem;
+}
+
+@media (min-width: 576px) {
+  #toc-sidebar {
+    margin-top: 1.25rem;
+    max-height: calc(100vh - 7.25rem);
+  }
+
+  #toc-sidebar.sticky-top {
+    top: 5.75rem;
+  }
 }
 
 @media (max-width: 575.98px) {
