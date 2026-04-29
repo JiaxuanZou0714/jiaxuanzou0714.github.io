@@ -39,6 +39,7 @@ layout: default
       30vw, 95vw"{% endcapture %}
           {%
             include figure.liquid loading="eager" decoding="async" fetchpriority="high" path=profile_image_path class=profile_image_class sizes=sizes alt=profile_image_alt
+            width="1024" height="1024"
             cache_bust=true
           %}
         {% endif %}

@@ -34,6 +34,12 @@
             alt="{{ preview_alt }}"
             loading="lazy"
             decoding="async"
+            {% if entry.preview_width %}
+              width="{{ entry.preview_width }}"
+            {% endif %}
+            {% if entry.preview_height %}
+              height="{{ entry.preview_height }}"
+            {% endif %}
           >
         {% else %}
           {% assign entry_path = entry.preview | prepend: '/assets/img/publication_preview/' %}
@@ -42,10 +48,12 @@
             loading="lazy"
             decoding="async"
             path=entry_path
-            sizes = "200px"
+            sizes="160px"
             class="preview z-depth-1 rounded"
             zoomable=true
             alt=preview_alt
+            width=entry.preview_width
+            height=entry.preview_height
           %}
         {% endif %}
       {% endif %}

@@ -177,7 +177,6 @@
       {{ page.title }}
       {{ page.description }}
       {{ page.content }}
-      {{ content }}
     {% endcapture %}
     {% if page.math == true or math_content contains '$' or math_content contains '\(' or math_content contains '\[' %}
       {% assign should_load_math = true %}

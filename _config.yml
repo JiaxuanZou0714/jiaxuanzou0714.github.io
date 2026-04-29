@@ -329,8 +329,8 @@ scholar:
 # Display different badges withs stats for your publications
 # Customize badge behavior in _layouts/bib.liquid
 enable_publication_badges:
-  altmetric: true # Altmetric badge (Customization options: https://badge-docs.altmetric.com/index.html)
-  dimensions: true # Dimensions badge (Customization options: https://badge.dimensions.ai/)
+  altmetric: false # Altmetric badge (Customization options: https://badge-docs.altmetric.com/index.html)
+  dimensions: false # Dimensions badge (Customization options: https://badge.dimensions.ai/)
   google_scholar: true # Google Scholar badge (https://scholar.google.com/intl/en/scholar/citations.html)
   inspirehep: true # Inspire HEP badge (https://help.inspirehep.net/knowledge-base/citation-metrics/)
 
@@ -357,6 +357,8 @@ filtered_bibtex_keywords:
     pdf,
     pmid,
     poster,
+    preview_height,
+    preview_width,
     preview,
     selected,
     slides,
@@ -392,6 +394,7 @@ external_links:
 imagemagick:
   enabled: true # enables responsive images for your site (recommended, see https://github.com/alshedivat/al-folio/issues/537)
   widths:
+    - 240
     - 480
     - 800
     - 1400
@@ -484,7 +487,7 @@ third_party_libraries:
     version: "5.5.0"
   google_fonts:
     url:
-      fonts: "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Material+Icons&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap"
+      fonts: ""
   highlightjs:
     integrity:
       css:
