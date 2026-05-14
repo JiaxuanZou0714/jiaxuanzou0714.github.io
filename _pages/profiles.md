@@ -1,101 +1,101 @@
 ---
 layout: profiles
 permalink: /autobiography/
-title: Q&A
-description: Some questions and answers about my research, background, and interests.
-nav: true
+title: Background
+description: Notes on my research background and interests.
+nav: false
 nav_order: 7
 giscus_comments: true
 
 profiles:
-
   - align: right
     image: autobiography/teaching2.png
     image_circular: false
     more_info: >
-
-
 ---
 
+<p class="text-muted">Language: English | <a href="{{ '/autobiography/zh/' | relative_url }}">中文</a></p>
 
-## 为什么选择数学系
-1. 我从小非常热爱数学，我认为它代表了人类智慧的结晶，是人类对世界进行理解与抽象的最高形式。（基于同样的原因，我也很喜欢哲学。）
+## Why Mathematics
 
-2. 我非常看重科研**方法论**，即“如何从事科研”与“如何科学地思考问题”。本科阶段的学科选择，核心在于其对思维方式、**方法论**及世界观的系统性训练。面对实际问题，如何分析、拆解、计划并最终解决，这种能力必须经过系统训练，而数学系在此方面提供了极佳的环境。得益于这种长期训练，如今面对深度学习中的现象或问题时，我首先会考虑将其建模为数学问题，进而选择合适的数学工具（如最优化、统计学、动力系统等）进行分析与解决。我认为，将这种科学、成体系的思维方式引入人工智能领域，是使其真正成为一门科学，而不仅停留在经验或工程层面的关键所在。
+1. I have loved mathematics since childhood. To me, it represents a distilled form of human intelligence and one of the highest forms of abstraction through which we understand the world. For the same reason, I am also drawn to philosophy.
 
-## 为什么选择人工智能
-1. 图灵提出的问题“Can machine think?”引发了深思：我们能否通过计算复现智能？此外，人工智能是一个高度交叉的领域，涉及计算机科学、数学、统计学和认知科学等。我对这些学科均有浓厚兴趣，人工智能提供了一个平台，使我能够结合多学科知识进行探索与创新。
+2. I care deeply about research **methodology**: how to do research and how to think about problems scientifically. At the undergraduate stage, my choice of major was mainly about systematic training in ways of thinking, methodology, and worldview. The ability to analyze, decompose, plan, and solve real problems requires sustained training, and mathematics provides an excellent environment for this. This training now shapes how I approach deep learning: when I encounter a phenomenon or problem, I first try to model it mathematically and then choose suitable tools, such as optimization, statistics, and dynamical systems, to analyze it. I believe bringing this scientific and systematic way of thinking into artificial intelligence is essential if AI is to become a rigorous science rather than remain only an empirical or engineering practice.
 
-2. 人工智能毫无疑问是当今时代最具发展潜力的领域之一，正以惊人的速度演进，具备改变世界的巨大可能。同时，我坚信知识分子理应承担改造社会的责任，因此我希望进入该领域，推动相关科学技术进步，并为社会带来积极影响。
+## Why Artificial Intelligence
 
-## 为什么本科不直接选择人工智能专业，而是选了数学系
-1. 大部分人工智能（尤其是机器学习与深度学习）问题，本质上都是数学问题。虽然目前存在大量经验性技巧，但若要真正理解问题本质，使人工智能成为一门严谨的科学，就必须从数学基础与系统性科学**方法论**的角度进行分析与解决。（是的，我会反复强调**方法论**的重要性）因此，先夯实数学基础，再研究人工智能，是更为合理的路径。
+1. Turing's question, "Can machines think?", raises a fundamental problem: can intelligence be reproduced through computation? Artificial intelligence is also a deeply interdisciplinary field, drawing from computer science, mathematics, statistics, cognitive science, and related areas. Since I am interested in all of these disciplines, AI gives me a natural platform for combining them in research.
 
-2. 目前国内部分高校人工智能专业的课程设置与培养方案尚待完善，且不一定能紧跟该领域的快速迭代。相比之下，数学系的课程设置更为成熟与系统，能提供更扎实的理论基础与广泛的数学工具。本科阶段的许多人工智能课程完全可以通过自学掌握，而数学系的专业课则更加依赖系统的课程设置与教师指导。
+2. AI is one of the most promising fields of our time. It is evolving quickly and has the potential to reshape many parts of the world. I also believe that intellectual work should contribute to society, so I hope to work in this field, help advance the underlying science and technology, and create positive social impact.
 
-3. 如前所述，数学系对科研思维与**方法论**的训练系统且深入。目前部分人工智能专业的培养模式更偏向于工程技术传授。选择数学系能更好地塑造我的科学思维与方法论，这对未来从事人工智能及其他领域的系统性研究至关重要。
+## Why Mathematics Instead of an AI Major
 
+1. Most problems in AI, especially in machine learning and deep learning, are mathematical in nature. Although the field currently contains many empirical tricks, understanding its foundations and turning AI into a rigorous science requires analysis from mathematics and systematic scientific **methodology**. For this reason, I see building a strong mathematical foundation before studying AI in depth as the more natural path.
 
-4. 当前人工智能领域存在高度金融化与浮躁的倾向，部分研究过于注重短期技术迭代与商业应用，而忽视了对基础科学问题的深入探讨，未能将人工智能视作一门严谨的科学。这种环境容易导致学生盲目追求性能指标（如刷SOTA、刷榜），或进行简单的缝合等。我始终认为，核心不在于性能指标本身，而在于实质性地解决了何种问题。研究必须以问题为导向，从科学学科的角度进行思考。相比之下，数学系的学术氛围更为纯粹，不强调短期收益，注重对基础问题的深入研究，这有助于培养我的学术定力以及发掘核心问题的taste。
+2. Some AI undergraduate programs in China are still developing their curricula and training structures, and they may not always keep pace with the field's rapid iteration. By contrast, mathematics programs are more mature and systematic. They provide stronger theoretical foundations and a wider set of mathematical tools. Many undergraduate AI courses can be learned independently, while advanced mathematics courses benefit more from structured instruction and close guidance.
 
-> *注：以上仅为对专业设置的客观评价，绝无评判专业内学生之意。数学与人工智能均高度依赖个人的主观能动性，两门学科中均有顶尖人才。此处仅强调，对我个人而言，选择数学系是更为契合的发展路径。
+3. As mentioned above, mathematics offers systematic and deep training in research thinking and **methodology**. Some AI programs are more oriented toward engineering techniques. Choosing mathematics helps me build a more solid scientific mindset, which I consider important for future systematic research in AI and beyond.
 
-## 我是如何开始做科研的
+4. At present, parts of the AI field are highly commercialized and somewhat impatient. Some work overemphasizes short-term technical iteration and commercial application while paying too little attention to foundational scientific questions. This can lead students to chase performance metrics, such as SOTA scores and leaderboard rankings, or to assemble methods without addressing the underlying problem. I think the central question is not the metric itself, but what substantive problem has been solved. Research should be problem-driven and grounded in a scientific view of the field. In comparison, the academic atmosphere in mathematics is more focused on foundational problems and less driven by short-term returns, which helps cultivate patience and research taste.
 
-我正式进入科研是在 2024 年 9 月，本科刚入学的时候。当时我所在的书院开展了一个长期活动，允许本科生自主发起并组织研讨班，书院会提供场地、宣发等支持。于是我开始思考：为什么不由我来发起一个深度学习研讨班呢？这既可以通过讲课训练自己的理解与表达能力，也可以建立一个持续交流的平台，扩展同道者之间的联系，并在一定程度上推动西安交通大学本科生科研与深度学习社群的发展。
+> _Note: The above is only my personal assessment of program structures. It is not meant as a judgment of students in any major. Both mathematics and AI depend heavily on individual initiative, and both fields have outstanding people. I only mean that, for me, mathematics is the better-fitting path._
 
-就这样，依托于西安交通大学的深度学习研讨班成立了。它后来吸引了来自全国超过一千位从业者参与，也自然孕育出许多合作。这正是我最初所构想的方向，只是当时没有预料到它会发展到这样的规模。
+## How I Started Research
 
-也正因如此，我的第一个正式科研机会来自西安交通大学的老师：他们通过这个研讨班联系到我，并邀请我加入课题组。从这段经历开始，我越来越确信一件事：要做长期且正确的事，而不只是简单的事。
+I formally began doing research in September 2024, when I had just entered university. At that time, my college was running a long-term program that allowed undergraduates to initiate and organize seminars, with support such as venues and publicity. I began to wonder: why not start a deep learning seminar myself? Teaching would help train my own understanding and communication, while the seminar could also become a platform for sustained exchange, connect people with similar interests, and contribute in some small way to the undergraduate research and deep learning community at Xi'an Jiaotong University.
 
-## 我目前最关心的几个问题（截至 2026 年 4 月）
+That is how the deep learning seminar at Xi'an Jiaotong University began. It later attracted more than a thousand participants from across China and naturally led to many collaborations. This was close to what I had hoped for at the beginning, though I did not expect it to grow to that scale.
 
-1. **非线性动力学的解析理论。** 目前大部分可解结果仍局限在线性网络或无限宽极限中。真实的有限宽度非线性网络训练动力学依然像一个黑箱，而我希望理解这个黑箱内部到底发生了什么。
+Because of this seminar, my first formal research opportunity came from faculty members at Xi'an Jiaotong University. They found me through the seminar and invited me to join their research group. Since then, I have become increasingly convinced of one thing: it is better to work on things that are long-term and right, not merely things that are easy.
 
-2. **缩放律的起源与断裂点。** 幂律关系为什么会成立？它在什么条件下会失效？最近一些工作暗示，缩放律可能在极高规模下出现相变，这让我非常感兴趣。
+## Questions I Currently Care About (as of April 2026)
 
-3. **惰性 regime 与丰富 regime 的完整相图。** 我们知道 lazy regime 和 rich regime 都存在，但它们之间的过渡区域是什么样的？是否存在第三种 regime？如果存在，它会对应怎样的模型行为与训练机制？
+1. **Analytical theory for nonlinear dynamics.** Most solvable results are still limited to linear networks or infinite-width limits. The training dynamics of real finite-width nonlinear networks remain largely a black box, and I want to understand what happens inside it.
 
-4. **超参数的“标准模型”。** 能否建立一个统一框架，将 μP、中心流等参数化方案纳入其中，并给出更加系统、可解释的超参数选择原则？我希望未来的超参数选择不只是经验调参，而是有一套可以推导、比较和迁移的理论。
+2. **The origin and breaking points of scaling laws.** Why do power-law relationships emerge? Under what conditions do they fail? Some recent work suggests that scaling laws may undergo phase transitions at extremely large scales, which I find very interesting.
 
-## 我的研究品味
+3. **The full phase diagram between the lazy regime and the rich regime.** We know that both the lazy regime and the rich regime exist, but what does the transition region between them look like? Is there a third regime? If so, what model behavior and training mechanism would it correspond to?
 
-我目前对研究的理解，可以概括为“具体-抽象-具体”。
+4. **A "standard model" of hyperparameters.** Can we build a unified framework that includes parametrization schemes such as μP and mean-field parametrization, and gives more systematic and interpretable principles for choosing hyperparameters? I hope future hyperparameter choices will not be only empirical tuning, but will instead rest on a theory that can be derived, compared, and transferred.
 
-我始终认为，深度学习首先是一门实证学科，因此研究不能脱离具体现象。无论是 scaling law、频率原则，还是训练动力学中的各种经验规律，都应该先被认真观察、复现和刻画。一个好的理论问题，往往不是凭空提出的，而是从真实现象中长出来的。
+## My Research Taste
 
-但停留在现象层面是不够的。我同样相信，深度学习在更深层次上终究是一个数学问题。我们需要把经验现象抽象成可分析的对象，建立自洽的理论框架，解释这些现象为什么出现、何时出现、又会在什么条件下失效。
+My current understanding of research can be summarized as "concrete-abstract-concrete."
 
-最终，理论还必须回到具体实践中。一个有价值的理论不应只是形式上优雅，也应该能够解释现实模型的行为，甚至进一步指导训练、架构设计和超参数选择。这就是我所理解的“具体-抽象-具体”：从现象出发，经由理论抽象，再回到现实问题。
+I believe deep learning is first an empirical discipline, so research should not be detached from concrete phenomena. Whether we study scaling laws, the frequency principle, or empirical regularities in training dynamics, these phenomena should first be carefully observed, reproduced, and characterized. A good theoretical question is usually not invented from nowhere; it grows out of real phenomena.
 
-## 我如何学习一个新领域
+But staying at the level of phenomena is not enough. I also believe that, at a deeper level, deep learning is ultimately a mathematical problem. We need to abstract empirical phenomena into analyzable objects, build self-consistent theoretical frameworks, and explain why these phenomena appear, when they appear, and under what conditions they fail.
 
-我学习一个新领域时，通常会先进行大量阅读，建立对核心问题、代表性方法和历史脉络的整体认识。相比于一开始就追逐细节，我更关心这个领域在试图回答什么问题，哪些问题已经被解决，哪些地方仍然存在结构性的空白。
+Finally, theory must return to concrete practice. A valuable theory should not only be formally elegant. It should also explain the behavior of real models, and ideally guide training, architecture design, and hyperparameter selection. This is what I mean by "concrete-abstract-concrete": starting from phenomena, passing through theoretical abstraction, and returning to real problems.
 
-与此同时，我会大量与 AI 对话，用它帮助我梳理概念、检查理解、寻找不同文献之间的联系。对我而言，AI 更像是一个高频反馈的学习伙伴，可以帮助我快速暴露自己没有想清楚的地方。
+## How I Learn a New Field
 
-我也非常重视向前辈学习。很多研究判断、问题品味和技术直觉并不完全写在论文里，而是来自更有经验的研究者对领域的长期观察。与他们交流，往往能帮助我更快地区分哪些问题只是看起来热闹，哪些问题真正值得长期投入。
+When I learn a new field, I usually begin with extensive reading to build an overall understanding of its core questions, representative methods, and historical development. Rather than chasing details from the beginning, I care more about what the field is trying to answer, which problems have already been solved, and where structural gaps remain.
 
-## 我怎么看理论与工程的关系
+At the same time, I have many conversations with AI. I use it to organize concepts, check my understanding, and find connections among different papers. For me, AI is more like a high-frequency feedback partner that helps expose places where my thinking is not yet clear.
 
-我依然会用“具体-抽象-具体”来理解理论与工程的关系。
+I also value learning from more experienced researchers. Many judgments about research, problem taste, and technical intuition are not fully written in papers; they come from long-term observation of the field. Conversations with experienced researchers often help me distinguish more quickly between problems that merely look active and problems that are genuinely worth long-term investment.
 
-工程给我们提供真实问题、经验现象和可检验的反馈。没有工程实践，理论很容易变成脱离现实的形式游戏；但如果只有工程经验，深度学习又会停留在技巧堆叠和试错调参中，难以形成可迁移、可解释、可积累的科学知识。
+## How I See the Relation Between Theory and Engineering
 
-因此，理论与工程并不是对立关系。好的工程问题可以孕育好的理论问题，而好的理论也应该反过来服务工程实践：帮助我们理解哪些经验规律是稳定的，哪些只是偶然有效；哪些设计可以迁移到更大模型和不同任务中，哪些会在规模、数据或优化条件变化后失效。
+I still use "concrete-abstract-concrete" to think about the relation between theory and engineering.
 
-## 影响我的书、电影与音乐
+Engineering provides real problems, empirical phenomena, and testable feedback. Without engineering practice, theory can easily become a formal game detached from reality. But with engineering experience alone, deep learning can remain a collection of tricks and trial-and-error tuning, making it difficult to build transferable, interpretable, and cumulative scientific knowledge.
 
-福柯的《规训与惩罚》、杨德昌的电影《一一》
+Therefore, theory and engineering are not opposed. Good engineering problems can give rise to good theoretical questions, and good theory should in turn serve engineering practice: it should help us understand which empirical rules are stable and which are only accidentally effective; which designs can transfer to larger models and different tasks, and which fail when scale, data, or optimization conditions change.
 
-音乐方面，我既喜欢古典音乐，也喜欢摇滚乐。古典音乐给我一种结构、秩序与耐心，摇滚乐则提醒我保持表达欲、批判性和生命力。除此之外，我也在学小提琴。它是一件很难快速获得反馈的事情，但正因如此，它训练的是长期主义和对细节的敏感。
+## Books, Films, and Music That Have Influenced Me
 
-## 未来几年我想做什么
+Michel Foucault's _Discipline and Punish_ and Edward Yang's film _Yi Yi_.
 
-未来几年，我希望自己能继续做真正重要的事情。对我而言，这不只是发表论文或完成阶段性目标，而是持续寻找那些有机会改变人类理解方式、技术能力与社会结构的问题。
+For music, I like both classical music and rock. Classical music gives me a sense of structure, order, and patience, while rock reminds me to keep a desire for expression, criticality, and vitality. I am also learning the violin. It is difficult to get quick feedback from the violin, but precisely because of that, it trains long-termism and sensitivity to detail.
 
-在研究上，我希望做能够连接经验现象、数学机制与现实模型行为的工作：从深度学习中的具体问题出发，建立更清晰的理论解释，并让这些解释反过来指导实践。更长远地说，我希望自己能参与推动人工智能从经验工程走向更成熟的科学体系。
+## What I Want to Do in the Next Few Years
 
-## to be continued...
+In the next few years, I hope to continue working on things that are genuinely important. To me, this is not only about publishing papers or completing short-term milestones, but about continually searching for problems that may change how humans understand the world, what technology can do, and how society is structured.
 
-> 更多的问题可以在评论区提问，我会尽量回答的🤝
+In research, I hope to work on problems that connect empirical phenomena, mathematical mechanisms, and real model behavior. I want to start from concrete problems in deep learning, build clearer theoretical explanations, and let those explanations guide practice in return. In the longer term, I hope to help move AI from empirical engineering toward a more mature scientific system.
+
+## To Be Continued
+
+> Feel free to ask more questions in the comments; I will answer when I can.

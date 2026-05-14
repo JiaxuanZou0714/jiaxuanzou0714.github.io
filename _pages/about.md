@@ -30,13 +30,18 @@ latest_posts:
 
 Hi, I am **Jiaxuan Zou (邹嘉轩)**.
 
-I am currently an undergraduate student at the School of Mathematics and Statistics, Xi'an Jiaotong University. Concurrently, I serve as a research intern at the [Gaoling School of Artificial Intelligence](http://ai.ruc.edu.cn/), Renmin University of China, advised by [Prof. Yong Liu](https://gsai.ruc.edu.cn/liuyong), and as an AI Technical Consultant for a Tsinghua-affiliated AI startup developing "AI + K-12 Education" products with the Beijing Dongcheng District Education Commission.
+I am an undergraduate student in Mathematics and Statistics at Xi'an Jiaotong University and a research intern at the [Gaoling School of Artificial Intelligence](http://ai.ruc.edu.cn/), Renmin University of China, advised by [Prof. Yong Liu](https://gsai.ruc.edu.cn/liuyong).
 
-I work on the mechanistic understanding and interpretability of deep learning. My approach is phenomenon-driven: start from empirical behaviors, then build first-principles mechanisms that explain _why_ a model works (or fails) and _where_ certain behaviors come from.
+My research focuses on mechanistic interpretability, deep learning theory, optimization, and scaling laws. I am especially interested in turning empirical training phenomena into first-principles mechanisms: why models train, where behaviors emerge, and when scaling or optimization rules break.
 
-I occasionally publish my notes and informal research on my blog. I am always open to collaborating with researchers worldwide, so please feel free to contact me. Currently, I am seeking industry internship opportunities focused on LLM pre-training and AI theory research, as well as PhD positions for Fall 2028.
+I also work as an AI Technical Consultant for a Tsinghua-affiliated AI startup developing "AI + K-12 Education" products with the Beijing Dongcheng District Education Commission.
+
+I write research notes on my blog and welcome conversations on these topics. I am currently seeking industry research internships in LLM pre-training and AI theory, as well as PhD positions for Fall 2028. More background: [English]({{ '/autobiography/' | relative_url }}) / [中文]({{ '/autobiography/zh/' | relative_url }}).
 
 ## Research Interests
 
 - Mechanistic interpretability of LLMs
-- Deep learning theory & optimization
+- Training dynamics of finite-width networks
+- Optimizer design for LLM pre-training
+- Scaling laws and their failure modes
+- Deep learning theory and optimization

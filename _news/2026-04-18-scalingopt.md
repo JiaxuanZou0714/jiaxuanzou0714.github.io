@@ -5,4 +5,4 @@ inline: true
 related_posts: false
 ---
 
-Excited to announce that I have officially joined the **[ScalingOpt](https://tianshijing.github.io/ScalingOpt/)** project! I will be co-maintaining this amazing systematic platform and working on the frontiers of optimizer design for large language models.
+I joined the **[ScalingOpt](https://tianshijing.github.io/ScalingOpt/)** project as a co-maintainer, working on optimizer design for large language model training.
