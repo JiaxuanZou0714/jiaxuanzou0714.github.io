@@ -258,7 +258,6 @@ core_sitemap_include_patterns:
   - '^/blog/\d{4}/[^/]+/$'
   - '^/publications/$'
   - '^/cv/$'
-  - '^/mup-map/$'
 
 sass:
   style: compressed
