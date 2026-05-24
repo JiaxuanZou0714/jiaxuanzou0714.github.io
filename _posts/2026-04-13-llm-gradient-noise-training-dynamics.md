@@ -2,7 +2,7 @@
 layout: post
 title: "在 LLM 语境下，梯度里的噪声会如何影响 training dynamics？"
 date: 2026-04-14 00:00:00
-description: "当梯度信号被噪声淹没时，行归一化优化器为何能有效工作？本文通过数学推导揭示：它的核心优势并非方向修正，而是零次齐次映射带来的更新幅值饱和与隐式逆噪声加权——在多块异方差场景下体现为真正有用的块自适应学习率。"
+description: "讨论噪声主导阶段的归一化更新：它不修正梯度方向，也不增加信息量；它限制更新幅值，并在多块异方差场景下产生按噪声尺度调节学习率的效果。"
 tags: [optimization, deep-learning, llm, scaling-law]
 categories: [deep-learning]
 featured: false
@@ -13,308 +13,364 @@ toc:
 
 ## 引言
 
-大规模语言模型的预训练后期存在一个普遍现象：模型已经学到了数据中的大部分结构，剩余可学习的梯度信号变得微弱，而 mini-batch 采样引入的方差却依然很大。换言之，训练系统进入了噪声主导区域（noise-dominated regime）。
+LLM 预训练后期，随机梯度中的有效信号变弱，但 mini-batch 采样带来的方差仍然存在。此时更新中的噪声占比较高。下文称这种情况为 noise-dominated regime。
 
-在这种环境下，近期涌现出了多种基于行归一化或参数分块归一化的优化器，它们在某些设定下表现优于传统方法。但从经典优化理论的视角看，归一化似乎是一种"粗糙的近似"——传统的算法设计追求的是更精确地估计梯度方向与曲率，而归一化直接丢弃了梯度的幅值信息。这引出了本文的核心问题：
+这也是最近一些行归一化、块归一化优化器值得分析的原因。按传统优化的直觉，优化器最好能更准确地估计梯度方向、曲率或者二阶结构；而归一化更新直接丢弃梯度幅值。
 
-> 在噪声主导的 setting 下，归一化更新究竟如何改变了训练的动力学？它对优化器设计有什么指导意义？
+所以问题不是归一化为什么更精确，而是：
+
+> 当梯度主要由噪声控制时，归一化更新到底改变了哪一部分 training dynamics？
+
+这篇文章的主要结论是：至少对 blockwise $$L_2$$ 归一化来说，它不改进单步方向精度，也不从噪声中提取额外信息。它限制更新幅值，使噪声不能随着 $$\sigma$$ 线性传递到更新中。在多块异方差的 LLM 场景里，这会表现成一种隐式的块级学习率调节。
 
 ## 1. 问题建模
 
 ### 1.1 随机优化的最小模型
 
-为了精确地讨论上述现象，我们首先建立一个最小化的数学模型。将待优化参数划分为 $$m$$ 个块，第 $$r$$ 个块记为 $$x_r \in \mathbb{R}^{d_r}$$。对应的随机梯度为：
+先从一个尽量小的模型开始。把参数分成 $$m$$ 个块，第 $$r$$ 个块记为 $$x_r \in \mathbb{R}^{d_r}$$。这一块上的随机梯度写成
 
 $$
 g_r = s_r + \xi_r = s_r + \sigma_r z_r
 $$
 
-其中 $$s_r := \nabla_r F(x)$$ 是真实梯度，$$z_r$$ 是零均值噪声（$$\mathbb{E}[z_r \mid x] = 0$$），$$\sigma_r$$ 控制噪声幅度。定义每个参数块的局部信噪比：
+其中 $$s_r := \nabla_r F(x)$$ 是真实梯度，$$z_r$$ 是零均值噪声（$$\mathbb{E}[z_r \mid x] = 0$$），$$\sigma_r$$ 控制这一块的噪声尺度。对应的局部信噪比定义为
 
 $$
 \rho_r := \frac{\lVert s_r \rVert_2}{\sigma_r \sqrt{d_r}}
 $$
 
-本文关注的核心场景是 $$\rho_r \ll 1$$——即噪声远大于信号的训练后期。
+后面主要看 $$\rho_r \ll 1$$ 的情况，也就是噪声明显大于信号。
 
 ### 1.2 归一化更新的统一形式：共轭范数下的最速下降
 
-目前常见的按块归一化、按行归一化以及梯度分数幂更新方法，都可以写成如下统一形式：
+很多按块归一化、按行归一化和梯度分数幂更新，都可以写成下面这个形式：
 
 $$
 u_r = \frac{\operatorname{sign}(g_r) \odot \lvert g_r \rvert^p}{\lVert g_r \rVert_{p+1}^p}
 $$
 
-这个公式并非凭空构造，它恰好对应于共轭范数空间下的最速下降法。具体来说，考虑在给定范数步长约束下最大化线性下降量的优化问题：
+这个式子也可以从最速下降的角度推出来。考虑在给定范数步长约束下，让线性项下降最多：
 
 $$
 v^* = \arg\min_{\lVert v \rVert_q \le 1} \langle g_r, v \rangle
 $$
 
-根据 Hölder 不等式，对满足 $$\frac{1}{p+1} + \frac{1}{q} = 1$$ 的共轭指数：
+由 Hölder 不等式，对满足 $$\frac{1}{p+1} + \frac{1}{q} = 1$$ 的共轭指数，有
 
 $$
 \lvert\langle g_r, v \rangle\rvert \le \lVert g_r \rVert_{p+1} \lVert v \rVert_q
 $$
 
-当不等式取等时（即 $$\lvert v_{r,i} \rvert^q \propto \lvert g_{r,i} \rvert^{p+1}$$），结合范数约束 $$\lVert v \rVert_q = 1$$ 和共轭条件 $$q = \frac{p+1}{p}$$，可以唯一解出各分量的绝对值：
+等号成立时，$$\lvert v_{r,i} \rvert^q \propto \lvert g_{r,i} \rvert^{p+1}$$。再结合 $$\lVert v \rVert_q = 1$$ 和 $$q = \frac{p+1}{p}$$，可以得到
 
 $$
 \lvert v_{r,i} \rvert = \frac{\lvert g_{r,i} \rvert^p}{\lVert g_r \rVert_{p+1}^p}
 $$
 
-加上使内积为负所需的符号条件 $$\operatorname{sign}(v_{r,i}) = -\operatorname{sign}(g_{r,i})$$，剔除负号后即严格导出了前述的更新公式。两个重要的特例：
+符号取负号是为了让内积下降；如果把更新方向的负号单独放到优化步骤里，就得到上面的 $$u_r$$。两个常见特例是：
 
-- $$p = 1$$：退化为按块 $$L_2$$ 范数归一化
-- $$p = 0$$：退化为按元素符号更新（Sign SGD）
+- $$p = 1$$：blockwise $$L_2$$ 归一化；
+- $$p = 0$$：按元素符号更新，也就是 Sign SGD。
 
-## 2. 一个错误的直觉：归一化修正了方向吗？
+## 2. 一个需要澄清的直觉：归一化是在修正方向吗？
 
-建立了统一框架之后，一个自然的猜测是：归一化通过"校正梯度方向"来提升性能。直觉上，将噪声梯度投影到单位球面似乎去除了幅值的干扰，让方向更"纯净"。
+看到归一化，一个常见解释是：它把梯度投到单位球面上，因此去掉了幅值噪声，使方向更准确。
 
-但这个直觉需要仔细审视。
+这个说法至少对 $$L_2$$ 归一化是不对的。
 
-以按块 $$L_2$$ 归一化（即 $$p=1$$ 的情形）为例，更新量 $$u_r = \frac{g_r}{\lVert g_r \rVert_2}$$。计算它与真实梯度 $$s_r$$ 的方向余弦：
+以 blockwise $$L_2$$ 归一化为例，更新量为 $$u_r = \frac{g_r}{\lVert g_r \rVert_2}$$。它和真实梯度 $$s_r$$ 的方向余弦是
 
 $$
 \cos(u_r, s_r) = \frac{\langle u_r, s_r \rangle}{\lVert u_r \rVert_2 \lVert s_r \rVert_2} = \frac{\langle g_r, s_r \rangle}{\lVert g_r \rVert_2 \lVert s_r \rVert_2} = \cos(g_r, s_r)
 $$
 
-> 对 blockwise $$L_2$$ 归一化，归一化前后与真实梯度的夹角完全相同。归一化并不能在单步上提升方向精度。
+也就是说，blockwise $$L_2$$ 归一化前后，和真实梯度的夹角完全一样。它只是把同一个方向缩放到单位长度，并没有让方向更接近 $$s_r$$。
 
-需要强调的是，这一方向不变性严格依赖于 $$p=1$$（即 $$L_2$$ 归一化）的特殊结构——此时 $$u_r$$ 恰好是 $$g_r$$ 的正比例缩放。对于一般的 $$p$$-幂更新（如 $$p=0$$ 的 Sign SGD），$$u_r$$ 的各分量发生了非线性形变，方向一般会改变。更一般的 sign / power update 本质上是在另一种几何下做最速下降，它是否带来更好的方向取决于梯度、噪声与曲率的几何关系，不能无条件地说"更接近真梯度"。
+当然，这个结论只适用于 $$p=1$$。如果是 Sign SGD 或一般 power update，各坐标会经历非线性变形，方向通常会改变。此时更新可以理解为在另一种几何下做最速下降；方向是否更好，要看梯度、噪声和曲率的具体关系，不能直接断言它更接近真实梯度。
 
-尽管如此，既然连方向保持的 $$L_2$$ 归一化在实践中已经展现出显著优势，方向修正显然不是核心解释。归一化方法的优势究竟从何而来？答案在于：它改变了优化过程中噪声对系统动力学的影响方式。要理解这一点，我们需要深入分析零次齐次映射的数学性质。
+因此，如果连方向不变的 $$L_2$$ 归一化也能在某些训练里带来好处，解释就不应停留在方向精度上。更需要分析的是：噪声进入更新后，它的幅值如何影响动力学。
 
-## 3. 核心机制：零次齐次映射的更新幅值饱和
+## 3. 核心机制：零次齐次带来的更新幅值饱和
 
-### 3.1 两个关键性质
+### 3.1 两个性质
 
-上述各类归一化方法可以统一抽象为映射 $$u_r = \phi_r(g_r)$$，它们都满足两条核心性质：
+把归一化更新抽象成 $$u_r = \phi_r(g_r)$$。这里关心的几类映射通常满足两条性质：
 
-1. 奇对称性：$$\phi_r(-g) = -\phi_r(g)$$
-2. 零次齐次性：对任意 $$c > 0$$，$$\phi_r(cg) = \phi_r(g)$$
+1. 奇对称性：$$\phi_r(-g) = -\phi_r(g)$$；
+2. 零次齐次性：对任意 $$c > 0$$，$$\phi_r(cg) = \phi_r(g)$$。
 
-第二条性质看似简单，但它蕴含了极其深刻的后果：输入的整体缩放不影响输出。这意味着无论噪声 $$\sigma_r$$ 有多大，输出 $$\phi_r(g_r)$$ 的幅值始终不变——更新的幅值被"饱和"（saturated）了。
+第二条是关键。输入整体乘上一个正数，输出不变。于是噪声尺度 $$\sigma_r$$ 再大，只要它是整体幅值上的放大，归一化后的更新幅值也不会跟着线性变大。
 
-这里需要明确一个容易引起误解的概念：这种幅值饱和并不是信息论意义上的"去噪"（denoising）或"噪声压缩"。归一化并没有从噪声中提取出新的信息——事实上它丢弃了幅值信息。它真正做到的是：经过零次齐次的非线性变换之后，输出更新的幅值不再随 $$\sigma_r$$ 线性增长，而是被有界化（bounded）。最简单的一维例子是 $$u = \text{sign}(s + \sigma z)$$：其方差恒为 $$\text{Var}(u) \le 1$$，而原始梯度 $$g = s + \sigma z$$ 的噪声方差却是 $$\sigma^2$$。
+这不是 denoising。归一化没有从噪声里恢复出信号，也没有提高信噪比；它还丢弃了幅值信息。它把输出更新限制在一个固定尺度内。最简单的一维例子是
 
-### 3.2 从齐次性到幅值饱和：一阶响应的衰减
+$$
+u = \operatorname{sign}(s + \sigma z)
+$$
 
-有了这两条性质，下一个自然的问题是：当输入 $$g_r = s_r + \sigma_r z_r$$ 中的噪声项 $$\sigma_r z_r$$ 远大于信号 $$s_r$$ 时，映射的输出会如何响应信号的微弱变化？回答这个问题需要分析 $$\phi_r$$ 对扰动的一阶敏感度，即雅可比矩阵的缩放行为。
+这个 $$u$$ 的方差总是有界的，而原始梯度 $$g = s + \sigma z$$ 的噪声方差会随 $$\sigma^2$$ 增长。
 
-> 技术注记：以下的雅可比/Taylor 展开分析严格适用于光滑的归一化映射（如 $$L_2$$ 归一化）。对于 sign 这类不光滑映射，雅可比矩阵在零点处不存在，需要改用次梯度或分布意义下的导数。不过，在高噪声假设下（$$\sigma_r \gg \lVert s_r \rVert$$），光滑近似在几乎处处的意义下仍然有效。
+### 3.2 一阶响应为什么会随噪声变弱
 
-对任意非零向量 $$g$$ 和微小扰动方向 $$h$$，考虑缩放 $$c$$ 倍后的输入：
+接下来要看的是：如果 $$g_r = s_r + \sigma_r z_r$$，并且 $$\sigma_r z_r$$ 比 $$s_r$$ 大很多，那么 $$\phi_r(g_r)$$ 对信号 $$s_r$$ 还剩多少响应？
+
+先说明一个技术限制。下面用的是雅可比和 Taylor 展开，所以严格来说适用于光滑的归一化映射，比如 $$L_2$$ 归一化。Sign 这类不光滑映射需要换成次梯度或分布意义下的导数。这里先把重点放在光滑情形，因为它已经能解释主要的尺度关系。
+
+对任意非零向量 $$g$$ 和微小扰动 $$h$$，利用零次齐次性：
 
 $$
 \phi_r(cg+\varepsilon h) = \phi_r\left(c\left(g+\frac{\varepsilon}{c}h\right)\right) = \phi_r\left(g+\frac{\varepsilon}{c}h\right)
 $$
 
-对 $$\varepsilon$$ 在 $$0$$ 处求方向导数，得到：
+对 $$\varepsilon$$ 在 0 处求方向导数，得到
 
 $$
 J_{\phi_r}(cg)h = \frac{1}{c} J_{\phi_r}(g)h
 $$
 
-由于对任意方向 $h$ 都成立，雅可比矩阵满足如下缩放律：
+因此
 
 $$
 J_{\phi_r}(cg) = \frac{1}{c} J_{\phi_r}(g)
 $$
 
-类似地，二阶导数满足 $$\nabla^2\phi_r(cg) = \frac{1}{c^2}\nabla^2\phi_r(g)$$。
+二阶导数也类似：$$\nabla^2\phi_r(cg) = \frac{1}{c^2}\nabla^2\phi_r(g)$$。
 
-这条缩放律直接回答了前面的问题。现在我们可以利用它来精确计算 $$\rho_r \ll 1$$ 时归一化更新 $$u_r$$ 的统计行为。由于噪声项 $$\sigma_r z_r$$ 远大于信号 $$s_r$$，自然的做法是在噪声点 $$\sigma_r z_r$$ 处对 $$\phi_r(s_r + \sigma_r z_r)$$ 进行泰勒展开：
+现在在噪声点 $$\sigma_r z_r$$ 附近展开：
 
 $$
 u_r = \phi_r(\sigma_r z_r) + J_{\phi_r}(\sigma_r z_r)s_r + \mathcal{O}\left(\frac{\lVert s_r \rVert^2}{\sigma_r^2}\right)
 $$
 
-应用零次齐次性和雅可比缩放律，将 $$\sigma_r$$ 因子从映射及其雅可比中提出：
+再把齐次性和雅可比缩放律代进去：
 
 $$
 u_r = \phi_r(z_r) + \frac{1}{\sigma_r} J_{\phi_r}(z_r)s_r + \mathcal{O}\left(\frac{\lVert s_r \rVert^2}{\sigma_r^2}\right)
 $$
 
-对噪声取期望。由于 $$z_r$$ 关于原点对称，$$\phi_r$$ 为奇函数，所以 $$\mathbb{E}[\phi_r(z_r)] = 0$$。期望漂移为：
+对噪声取期望。若 $$z_r$$ 关于原点对称，且 $$\phi_r$$ 是奇函数，则 $$\mathbb{E}[\phi_r(z_r)] = 0$$。于是
 
 $$
 \mathbb{E}[u_r \mid x] = \frac{1}{\sigma_r} A_r s_r + \mathcal{O}\left(\frac{\lVert s_r \rVert^2}{\sigma_r^2}\right)
 $$
 
-其中 $$A_r := \mathbb{E}[J_{\phi_r}(z_r)]$$ 仅取决于噪声分布与归一化方式。协方差的零阶近似为：
+其中 $$A_r := \mathbb{E}[J_{\phi_r}(z_r)]$$，只由噪声分布和归一化方式决定。协方差的零阶项为
 
 $$
 \operatorname{Cov}(u_r \mid x) = \operatorname{Cov}(\phi_r(z_r)) + \mathcal{O}\left(\frac{\lVert s_r \rVert}{\sigma_r}\right)
 $$
 
-记 $$B_r := \operatorname{Cov}(\phi_r(z_r))$$。最终，高噪声区归一化更新的动力学形式可以紧凑地写为：
+记 $$B_r := \operatorname{Cov}(\phi_r(z_r))$$，高噪声区的更新可以写成
 
 $$
 u_r \approx \frac{1}{\sigma_r} A_r s_r + \zeta_r, \quad \mathbb{E}[\zeta_r \mid x] = 0, \quad \operatorname{Cov}(\zeta_r \mid x) \approx B_r
 $$
 
-> 归一化将原始的随机梯度 $$s_r + \sigma_r z_r$$ 改造为两部分——一个被 $$1/\sigma_r$$ 缩小的有效漂移项，加上一个幅值有界、不随 $$\sigma_r$$ 增长的残余噪声 $$\zeta_r$$。注意，有效漂移也被 $$1/\sigma_r$$ 缩小了，因此归一化并没有凭空增加信息量——它的作用是把更新的输出幅值饱和到一个不依赖 $$\sigma_r$$ 的有界区间内。与 SGD 中噪声随 $$\sigma_r$$ 线性放大相比，这种幅值饱和带来了本质不同的动力学后果。
+这个式子是后面所有讨论的基础。归一化后的更新由两部分组成：一部分是被 $$1/\sigma_r$$ 缩小的有效漂移，另一部分是幅值不随 $$\sigma_r$$ 增长的残余噪声。需要注意的是，信号项也被 $$1/\sigma_r$$ 缩小了。归一化的作用不是增强信号，而是限制输出噪声幅值。
 
-以最常用的 $$L_2$$ 归一化为例做一个 sanity check。假设噪声近似各向同性高斯 $$z_r \sim \mathcal{N}(0, I_{d_r})$$，由旋转对称性可得 $$A_r = a_{d_r} I_{d_r}$$，其中 $$a_{d_r} \sim d_r^{-1/2}$$，期望漂移化简为 $$\mathbb{E}[u_r \mid x] \approx \frac{a_{d_r}}{\sigma_r} s_r$$，且有严格的二阶矩约束 $$\mathbb{E}\lVert u_r \rVert_2^2 = 1$$。这些都与直觉一致。
+以 $$L_2$$ 归一化作一致性检查。若 $$z_r \sim \mathcal{N}(0, I_{d_r})$$ 且噪声各向同性，旋转对称性给出 $$A_r = a_{d_r} I_{d_r}$$，其中 $$a_{d_r} \sim d_r^{-1/2}$$。于是
 
-## 4. 动力学后果：稳定性与误差的重构
+$$
+\mathbb{E}[u_r \mid x] \approx \frac{a_{d_r}}{\sigma_r} s_r
+$$
 
-前面我们证明了归一化通过齐次映射的缩放律将更新幅值"饱和"了。这对训练的实际动力学有什么影响？我们从全局和局部两个层面来分析。
+同时 $$\mathbb{E}\lVert u_r \rVert_2^2 = 1$$。漂移随 $$1/\sigma_r$$ 变小，二阶矩则被固定住。
 
-### 4.1 全局单步下降：最大稳定步长的改善
+## 4. 动力学后果：稳定性与误差地板
 
-假设目标函数 $$F$$ 满足 $$L$$-利普希茨平滑条件。由下降引理，更新 $$x_r^+ = x_r - \eta u_r$$ 满足：
+前面得到的是更新本身的统计形式。现在看它如何进入优化动力学。这里分两层：先看单步下降允许多大的学习率，再看局部二次模型下的稳态误差。
+
+### 4.1 全局单步下降：最大稳定步长
+
+设目标函数 $$F$$ 是 $$L$$-smooth。由下降引理，对更新 $$x_r^+ = x_r - \eta u_r$$ 有
 
 $$
 F(x^+) \le F(x) - \eta \sum_{r=1}^m \langle s_r, u_r \rangle + \frac{L}{2} \eta^2 \sum_{r=1}^m \lVert u_r \rVert_2^2
 $$
 
-SGD 的情形。 令 $$u_r = s_r + \sigma_r z_r$$，取期望后：
+先看 SGD，也就是 $$u_r = s_r + \sigma_r z_r$$。取期望后：
 
 $$
 \mathbb{E}[F(x^+) \mid x] \le F(x) - \eta \sum_{r=1}^m \lVert s_r \rVert_2^2 + \frac{L}{2} \eta^2 \left( \sum_{r=1}^m \lVert s_r \rVert_2^2 + \sum_{r=1}^m d_r \sigma_r^2 \right)
 $$
 
-在噪声主导时，保证单步期望下降的最大步长受限于：
+在噪声主导时，保证期望下降的步长大致要满足
 
 $$
 \eta_{\text{SGD}} \lesssim \frac{2 \sum_{r} \lVert s_r \rVert_2^2}{L \sum_{r} d_r \sigma_r^2}
 $$
 
-二次项中 $$d_r \sigma_r^2$$ 直接体现了噪声方差的平方级惩罚。
+这里的限制来自二次项里的 $$d_r \sigma_r^2$$。
 
-归一化方法的情形（以 blockwise $$L_2$$ 归一化为例）。 由于 $$\lVert u_r \rVert_2^2 = 1$$ 是 $$p=1$$（blockwise $$L_2$$）时的硬约束（对一般 $$p$$ 并不严格成立），二次项总和变为确定性常数 $$m$$。代入高噪声区的期望漂移结果：
+再看 blockwise $$L_2$$ 归一化。此时 $$\lVert u_r \rVert_2^2 = 1$$，所以二次项变成常数级的 $$m$$。把第 3 节的漂移近似代入：
 
 $$
 \mathbb{E}[F(x^+) \mid x] \le F(x) - \eta \sum_{r=1}^m \frac{a_{d_r}}{\sigma_r} \lVert s_r \rVert_2^2 + \frac{L}{2} \eta^2 m + \mathcal{O}\left(\eta \sum_{r=1}^m \frac{\lVert s_r \rVert_2^3}{\sigma_r^2}\right)
 $$
 
-忽略高阶项，保持期望下降所需的步长上界为：
+忽略高阶项，步长上界约为
 
 $$
 \eta_{\text{norm}} \lesssim \frac{2 \sum_{r} a_{d_r} \lVert s_r \rVert_2^2 / \sigma_r}{L m}
 $$
 
-> 核心差异一目了然：SGD 的最大稳定步长以 $$\mathcal{O}(1/\sigma^2)$$ 的速率收缩，而归一化方法仅以 $$\mathcal{O}(1/\sigma)$$ 收缩。这意味着在同等噪声水平下，归一化允许的稳定步长区间显著更宽。
+这给出一个很直接的差别：SGD 的稳定步长随 $$1/\sigma^2$$ 收缩，而归一化更新大致随 $$1/\sigma$$ 收缩。噪声越大，这个差别越明显。
 
-但需要注意的是，在单块、同方差的简化模型下，"更大的稳定步长"并不自动意味着"更快的单步进展"。对归一化方法，最优步长下的单步下降量约为 $$a_d^2 \lVert s \rVert^4 / (L\sigma^2)$$；对 SGD 则约为 $$\lVert s \rVert^4 / (Ld\sigma^2)$$。由于 $$a_d^2 \sim 1/d$$，两者实际上是同阶的。因此，归一化在单块同方差设定下的核心优势更准确地应理解为稳定性的权衡——它拥有更宽的可用步长区间——而非同条件下单步进展更大。归一化的真正优势在多块异方差场景下才得到充分体现（见第 5 节）。
+不过这里不能过度解读。在单块、同方差模型里，更大的稳定步长不等于更大的单步下降量。对归一化方法，最优步长下的单步下降量约为 $$a_d^2 \lVert s \rVert^4 / (L\sigma^2)$$；对 SGD，则约为 $$\lVert s \rVert^4 / (Ld\sigma^2)$$。由于 $$a_d^2 \sim 1/d$$，两者同阶。
 
-### 4.2 局部收敛：稳态误差地板的降低
+所以在这个最简单的模型里，归一化主要改变稳定性权衡：可用学习率区间更宽，但不会自动带来更大的单步进展。主要差别会在多块异方差时出现。
 
-上节分析了"步长能取多大"的问题。但更根本的问题是：即便选择了稳定的步长，训练最终能收敛到多好？在随机优化中，噪声的存在使得参数不会精确收敛到最优点，而是在其附近波动，形成一个稳态误差地板。下面通过局部二次模型来定量分析这个地板。
+### 4.2 局部收敛：稳态误差地板
 
-设 $$F(x) = \frac{1}{2} \sum_{r=1}^m \lambda_r \lVert x_r \rVert_2^2$$，其中 $$s_r = \lambda_r x_r$$。
+再看局部二次模型：
 
-归一化方法的参数演化为：
+$$
+F(x) = \frac{1}{2} \sum_{r=1}^m \lambda_r \lVert x_r \rVert_2^2
+$$
+
+此时 $$s_r = \lambda_r x_r$$。
+
+对归一化更新，第 $$r$$ 块的近似动力学是
 
 $$
 x_{r, t+1} = \left( 1 - \eta \frac{a_{d_r} \lambda_r}{\sigma_r} \right) x_{r, t} - \eta \zeta_{r, t}
 $$
 
-对均方误差取期望，利用 $$\mathbb{E}[\zeta_{r,t}] = 0$$ 消去交叉项，得到线性递推：
+对均方误差取期望，并用 $$\mathbb{E}[\zeta_{r,t}] = 0$$ 消去交叉项：
 
 $$
 \mathbb{E}\lVert x_{r, t+1} \rVert_2^2 \approx \left( 1 - 2\eta \frac{a_{d_r} \lambda_r}{\sigma_r} \right) \mathbb{E}\lVert x_{r, t} \rVert_2^2 + \eta^2
 $$
 
-稳态时左右两侧相等，解出稳态方差：
+稳态时解得
 
 $$
 \mathbb{E}\lVert x_{r, \infty} \rVert_2^2 \approx \frac{\eta^2}{2\eta \frac{a_{d_r} \lambda_r}{\sigma_r}} = \frac{\eta \sigma_r}{2 a_{d_r} \lambda_r} \sim \mathcal{O}\left(\frac{\eta \sigma_r \sqrt{d_r}}{\lambda_r}\right)
 $$
 
-SGD 的参数演化为 $$x_{r, t+1} = (1 - \eta \lambda_r) x_{r, t} - \eta \xi_{r, t}$$，稳态方差为：
+SGD 的递推为 $$x_{r, t+1} = (1 - \eta \lambda_r) x_{r, t} - \eta \xi_{r, t}$$，对应稳态方差
 
 $$
 \mathbb{E}\lVert x_{r, \infty} \rVert_2^2 \approx \frac{\eta d_r \sigma_r^2}{2\lambda_r} \sim \mathcal{O}\left(\frac{\eta d_r \sigma_r^2}{\lambda_r}\right)
 $$
 
-对比这两个结果，归一化展现了一个清晰的权衡：
+这里的取舍很清楚：
 
-> - 代价：局部收缩率从 $$\eta \lambda_r$$ 减弱为 $$\eta a_{d_r} \lambda_r / \sigma_r$$。噪声越大，参数向最优点的拉回越慢。
-> - 收益：稳态误差地板降低了整整 $$\sigma_r \sqrt{d_r}$$ 倍。归一化以牺牲收缩速度为代价，换取了严格更低的极限误差。
+> - 代价：局部收缩率从 $$\eta \lambda_r$$ 变成 $$\eta a_{d_r} \lambda_r / \sigma_r$$。噪声越大，拉回越慢。
+> - 收益：稳态误差从 $$\sigma_r^2$$ 级别降到 $$\sigma_r$$ 级别，维度因子也相应变弱。
 
-## 5. 从理论到实践：异方差结构与隐式块自适应学习率
+这仍然不是方向估计的改进。它只是控制随机更新的幅值，因此长期波动不会像 SGD 那样随原始噪声方差膨胀。
 
-### 5.1 动机：为什么必须考虑参数块间的噪声差异？
+## 5. 从理论到实践：异方差与隐式块自适应学习率
 
-前面第 4 节的分析表明，在单块同方差的简化模型下，归一化和 SGD 在最优步长下的单步下降是同阶的。那么归一化的实际优势究竟体现在哪里？答案在于：实际 LLM 训练面临的不是单块同方差，而是多块异方差 + 共享全局学习率的约束。
+### 5.1 为什么必须看块间噪声差异
 
-第一，不同参数块的噪声水平差异悬殊——例如 embedding 层因梯度稀疏而方差极大，中间层则获得较稠密的信号，$$\sigma_r$$ 可跨越数个量级。这种系统性差异即异方差（heteroscedasticity）。
+如果只看单块同方差模型，归一化和 SGD 的最优单步下降同阶，那它在 LLM 训练里为什么还会有价值？
 
-第二，学习率调度器通常只提供一个全局标量 $$\eta$$。尽管存在分层学习率（layer-wise learning rate）等技巧，主流训练管线仍然以单一学习率为主。这意味着全局 $$\eta$$ 必须同时满足所有参数块的稳定性要求。
+关键是实际模型不是一个块，也不是同方差。不同参数块的噪声水平可能差很多。例如 embedding 层因为 token 访问稀疏，梯度方差可能很大；一些中间层的信号更密，噪声尺度又是另一种状态。用前面的记号说，$$\sigma_r$$ 可以在不同块之间相差很多。
 
-> 这两个约束叠加在一起，产生了一个尖锐的问题：当噪声水平参差不齐时，全局学习率的选择会如何影响整体收敛？SGD 和归一化方法在这个问题上的表现截然不同。正是在这个场景下，归一化相对于 SGD 的优势才从"同阶的稳定性权衡"升级为"本质性的块自适应能力"。
+另一方面，训练管线通常仍然使用一个全局学习率 $$\eta$$。当然可以做 layer-wise learning rate，但主流程里最常见的仍然是一个共享 schedule。于是全局学习率必须同时照顾所有参数块。
 
-### 5.2 归一化的本质：带随机块学习率的重参数化
+这两个事实放在一起，问题就变得具体了：如果不同块的噪声水平差异很大，一个全局 $$\eta$$ 应该怎么选？SGD 的学习率会受最高噪声块约束；归一化则会自动给不同块不同的有效步长。
 
-在进入定量分析之前，值得先从代数层面揭示 blockwise $$L_2$$ 归一化的本质。对第 $$r$$ 块，更新可以改写为：
+### 5.2 归一化等价于随机块学习率
+
+对 blockwise $$L_2$$ 归一化，第 $$r$$ 块更新可以直接改写为
 
 $$
 x_r^+ = x_r - \eta \frac{g_r}{\lVert g_r \rVert_2} = x_r - \left(\frac{\eta}{\lVert g_r \rVert_2}\right) g_r
 $$
 
-这表明归一化实质上就是以随机的有效步长 $$\eta_r^{\text{eff}} = \eta / \lVert g_r \rVert_2$$ 执行的 SGD。在高噪声下 $$\lVert g_r \rVert_2 \approx \sigma_r \sqrt{d_r}$$，因此有效步长近似为 $$\eta_r^{\text{eff}} \approx \eta / (\sigma_r \sqrt{d_r})$$——自动与噪声尺度成反比。
+也就是说，它等价于用随机有效步长
 
-这一观察与第 3 节的"幅值饱和"机制并不矛盾，而是同一个现象的两种等价描述：幅值饱和是机制层面的解释，块自适应学习率则是现象层面的总结。
+$$
+\eta_r^{\text{eff}} = \frac{\eta}{\lVert g_r \rVert_2}
+$$
 
-### 5.3 分析：全局学习率受限于最差参数块
+来做 SGD。在高噪声区，$$\lVert g_r \rVert_2 \approx \sigma_r \sqrt{d_r}$$，所以
 
-设所有参数块中的最大噪声标准差为 $$\sigma_{\max} := \max_r \sigma_r$$。要求每一块的稳态均方误差 $$\mathbb{E}\lVert x_{r,\infty} \rVert_2^2$$ 都不超过给定阈值 $$\varepsilon$$，全局学习率必须满足最严格的那个约束。
+$$
+\eta_r^{\text{eff}} \approx \frac{\eta}{\sigma_r \sqrt{d_r}}
+$$
 
-对于 SGD，利用第 4.2 节的稳态公式，要求 $$\frac{\eta d_r \sigma_r^2}{2\lambda_r} \lesssim \varepsilon$$ 对所有块 $$r$$ 成立。这迫使全局学习率被最高噪声的块卡住：
+这就是隐式的逆噪声尺度加权。高噪声块得到更小的有效步长；低噪声块得到更大的有效步长。
+
+这与第 3 节的幅值饱和是同一现象的两种表述。幅值饱和关注输出更新的尺度；随机块学习率把归一化更新重新写回 SGD 的形式。
+
+### 5.3 全局学习率为什么受最高噪声块约束
+
+设最大噪声标准差为 $$\sigma_{\max} := \max_r \sigma_r$$。如果希望每个参数块的稳态均方误差 $$\mathbb{E}\lVert x_{r,\infty} \rVert_2^2$$ 都不超过阈值 $$\varepsilon$$，全局学习率必须满足最严格的块约束。
+
+对 SGD，根据第 4.2 节的稳态公式，需要
+
+$$
+\frac{\eta d_r \sigma_r^2}{2\lambda_r} \lesssim \varepsilon
+$$
+
+对所有块成立。因此
 
 $$
 \eta \lesssim \min_r \frac{2\lambda_r \varepsilon}{d_r \sigma_r^2} \propto \frac{1}{\sigma_{\max}^2}
 $$
 
-在这个被压低的学习率下，每个参数块的收缩率都是 $$\eta \lambda_r$$——一个不依赖于该块自身噪声水平的常数。换句话说，那些原本噪声很小、本可以快速收敛的参数块，被最高噪声的块拖慢到了同一速度。这是一种典型的"木桶效应"：最差的块决定了整个系统的速度。
+一旦学习率受最高噪声块约束，所有块的收缩率都变成 $$\eta \lambda_r$$。低噪声块本可以使用更大的步长，但共享学习率会使它们同步变慢。
 
-对于归一化方法，稳态公式变为 $$\frac{\eta \sigma_r}{2 a_{d_r} \lambda_r} \lesssim \varepsilon$$。全局学习率的约束放宽为：
+对归一化更新，稳态条件变成
+
+$$
+\frac{\eta \sigma_r}{2 a_{d_r} \lambda_r} \lesssim \varepsilon
+$$
+
+因此
 
 $$
 \eta \lesssim \min_r \frac{2 a_{d_r} \lambda_r \varepsilon}{\sigma_r} \propto \frac{1}{\sigma_{\max}}
 $$
 
-仅这一点就已经是显著的改善：允许的最大步长从 $$\propto 1/\sigma_{\max}^2$$ 提升到了 $$\propto 1/\sigma_{\max}$$。
+仅从全局上界看，最坏噪声块造成的压制已经从 $$1/\sigma_{\max}^2$$ 缓和到了 $$1/\sigma_{\max}$$。
 
-但更关键的差异在于收缩率的异质性。第 $$r$$ 个参数块的有效收缩率为：
+更重要的是，各块的有效收缩率不是同一个数。第 $$r$$ 块为
 
 $$
 \text{rate}^{\text{norm}}_r = \eta \frac{a_{d_r} \lambda_r}{\sigma_r}
 $$
 
-这个收缩率与 $$1/\sigma_r$$ 成正比。噪声小的参数块收缩快，噪声大的参数块收缩慢——归一化自动为每个块分配了与其噪声尺度成反比的有效步长。需要指出的是，这里的 $$\sigma_r$$ 是噪声标准差而非方差，因此更准确的表述是逆噪声尺度加权（inverse-noise-scale weighting），而非严格的逆方差加权。归一化在不引入任何额外超参数的情况下天然实现了这种块自适应能力。
+它随 $$1/\sigma_r$$ 变化。低噪声块收缩快，高噪声块收缩慢。更准确地说，因为 $$\sigma_r$$ 是标准差，所以这是 inverse-noise-scale weighting，而不是严格的 inverse-variance weighting。
 
 ### 5.4 对 LLM 训练的实际意义
 
-这个隐式块自适应学习率的结论直接解释了几个实际训练中的现象：
+把上面的模型翻译回 LLM 训练，大致有几个含义：
 
-1. 在预训练后期使用行归一化优化器时，即使不对 embedding 层和主干层设置不同的学习率，训练也往往保持稳定。这是因为归一化已经通过有效步长 $$\eta_r^{\text{eff}} \propto 1/\sigma_r$$ 自动"压制"了 embedding 层的高梯度方差，无需人工干预。
+1. 如果某些层或参数块的梯度方差特别高，行归一化/块归一化会自动降低它们的有效步长。比如 embedding 相关参数不一定需要完全靠人工调一个更小的 learning rate。
 
-2. SGD 在大规模训练后期需要极其保守的学习率衰减，否则容易因为个别高噪声参数块的发散而导致 loss spike。归一化方法对此天然免疫：最大稳定步长仅以 $$1/\sigma$$ 而非 $$1/\sigma^2$$ 收缩。
+2. 在噪声主导阶段，SGD 类更新的稳定学习率会受高噪声块限制，否则容易出现 loss spike。归一化更新的稳定条件随 $$1/\sigma$$ 而不是 $$1/\sigma^2$$ 收缩，所以可用区间更宽。
 
-3. 在混合精度训练中，低精度带来的量化噪声进一步加剧了参数块间的异方差。归一化方法在此场景下的鲁棒性优势会被进一步放大。
+3. 混合精度训练会引入额外量化噪声，也可能放大不同参数块之间的噪声差异。归一化方法对这类异方差更不敏感。
+
+这些说法都依赖本文的简化模型，不能直接替代真实大模型实验。但它至少给了一个方向：归一化优化器有价值的地方，可能不在于更精确的方向估计，而在于它改变了不同噪声尺度参数块的有效学习率。
 
 ## 6. 总结
 
-本文的推导揭示了一个清晰的图景：在块内噪声近似各向同性的模型下，blockwise $$L_2$$ 归一化本质上就是"用 $$1/\lVert g_r \rVert$$ 做出来的随机块学习率"。它不提升单步方向精度（方向不变性严格依赖 $$p=1$$），也不增加信息量，但会把更新的输出幅值饱和到一个不依赖 $$\sigma_r$$ 的有界范围内。
+在块内噪声近似各向同性的模型下，blockwise $$L_2$$ 归一化可以理解为
 
-在不同的模型假设下，这种幅值饱和机制带来不同层面的优势：
+$$
+\text{SGD with } \eta_r^{\text{eff}} = \frac{\eta}{\lVert g_r \rVert}
+$$
 
-1. 幅值饱和（机制层）：零次齐次性使输出幅值不随噪声增长，阻断了二次惩罚项的膨胀。但需注意，有效漂移也同步缩小，因此这并非无条件的信息增益；
-2. 稳定性权衡（单块同方差）：稳态误差从 $$\mathcal{O}(\sigma^2)$$ 降至 $$\mathcal{O}(\sigma)$$，最大稳定步长从 $$\mathcal{O}(1/\sigma^2)$$ 升至 $$\mathcal{O}(1/\sigma)$$。但在各自最优步长下，单步下降量仍为同阶，核心收益在于更宽的稳定区间而非更快的每步进展；
-3. 隐式块自适应学习率（多块异方差 + 共享全局 $$\eta$$）：这是归一化方法在实践中的真正优势所在。归一化在异方差参数块间以 $$\eta_r^{\text{eff}} \propto 1/\sigma_r$$ 自适应分配有效步长，避免高噪声块拖垮全局收敛——这正是逆噪声尺度加权的体现。
+它不提高单步方向精度，也不增加信息量。它做的是把更新幅值限制在固定尺度内，因此原始梯度里的噪声幅值不会直接传到参数更新里。
 
-对于优化器设计，本文的分析给出的核心指导是：在噪声主导的 setting 下，更新规则的零次齐次性——而非对曲率的更精细估计——才是决定训练稳定性的关键结构性质。它通过幅值饱和这一机制，在多块异方差的实际场景中自动产生块自适应学习率，从而在无需额外超参数的情况下实现对噪声异质性的鲁棒适应。
+这件事带来三层后果：
+
+1. 机制层：零次齐次性让输出幅值不随输入噪声尺度增长。代价是有效漂移也随 $$1/\sigma_r$$ 变弱；
+2. 单块同方差层：稳态误差从 $$\mathcal{O}(\sigma^2)$$ 降到 $$\mathcal{O}(\sigma)$$，最大稳定步长从 $$\mathcal{O}(1/\sigma^2)$$ 放宽到 $$\mathcal{O}(1/\sigma)$$。但最优步长下的单步下降仍然同阶；
+3. 多块异方差层：归一化给每个块自动分配 $$\eta_r^{\text{eff}} \propto 1/\sigma_r$$ 的有效步长，避免全局学习率完全被高噪声块支配。
+
+所以，在噪声主导的 training dynamics 里，归一化更新的关键不是方向估计更准，而是更新幅值更稳定。这个性质在单块模型里表现为稳定性权衡，在 LLM 的多块异方差结构里表现为一种实际可用的自适应机制。
 
 ## 7. 数值验证
 
-为验证上文核心结论，我们使用进行了 5 组 Monte Carlo 数值实验。
+下面用 5 组 Monte Carlo 实验检查前面的几个尺度关系。
 
-记号与脚本定义如下：
+记号如下：
 
 - 噪声标准差：$$\sigma$$；
 - 更新向量：SGD 取 $$u=g$$，归一化取 $$u=g/\lVert g \rVert_2$$；
@@ -325,12 +381,12 @@ $$
 ### 7.1 方向不变性（归一化不修正单步方向）
 
 {% include figure.liquid
-  path="assets/img/post-04-14/01_direction_invariance.png"
-  class="img-fluid rounded z-depth-1"
-  width="100%"
-  caption="方向不变性验证"
+  path='assets/img/post-04-14/01_direction_invariance.png'
+  class='img-fluid rounded z-depth-1'
+  width='100%'
+  caption='方向不变性验证'
   zoomable=true
-  alt="方向不变性验证"
+  alt='方向不变性验证'
 %}
 
 图中包含两个子图：
@@ -338,96 +394,95 @@ $$
 - 左图（Direction Cosine Is Preserved）：横轴是 $$\cos(g,s)$$，纵轴是 $$\cos(g/\lVert g \rVert,s)$$。若归一化不改变单步方向，散点应贴合对角线 $$y=x$$。
 - 右图（Numerical Difference Distribution）：横轴是 $$\Delta:=\lvert \cos(g,s)-\cos(g/\lVert g \rVert,s) \rvert$$，纵轴是频数（对数坐标）。若方向保持，$$\Delta$$ 应集中在 0 附近。
 
-结果显示散点几乎完全落在 $$y=x$$ 上，且 $$\max \Delta=1.11\times10^{-16}$$，说明归一化并不“修正方向”，它的优势不来自单步方向精度提升。
+结果里散点基本贴在 $$y=x$$ 上，且 $$\max \Delta=1.11\times10^{-16}$$。这验证了第 2 节的结论：对 $$L_2$$ 归一化，方向没有被修正。
 
 ### 7.2 幅值饱和与漂移缩放
 
 {% include figure.liquid
-  path="assets/img/post-04-14/02_noise_compression.png"
-  class="img-fluid rounded z-depth-1"
-  width="100%"
-  caption="幅值饱和与漂移缩放"
+  path='assets/img/post-04-14/02_noise_compression.png'
+  class='img-fluid rounded z-depth-1'
+  width='100%'
+  caption='幅值饱和与漂移缩放'
   zoomable=true
-  alt="幅值饱和与漂移缩放"
+  alt='幅值饱和与漂移缩放'
 %}
 
-该图同样由两个子图组成：
+这张图也有两个子图：
 
-- 左图（Drift Scaling in Noise-Dominated Regime）：横轴是 $$\sigma$$（对数坐标），纵轴是 $$\lvert \mathbb{E}\langle u,s \rangle \rvert$$（对数坐标）。读图时看曲线与参考线 $$\sigma^{-1}$$ 的平行程度。
-- 右图（Noise Amplification vs Noise Compression）：横轴是 $$\sigma$$（对数坐标），纵轴是 $$\operatorname{tr}(\operatorname{Cov}(u))$$（对数坐标）。读图时看 SGD 曲线是否贴近 $$\sigma^2$$ 参考线，以及归一化曲线是否近似水平。
+- 左图（Drift Scaling in Noise-Dominated Regime）：横轴是 $$\sigma$$，纵轴是 $$\lvert \mathbb{E}\langle u,s \rangle \rvert$$，都是对数坐标。主要看曲线是否接近 $$\sigma^{-1}$$。
+- 右图（Noise Amplification vs Noise Compression）：横轴是 $$\sigma$$，纵轴是 $$\operatorname{tr}(\operatorname{Cov}(u))$$，也是对数坐标。SGD 应接近 $$\sigma^2$$，归一化则应接近水平线。
 
-结果显示：SGD 的噪声协方差迹随 $$\sigma^2$$ 增长（斜率约 $$2.00$$），归一化更新协方差迹近似常数（斜率约 $$0.00$$），体现了幅值饱和效应；同时归一化漂移项也随 $$1/\sigma$$ 衰减（斜率约 $$-0.99$$），说明信号和噪声的输出幅值都被同步约束，符合"不增加信息、但饱和输出幅值"的机制描述，与第 3 节推导一致。
+结果显示，SGD 的噪声协方差迹随 $$\sigma^2$$ 增长，斜率约为 $$2.00$$；归一化更新的协方差迹近似常数，斜率约为 $$0.00$$。同时，归一化漂移项随 $$1/\sigma$$ 衰减，斜率约为 $$-0.99$$。这和第 3 节的说法一致：信号响应变弱，但输出噪声幅值也被限制住。
 
 ### 7.3 最大稳定步长缩放
 
 {% include figure.liquid
-  path="assets/img/post-04-14/03_eta_scaling.png"
-  class="img-fluid rounded z-depth-1"
-  width="100%"
-  caption="最大稳定步长缩放"
+  path='assets/img/post-04-14/03_eta_scaling.png'
+  class='img-fluid rounded z-depth-1'
+  width='100%'
+  caption='最大稳定步长缩放'
   zoomable=true
-  alt="最大稳定步长缩放"
+  alt='最大稳定步长缩放'
 %}
 
-此图用于验证第 4.1 节关于最大稳定步长的幂律关系：
+这张图检查第 4.1 节的学习率尺度：
 
 - 横轴：$$\sigma$$（对数坐标）；
 - 纵轴：估计的 $$\eta_{\max}$$（对数坐标）；
-- 图中圆点为经验估计，虚线/点线为理论与参考幂律（$$\sigma^{-2}$$、$$\sigma^{-1}$$）。
+- 圆点为经验估计，虚线/点线为理论与参考幂律（$$\sigma^{-2}$$、$$\sigma^{-1}$$）。
 
-读图看斜率即可：SGD 约为 $$-1.99$$（即 $$\eta_{\max}\propto 1/\sigma^2$$），归一化约为 $$-0.99$$（即 $$\eta_{\max}\propto 1/\sigma$$），验证了第 4.1 节结论。
+读斜率即可。SGD 约为 $$-1.99$$，对应 $$\eta_{\max}\propto 1/\sigma^2$$；归一化约为 $$-0.99$$，对应 $$\eta_{\max}\propto 1/\sigma$$。
 
 ### 7.4 稳态误差地板缩放
 
 {% include figure.liquid
-  path="assets/img/post-04-14/04_steady_state_scaling.png"
-  class="img-fluid rounded z-depth-1"
-  width="100%"
-  caption="稳态误差地板缩放"
+  path='assets/img/post-04-14/04_steady_state_scaling.png'
+  class='img-fluid rounded z-depth-1'
+  width='100%'
+  caption='稳态误差地板缩放'
   zoomable=true
-  alt="稳态误差地板缩放"
+  alt='稳态误差地板缩放'
 %}
 
-此图对应第 4.2 节的“稳态误差地板”分析：
+这张图对应第 4.2 节的稳态误差地板：
 
 - 横轴：$$\sigma$$（对数坐标）；
 - 纵轴：稳态 $$\mathbb{E}\lVert x \rVert_2^2$$（对数坐标）；
-- 两条参考虚线分别对应 $$\sigma^2$$ 与 $$\sigma$$ 标度。
+- 两条参考虚线分别对应 $$\sigma^2$$ 和 $$\sigma$$ 标度。
 
-读图方式是比较数据曲线与参考线的平行关系。结果显示：SGD 约为 $$\mathcal{O}(\sigma^2)$$（斜率约 $$2.00$$），归一化约为 $$\mathcal{O}(\sigma)$$（斜率约 $$1.00$$），与第 4.2 节理论吻合。
+曲线与参考线的平行关系符合推导：SGD 约为 $$\mathcal{O}(\sigma^2)$$，斜率约 $$2.00$$；归一化约为 $$\mathcal{O}(\sigma)$$，斜率约 $$1.00$$。
 
 ### 7.5 异方差与隐式块自适应学习率
 
 {% include figure.liquid
-  path="assets/img/post-04-14/05_heteroscedastic_blocks.png"
-  class="img-fluid rounded z-depth-1"
-  width="100%"
-  caption="异方差与隐式块自适应学习率"
+  path='assets/img/post-04-14/05_heteroscedastic_blocks.png'
+  class='img-fluid rounded z-depth-1'
+  width='100%'
+  caption='异方差与隐式块自适应学习率'
   zoomable=true
-  alt="异方差与隐式块自适应学习率"
+  alt='异方差与隐式块自适应学习率'
 %}
 
-此图用于验证异方差场景下的隐式块自适应学习率（逆噪声尺度加权），包含两个子图：
+这张图检查异方差场景下的块自适应效果：
 
-- 左图（Global eta Under Heteroscedastic Noise）：横轴为迭代步数，纵轴为块级误差 $$\mathbb{E}\lVert x_r \rVert_2^2$$（对数坐标）。四条曲线分别对应 SGD/归一化 在低噪声块与高噪声块上的轨迹。
+- 左图（Global eta Under Heteroscedastic Noise）：横轴为迭代步数，纵轴为块级误差 $$\mathbb{E}\lVert x_r \rVert_2^2$$（对数坐标）。四条曲线分别对应 SGD/归一化在低噪声块与高噪声块上的轨迹。
 - 右图（Implicit Inverse-Variance Weighting）：横轴为块类别（低噪声/高噪声），纵轴为有效收缩系数 $$\kappa_r:=\mathbb{E}\langle u_r,s_r \rangle/\lVert s_r \rVert_2^2$$。
 
-在两块异方差噪声设定（$$\sigma_{\text{low}}=0.5,\ \sigma_{\text{high}}=4.0$$）下，归一化低噪声块的有效收缩系数约为高噪声块的 $$7.49$$ 倍，接近噪声标准差之比 $$\sigma_{\text{high}}/\sigma_{\text{low}} = 8$$（注意这里是标准差之比而非方差之比），体现了无需额外超参数的隐式逆噪声尺度加权，即块自适应学习率。
+实验设定为 $$\sigma_{\text{low}}=0.5,\ \sigma_{\text{high}}=4.0$$。归一化下，低噪声块的有效收缩系数约为高噪声块的 $$7.49$$ 倍，接近标准差之比 $$\sigma_{\text{high}}/\sigma_{\text{low}} = 8$$。这支持第 5 节的解释：这里体现的是逆噪声尺度加权，而不是严格的逆方差加权。
 
-综合来看，第 7 节从方向一致性（限于 $$L_2$$ 归一化）、漂移与协方差的幅值饱和缩放、最大稳定步长、稳态误差地板以及异方差场景下的块自适应学习率五个角度，逐项验证了本文理论结论。
-
+综合来看，这 5 组实验分别检查了方向不变性、漂移缩放、协方差饱和、最大稳定步长、稳态误差地板以及异方差下的块自适应。它们没有证明真实 LLM 训练一定如此，但至少说明上面的简化模型在数值上是自洽的。
 
 ## 参考文献
 
-[1] Shazeer, N., & Stern, M. (2018). [Adafactor: Adaptive Learning Rates with Sublinear Memory Cost](https://proceedings.mlr.press/v80/shazeer18a.html). In *Proceedings of the 35th International Conference on Machine Learning (ICML 2018)*, *Proceedings of Machine Learning Research*, 80, 4596–4604.
+[1] Shazeer, N., & Stern, M. (2018). [Adafactor: Adaptive Learning Rates with Sublinear Memory Cost](https://proceedings.mlr.press/v80/shazeer18a.html). In _Proceedings of the 35th International Conference on Machine Learning (ICML 2018)_, _Proceedings of Machine Learning Research_, 80, 4596–4604.
 
 [2] Jordan, K., Jin, Y., Boza, V., You, J., Cesista, F., Newhouse, L., & Bernstein, J. (2024). [Muon: An optimizer for hidden layers in neural networks](https://kellerjordan.github.io/posts/muon/).
 
-[3] Deng, S., Ouyang, Z., Pang, T., Liu, Z., Jin, R., Yu, S., & Yang, Y. (2026). [RMNP: Row-Momentum Normalized Preconditioning for Scalable Matrix-Based Optimization](https://arxiv.org/abs/2603.20527). *arXiv preprint* arXiv:2603.20527.
+[3] Deng, S., Ouyang, Z., Pang, T., Liu, Z., Jin, R., Yu, S., & Yang, Y. (2026). [RMNP: Row-Momentum Normalized Preconditioning for Scalable Matrix-Based Optimization](https://arxiv.org/abs/2603.20527). _arXiv preprint_ arXiv:2603.20527.
 
-[4] Gu, Y., & Xie, Z. (2026). [Mano: Restriking Manifold Optimization for LLM Training](https://arxiv.org/abs/2601.23000). *arXiv preprint* arXiv:2601.23000.
+[4] Gu, Y., & Xie, Z. (2026). [Mano: Restriking Manifold Optimization for LLM Training](https://arxiv.org/abs/2601.23000). _arXiv preprint_ arXiv:2601.23000.
 
-[5] Wang, M., Wang, J., Zhang, J., Wang, W., Pei, P., Cai, X., E, W., & Wu, L. (2025). [GradPower: Powering Gradients for Faster Language Model Pre-Training](https://arxiv.org/abs/2505.24275). *arXiv preprint* arXiv:2505.24275.
+[5] Wang, M., Wang, J., Zhang, J., Wang, W., Pei, P., Cai, X., E, W., & Wu, L. (2025). [GradPower: Powering Gradients for Faster Language Model Pre-Training](https://arxiv.org/abs/2505.24275). _arXiv preprint_ arXiv:2505.24275.
 
 ## 引用
 
