@@ -106,18 +106,6 @@ ul.task-list input[type="checkbox"] {
       color: var(--global-text-color-light);
       font-size: var(--text-xs);
     }
-
-    a.affiliation-place {
-      color: var(--global-text-color-light);
-      text-decoration: none;
-      transition: color var(--transition-base);
-
-      &:hover,
-      &:focus {
-        color: var(--global-theme-color);
-        text-decoration: none;
-      }
-    }
   }
 
   .profile-social {

@@ -13,16 +13,8 @@ profile:
   more_info: >
     <div class="profile-affiliations">
       <p>
-        <span class="affiliation-unit">Mathematics & Statistics</span>
+        <span class="affiliation-unit">School of Mathematics and Statistics</span>
         <span class="affiliation-place">Xi'an Jiaotong University</span>
-      </p>
-      <p>
-        <span class="affiliation-unit">Gaoling School of AI</span>
-        <span class="affiliation-place">Renmin University of China</span>
-      </p>
-      <p>
-        <span class="affiliation-unit">Yaoqing Yang Group</span>
-        <a class="affiliation-place" href="https://home.dartmouth.edu/">Dartmouth College</a>
       </p>
     </div>
 
