@@ -74,6 +74,50 @@ ul.task-list input[type="checkbox"] {
       display: inline-block;
       margin: 0;
     }
+
+    .profile-affiliations {
+      display: grid;
+      gap: 0.45rem;
+      justify-items: center;
+      max-width: 18rem;
+      margin: 0.7rem auto 0;
+      overflow-wrap: normal;
+    }
+
+    .profile-affiliations p {
+      display: block;
+      width: 100%;
+      margin: 0;
+      line-height: 1.25;
+    }
+
+    .affiliation-unit,
+    .affiliation-place {
+      display: block;
+    }
+
+    .affiliation-unit {
+      color: var(--global-text-color);
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    .affiliation-place {
+      color: var(--global-text-color-light);
+      font-size: var(--text-xs);
+    }
+
+    a.affiliation-place {
+      color: var(--global-text-color-light);
+      text-decoration: none;
+      transition: color var(--transition-base);
+
+      &:hover,
+      &:focus {
+        color: var(--global-theme-color);
+        text-decoration: none;
+      }
+    }
   }
 
   .profile-social {

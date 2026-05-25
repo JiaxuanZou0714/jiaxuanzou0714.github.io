@@ -11,9 +11,20 @@ profile:
   image: headshot.png
   image_circular: true # crops the image to make it circular
   more_info: >
-    <p>School of Mathematics and Statistics, XJTU</p>
-    <p>Gaoling School of Artificial Intelligence, RUC</p>
-    <p><a href="https://home.dartmouth.edu/">Dartmouth College</a></p>
+    <div class="profile-affiliations">
+      <p>
+        <span class="affiliation-unit">Mathematics & Statistics</span>
+        <span class="affiliation-place">Xi'an Jiaotong University</span>
+      </p>
+      <p>
+        <span class="affiliation-unit">Gaoling School of AI</span>
+        <span class="affiliation-place">Renmin University of China</span>
+      </p>
+      <p>
+        <span class="affiliation-unit">Yaoqing Yang Group</span>
+        <a class="affiliation-place" href="https://home.dartmouth.edu/">Dartmouth College</a>
+      </p>
+    </div>
 
 selected_papers: true # includes a list of papers marked as "selected={true}"
 social: true # includes social icons at the bottom of the page
