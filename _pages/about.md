@@ -4,7 +4,7 @@ title: About
 description: Jiaxuan Zou's academic homepage, with research notes and publications on mechanistic interpretability, deep learning theory, optimization, and scaling laws.
 keywords: academic homepage, mechanistic interpretability, deep learning theory, optimization, scaling laws
 permalink: /
-subtitle: Undergraduate Student @ XJTU | Research Intern @ GSAI, RUC & Dartmouth
+subtitle: Undergraduate Student @ XJTU | Research Intern @ GSAI, RUC
 
 profile:
   align: right
@@ -34,7 +34,7 @@ latest_posts:
 
 Hi, I am **Jiaxuan Zou (邹嘉轩)**.
 
-I am an undergraduate student in Mathematics and Statistics at Xi'an Jiaotong University and a research intern at the [Gaoling School of Artificial Intelligence](http://ai.ruc.edu.cn/), Renmin University of China, advised by [Prof. Yong Liu](https://gsai.ruc.edu.cn/liuyong). I am also a research intern in [Prof. Yaoqing Yang](https://sites.google.com/site/yangyaoqingcmu/)'s group at [Dartmouth](https://home.dartmouth.edu/), working with [Shenyang Deng](https://dsyforever.github.io/#about) on optimizer-related problems.
+I am an undergraduate student in Mathematics and Statistics at Xi'an Jiaotong University and a research intern at the [Gaoling School of Artificial Intelligence](http://ai.ruc.edu.cn/), Renmin University of China, advised by [Prof. Yong Liu](https://gsai.ruc.edu.cn/liuyong).
 
 My research focuses on mechanistic interpretability, deep learning theory, optimization, and scaling laws. I am especially interested in turning empirical training phenomena into first-principles mechanisms: why models train, where behaviors emerge, and when scaling or optimization rules break.
 
