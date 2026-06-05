@@ -1,189 +1,208 @@
 cv:
-  name: Albert Einstein
-  label: Scientist
-  email: einstein@example.com
-  location: Princeton, NJ
-  image: ""
-  summary: A German-born theoretical physicist, widely ranked among the greatest and most influential scientists of all time
+  name: Jiaxuan Zou
+  label: Undergraduate Student in Mathematics and Statistics
+  email: 3140143497@qq.com
+  website: https://jiaxuanzou0714.github.io
+  image: headshot.png
+  summary: Undergraduate in Mathematics and Statistics at Xi'an Jiaotong University and research intern at the Gaoling School of Artificial Intelligence, Renmin University of China. My work focuses on mechanistic interpretability, training dynamics, optimizer design, and scaling laws.
 
   social_networks:
     - network: X
-      username: AlbertEinstein
-    - network: GitHub
-      username: example
-    - network: LinkedIn
-      username: example
+      username: SmartPig_Joe
+    - network: Google Scholar
+      username: YE6iiwUAAAAJ
 
   address:
-    street: 2712 Broadway St
-    city: San Francisco
-    region: California
-    postalCode: CA 94115
-    countryCode: US
+    city: Xi'an
+    region: Shaanxi
+    countryCode: CN
 
   sections:
     Education:
-      - institution: University of Zurich
-        location: Zurich, Switzerland
-        url: https://www.uzh.ch/
-        area: Physics
-        studyType: PhD
-        start_date: 1900
-        end_date: 1905
-        score: ""
-        courses: "Theory of Relativity"
+      - institution: Xi'an Jiaotong University
+        location: Xi'an, China
+        area: Mathematics and Statistics
+        studyType: Undergraduate Student
+        start_date: "2024"
+        end_date: Present
         highlights:
-          - Description 1.
-          - Description 2.
-
-      - institution: Eidgenössische Technische Hochschule
-        location: Zurich, Switzerland
-        area: Physics
-        studyType: Federal teaching diploma
-        start_date: 1896
-        end_date: 1900
-        highlights:
-          - Description 1.
-          - Description 2.
+          - School of Mathematics and Statistics.
+          - Research interests include deep learning theory, optimization, mechanistic interpretability, and scaling laws.
 
     Experience:
-      - company: Institute for Advanced Study, Princeton University
-        position: Professor of Theoretical Physics
-        location: Princeton University, NJ
-        start_date: 1933
-        end_date: 1955
-        summary: Teaching at Palmer Physical Laboratory (now 302 Frist Campus Center). While not a professor at Princeton, I associated with the physics professors and continued to give lectures on campus.
+      - company: Gaoling School of Artificial Intelligence, Renmin University of China
+        position: Research Intern
+        location: Beijing, China
+        url: http://ai.ruc.edu.cn/
+        summary: Advised by Prof. Yong Liu.
         highlights:
-          - Relativity
-          - Description 2.
+          - Work on mechanistic interpretability, deep learning theory, optimizer design, and scaling laws.
+          - Co-authored preprints on linear attention, neural scaling laws, latent chain-of-thought, and matrix optimizer design.
 
-      - company: California Institute of Technology
-        position: Visiting Professor
-        location: Pasadena, California, US
-        start_date: 1933
-        end_date: 1933
+      - company: ScalingOpt
+        position: Co-maintainer
+        location: Remote
+        url: https://tianshijing.github.io/ScalingOpt/
+        start_date: "2026-04"
+        end_date: Present
+        summary: A project on optimizer design for large language model training.
         highlights:
-          - Description 1.
-          - Description 2.
+          - Work on the relation among optimizer design, model architecture, and training configuration under scaling-law regimes.
+          - Help maintain the optimizer library, including the Nora optimizer entry.
 
-      - company: Kaiser Wilhelm Institute for Physics
-        position: Director
-        location: Berlin, Germany
-        start_date: 1917
-        end_date: 1933
-
-      - company: Karl-Ferdinand University
-        position: Professor of Theoretical Physics
-        location: Prague, Czechoslovakia
-        start_date: 1911
-        end_date: 1917
-
-      - company: University of Zurich
-        position: Associate Professor of Theoretical Physics
-        location: Zurich, Switzerland
-        start_date: 1909
-        end_date: 1911
-
-    Volunteer:
-      - company: People's Climate March
-        position: Lead Organizer
-        location: Zurich, Switzerland
-        start_date: 2014-04-01
-        end_date: 2015-07-01
-        summary: Lead organizer for the New York City branch of the People's Climate March, the largest climate march in history.
+      - company: Tsinghua-affiliated AI startup
+        position: AI Technical Consultant
+        location: Beijing, China
         highlights:
-          - "Awarded 'Climate Hero' award by Greenpeace for my efforts organizing the march."
-          - "Men of the year 2014 by Time magazine"
+          - Consult on "AI + K-12 Education" products developed with the Beijing Dongcheng District Education Commission.
 
-    Awards:
-      - title: Nobel Prize in Physics
-        authors:
-          - "Royal Swedish Academy of Sciences"
-        date: 1921-11-01
-        awarder: Royal Swedish Academy of Sciences
-        url: https://www.nobelprize.org/prizes/physics/1921/einstein/biographical/
-        summary: The Nobel Prizes are five separate prizes that, according to Alfred Nobel's will of 1895, are awarded to 'those who, during the preceding year, have conferred the greatest benefit to humankind.'
-
-      - title: Max Planck Medal
-        authors:
-          - "German Physical Society"
-        date: 2029
-        awarder: German Physical Society
-        summary: Awarded for outstanding scientific achievement
-
-    Publications:
-      - title: Zur Elektrodynamik bewegter Körper
-        authors:
-          - Albert Einstein
-        publisher: Annalen der Physik
-        releaseDate: 1905-06-30
-        url: https://en.wikisource.org/wiki/Translation:On_the_Electrodynamics_of_Moving_Bodies
-        summary: It concerned an interpretation of the Michelson–Morley experiment and the properties of light and time. Special relativity incorporates the principle that the speed of light is the same for all inertial observers regardless of the state of motion of the source.
-
-      - title: Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt
-        authors:
-          - Albert Einstein
-        publisher: Annalen der Physik
-        releaseDate: 1905-03-18
-        url: https://de.wikisource.org/wiki/Über_einen_die_Erzeugung_und_Verwandlung_des_Lichtes_betreffenden_heuristischen_Gesichtspunkt
-        summary: In the second paper, he applied the quantum theory to light to explain the photoelectric effect. In particular, he used the idea of light quanta (photons) to explain experimental results, but stressed the importance of the experimental results. The importance of his work on the photoelectric effect earned him the Nobel Prize in Physics in 1921.
-
-      - title: Die Grundlage der allgemeinen Relativitätstheorie
-        authors:
-          - Albert Einstein
-        publisher: Annalen der Physik
-        releaseDate: 1916-03-20
-        url: https://de.wikisource.org/wiki/Die_Grundlage_der_allgemeinen_Relativitätstheorie
-        summary: The publication of the theory of general relativity made him internationally famous. He was professor of physics at the universities of Zurich (1909–1911) and Prague (1911–1912), before he returned to ETH Zurich (1912–1914).
-
-    Skills:
-      - name: Physics
-        level: Master
-        icon: fa-solid fa-hashtag
-        keywords: "Quantum Mechanics, Quantum Computing, Quantum Information, Quantum Cryptography, Quantum Communication, Quantum Teleportation"
-
-    Languages:
-      - name: German
-        summary: "Native speaker"
-
-      - name: English
-        summary: "Fluent"
-
-    Interests:
-      - name: Physics
-        icon: fa-solid fa-tag
-        keywords: "Quantum Mechanics, Quantum Computing, Quantum Information, Quantum Cryptography, Quantum Communication, Quantum Teleportation"
-
-    Certificates:
-      - name: Machine Learning
-        date: 2018-01-01
-        issuer: Stanford University
-        icon: fa-solid fa-location-dot
-
-      - name: Quantum Computing
-        date: 2018-01-01
-        issuer: Stanford University
-        icon: fa-solid fa-tag
-
-      - name: Quantum Information
-        date: 2018-01-01
-        issuer: Stanford University
-        icon: fa-solid fa-envelope
+      - company: Xi'an Jiaotong University Deep Learning Seminar
+        position: Founder and Organizer
+        location: Xi'an, China
+        start_date: "2024-09"
+        end_date: Present
+        highlights:
+          - Started an undergraduate deep learning seminar at Xi'an Jiaotong University.
+          - The seminar later attracted more than one thousand participants from across China and led to research collaborations.
 
     Projects:
-      - name: Quantum Computing
-        summary: Quantum computing is the use of quantum-mechanical phenomena such as superposition and entanglement to perform computation. Computers that perform quantum computations are known as quantum computers.
+      - name: ScalingOpt
+        url: https://tianshijing.github.io/ScalingOpt/
+        summary: A discussion platform and benchmark project for optimizer design in large language model training.
         highlights:
-          - Quantum Teleportation
-          - Quantum Cryptography
-        start_date: 2018-01-01
-        end_date: 2018-01-01
+          - Co-maintainer.
+          - Focuses on optimizer design, model architecture, and training configuration under the scaling-law paradigm.
+          - Nora has been included in the ScalingOpt optimizer library.
 
-    References:
-      - name: Professor John Doe
-        icon: fa-solid fa-laptop
-        reference: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam condimentum, diam quis convallis euismod, arcu mi ullamcorper lorem, a vestibulum nunc magna at sem. Sed in risus ac felis varius blandit.
+    Publications:
+      - title: Kaczmarz Linear Attention
+        authors:
+          - Jiaxuan Zou
+          - Ruifeng Ren
+          - Yong Liu
+        publisher: Under Review
+        date: "2026"
+        url: https://arxiv.org/abs/2605.08587
+        summary: Jiaxuan Zou, Ruifeng Ren, and Yong Liu. arXiv:2605.08587.
 
-      - name: Professor Jane Smith
-        icon: fa-solid fa-thumbtack
-        reference: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam condimentum, diam quis convallis euismod, arcu mi ullamcorper lorem, a vestibulum nunc magna at sem. Sed in risus ac felis varius blandit.
+      - title: "Nora: Normalized Orthogonal Row Alignment for Scalable Matrix Optimizer"
+        authors:
+          - Jinghui Yuan
+          - Jiaxuan Zou
+          - Shuo Wang
+          - Yong Liu
+          - Feiping Nie
+        publisher: Under Review
+        date: "2026"
+        url: https://arxiv.org/abs/2605.03769
+        summary: Jinghui Yuan, Jiaxuan Zou, Shuo Wang, Yong Liu, and Feiping Nie. arXiv:2605.03769.
+
+      - title: "Effective Frontiers: A Unification of Neural Scaling Laws"
+        authors:
+          - Jiaxuan Zou
+          - Zixuan Gong
+          - Ye Su
+          - Huayi Tang
+          - Yong Liu
+        publisher: Under Review
+        date: "2026"
+        url: https://arxiv.org/abs/2602.02593
+        summary: Jiaxuan Zou, Zixuan Gong, Ye Su, Huayi Tang, and Yong Liu. arXiv:2602.02593.
+
+      - title: Capabilities and Fundamental Limits of Latent Chain-of-Thought
+        authors:
+          - Jiaxuan Zou
+          - Yaozhong Xiong
+          - Yong Liu
+        publisher: Under Review
+        date: "2026"
+        url: https://arxiv.org/abs/2602.01148
+        summary: Jiaxuan Zou, Yaozhong Xiong, and Yong Liu. arXiv:2602.01148.
+
+      - title: "Statistical MIA: Rethinking Membership Inference Attack for Reliable Unlearning Auditing"
+        authors:
+          - Jialong Sun
+          - Zeming Wei
+          - Jiaxuan Zou
+          - Jiacheng Gong
+          - Guanheng Wang
+          - Chengyang Dong
+          - Jialong Li
+          - Bo Liu
+        publisher: Under Review
+        date: "2026"
+        url: https://arxiv.org/abs/2602.01150
+        summary: Jialong Sun, Zeming Wei, Jiaxuan Zou, Jiacheng Gong, Guanheng Wang, Chengyang Dong, Jialong Li, and Bo Liu. arXiv:2602.01150.
+
+      - title: "FreIE: Low-Frequency Spectral Bias in Neural Networks for Time-Series Tasks"
+        authors:
+          - Jialong Sun
+          - Xinpeng Ling
+          - Jiaxuan Zou
+          - Jiawen Kang
+          - Kejia Zhang
+        publisher: IEEE ICDM
+        date: "2025"
+        url: https://arxiv.org/abs/2510.25800
+        summary: Jialong Sun, Xinpeng Ling, Jiaxuan Zou, Jiawen Kang, and Kejia Zhang.
+
+      - title: Mamba-Driven and Feature-Fused U-Net for Automatic Seismic Horizon Interpretation
+        authors:
+          - Tian Zhang
+          - Jiaju He
+          - Naihao Liu
+          - Jiaxuan Zou
+          - Yongxiang Jiang
+        publisher: IEEE Transactions on Geoscience and Remote Sensing
+        date: "2026"
+        url: https://doi.org/10.1109/TGRS.2026.3660880
+        summary: Tian Zhang, Jiaju He, Naihao Liu, Jiaxuan Zou, and Yongxiang Jiang.
+
+      - title: Seismic Horizon Picking Using Channel-Independent Multi-Scale UNet
+        authors:
+          - Jiaxuan Zou
+          - Naihao Liu
+          - Tian Zhang
+          - Jiaju He
+          - Tao Li
+          - Jinghuai Gao
+        publisher: Under Review
+        date: "2024"
+        summary: Jiaxuan Zou, Naihao Liu, Tian Zhang, Jiaju He, Tao Li, and Jinghuai Gao.
+
+    Research Interests:
+      - bullet: Mechanistic interpretability of LLMs.
+      - bullet: Training dynamics of finite-width neural networks.
+      - bullet: Optimizer design for LLM pre-training.
+      - bullet: Scaling laws and their failure modes.
+      - bullet: Deep learning theory and optimization.
+
+    Skills:
+      - name: Research areas
+        icon: fa-solid fa-magnifying-glass
+        keywords:
+          - Mechanistic interpretability
+          - Deep learning theory
+          - Optimization
+          - Scaling laws
+          - Training dynamics
+      - name: Mathematical tools
+        icon: fa-solid fa-square-root-variable
+        keywords:
+          - Optimization
+          - Statistics
+          - Dynamical systems
+          - Mathematical modeling
+      - name: Applied AI
+        icon: fa-solid fa-microchip
+        keywords:
+          - LLM pre-training
+          - Matrix optimizers
+          - Linear attention
+          - AI education products
+
+    Languages:
+      - name: Chinese
+        summary: Native
+      - name: English
+        summary: Working proficiency
