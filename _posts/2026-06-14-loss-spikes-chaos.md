@@ -69,7 +69,9 @@ $$\ell_t = L(x_t) = h(y_t), \quad y_{t+1} = r\, y_t(1-y_t)$$
 
 ## 6. 数值验证
 
-下面做一个最小数值实验来检查上面的三个结论。取
+前面的推导已经说明，三次 loss 下的 GD 可以严格化成 Logistic map。这里的数值实验直接迭代原始 GD 递推，不先跑 Logistic map；实验要检查的是本文真正关心的问题：单个 spike 的逐点时刻是否值得预测，以及宏观统计量是否仍然可观测。
+
+取混沌情形 $$r=4$$，也就是 $$\eta=3$$。这时
 
 $$
 \lambda=1,\quad \gamma=2,\quad L_*=0.
@@ -81,13 +83,15 @@ $$
 L(x)=\frac{1}{2}x^2+\frac{1}{3}x^3,\quad x_{t+1}=(1-\eta)x_t-\eta x_t^2.
 $$
 
-对每个给定的 $$r$$，令 $$\eta=r-1$$，并使用上文的仿射换元
+实验中直接从 $$x_0$$ 开始迭代上面的 $$x_t$$ 递推，并记录真实的三次 loss $$L(x_t)$$。为了让初值扰动和前面的 Logistic map 记号对齐，先取 $$y_0=0.123456789$$，再用
 
 $$
-y_t=A x_t+B,\quad A=B=\frac{\eta}{1+\eta}.
+x_0=\frac{y_0-B}{A}
 $$
 
-实验里先固定同一个 $$y_0=0.123456789$$，再由 $$x_0=(y_0-B)/A$$ 反解出对应的 GD 初值，然后直接迭代原始的 $$x_t$$ 递推。
+换回 GD 变量。第二条轨迹使用 $$y_0+10^{-12}$$ 对应的 $$x_0$$，也就是在 $$x$$ 空间里只差大约 $$1.3\times 10^{-12}$$。按照 doubling map 的理解，这种精度对应的逐点可预测时长大约是 $$\log_2(10^{12})\approx 40$$ 步。
+
+Spike 的定义也只依赖 direct-GD loss：先用一条长 GD 轨迹估计 $$L(x_t)$$ 的不变分布，再把超过 90% 分位数的位置记为 spike。
 
 {% include figure.liquid
   path="assets/img/post-06-14/loss-spike-dynamics.png"
@@ -97,16 +101,16 @@ $$
   sizes="(min-width: 1200px) 1050px, 95vw"
   zoomable=true
   alt="三次 loss 梯度下降与 Logistic map 动力学的数值验证"
-  caption="三次 loss 梯度下降与 Logistic map 动力学的数值验证。"
+  caption="直接迭代三次 loss 的 GD：逐点 spike 很快失配，但 rolling q90 和 rolling mean 仍然稳定。"
 %}
 
-图中的三栏分别对应上面的三个推导环节：
+图中的三栏对应两种不同的预测目标：
 
-- (a) 比较不同 $$r=1+\eta$$ 下的 loss 轨迹。$$r<3$$ 时收敛到稳定点；跨过 $$r=3$$ 后出现非单调振荡；$$r=4$$ 时进入强烈的混沌区。
-- (b) 把 $$r=4$$ 的 GD 轨迹换元到 $$y_t$$ 后画出 return map。散点落在 $$y_{t+1}=4y_t(1-y_t)$$ 上，一步残差只有浮点误差量级。
-- (c) 在 doubling coordinate $$s_t$$ 中比较两个相差 $$10^{-10}$$ 的初值。距离先按 $$2^t$$ 放大，直到饱和。
+- (a) 两条 direct-GD loss 曲线在大约 40 步之后明显分开。它们的初值只差约 $$1.3\times 10^{-12}$$，但后续 spike 的具体时刻已经不再一致。
+- (b) 如果把 spike 定义成 $$L(x_t)$$ 的高分位事件，那么 Lyapunov horizon 之后，两条轨迹的 spike time 集合几乎不重合。这说明“预测下一个 spike 在第几步出现”不是一个稳定任务。
+- (c) 但是 rolling q90 和 rolling mean 这类宏观统计量仍然稳定。两条轨迹虽然逐点不同，却落在相同的不变分布统计量附近。
 
-这组实验的作用不是模拟真实大模型，而是确认 toy model 里的逻辑链条是闭合的：三次 loss 下的 GD 递推确实等价于 Logistic map；$$r=3$$ 对应第一次稳定性破缺；而在 $$r=4$$ 时，初值误差在 $$s_t$$ 坐标里近似每步翻倍。因此，单个 spike 的逐点时刻会很快依赖初值中极靠后的有效位数，这也正是它不适合作为长期预测目标的原因。
+所以这组实验想表达的不是“loss 没有规律”，而是“规律不在逐点 spike 时刻上”。在经典混沌系统里，点预测会很快被初值精度限制住；但 regime、spike 频率、幅度分布、rolling quantile 和 rolling mean 这些宏观量仍然可以稳定估计。对真实训练来说，这也更像一个合理的监控目标。
 
 ## 参考文献
 
