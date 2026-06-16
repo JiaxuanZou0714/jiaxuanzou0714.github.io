@@ -252,9 +252,46 @@ $$
 
 代码见 `experiments/batch_schedule_nqm.py`（纯 NumPy）；调整谱指数 `S_SRC`、`C_NOISE` 可在 easy / hard regime 间切换。
 
+## 5. 真实 transformer 上的验证
+
+NQM 有一个固有弱点：它的期望 loss 被刻意构造成与 FSL 同构，所以「最优 schedule 在 NQM 里胜出」近乎自证。为打破这一循环，在真实 transformer 上重做对比：模型不再为 FSL 量身定做。
+
+设置：一个 45M 参数的标准 GPT（6 层，$$d=512$$，block 1024），在 FineWeb（GPT-2 tokenizer）上用 AdamW 训练，learning rate **全程恒定**（8M token 线性 warmup 后不变），固定总预算 **600M tokens**，同一初始化与数据顺序，**唯一变量是 batch schedule**。对比四条：常数 batch 64k / 128k / 512k tokens，以及一条 late-switch 翻倍 ramp（64k→128k→256k→512k）。
+
+{% include figure.liquid
+  path='assets/img/post-06-16/gpu_batch_schedule.png'
+  class='img-fluid rounded z-depth-1'
+  width='100%'
+  caption='45M GPT 在 FineWeb 上、同 600M token 预算与常数 lr 下的对比。左：val loss vs tokens（翻倍 ramp 红线全程最低）；中：val loss vs optimizer steps（ramp 以更少步数达到更低 loss）；右：四条 batch schedule。'
+  zoomable=true
+  alt='real transformer batch schedule experiment on FineWeb'
+%}
+
+结果（同预算、同 lr）：
+
+| schedule | 最终 val loss | optimizer steps |
+|---|---|---|
+| 常数 512k | 4.831 | 1145 |
+| 常数 128k | 4.219 | 4578 |
+| 常数 64k | 4.145 | 9156 |
+| **翻倍 ramp** | **4.091** | 6182 |
+
+翻倍 ramp 在第 5990 步（消耗 520M tokens）即达到最强常数 batch（64k）的最终 loss，**少用约 35% 的 optimizer step**，并继续下降到 4.091，低于所有常数 batch。这与 OLMo「同 loss 省 43% step」一致，也是 §1、§3 的机制在真实 AdamW transformer 上的体现：小 batch 在前累积步数，大 batch 在后降低噪声。
+
+须诚实标注四点：
+
+1. **ramp 的切换点是经验选取的**（各档 token 占比手取），仅由 §3 的定性结论（hard regime → late switch）给出方向，不是 §3.4 用 $$z_j=\int_0^{t_j}b^*$$ 算出的精确离散化。
+2. **精确化需要 $$\beta$$，而 $$\beta$$ 在此不可辨识。** 从三条常数 batch 曲线联合拟合 FSL，残差对 $$\beta$$ 几乎是平的（把 $$\beta$$ 固定在 4 或 8，RMS 不变），原因是三条都远未接近噪声 floor（最终 loss 随 batch 单调，信号主导），而 $$\beta$$ 只在逼近 floor 的形状里显形。这一限制在真实 LLM 训练中是**结构性**的：没人会为拟 $$\beta$$ 而跑多条常数 sweep，单次大训练也几乎总停在信号主导区。正因如此，§3.5 才指向在线 track critical batch size 这类经验方案。
+3. **AdamW $$\neq$$ FSL 的 vanilla SGD。** 经验上大 batch 末段的收益甚至超过该拟合的预测，说明 Adam 下的噪声–batch 关系与 SGD 理论并不完全一致。
+4. **单 seed、单次跑**，无误差棒。
+
+因此这一节的结论是有限而明确的：**late-switch 翻倍 schedule 在真实 transformer 上确实优于常数 batch，验证了 §3 的定性预测；但「最优切换点」依赖一个实践中拿不到的 $$\beta$$，目前的 ramp 仍是经验选择。把它 principled 化的现实方向不是离线拟合，而是单次训练内的在线自适应（如 CBS tracking），这仍是开放问题。**
+
+训练代码 `experiments/bsched_gpt.py`，FSL 拟合诊断 `experiments/fit_fsl.py`。
+
 ## 小结
 
-后期增大 batch 的本质，是噪声损耗项 $$\frac{\eta^2}{2B}\operatorname{tr}(HC)$$ 随 $$1/B$$ 衰减、而 $$B_{\text{crit}}\sim \eta\operatorname{tr}(HC)/\|\mu\|^2$$ 随训练增大；固定 learning rate 下增大 batch 近似于一次 learning-rate decay，并提升硬件利用率。该做法见于 GPT-3、Llama 3、OLMo，仅较少绘入主图。最优 schedule 为截断幂律，在 LLM 的 hard regime 与离散约束下退化为「长期小 batch + 后期若干次翻倍」；Apertus 的 Double GBS 即其工程近似。
+后期增大 batch 的本质，是噪声损耗项 $$\frac{\eta^2}{2B}\operatorname{tr}(HC)$$ 随 $$1/B$$ 衰减、而 $$B_{\text{crit}}\sim \eta\operatorname{tr}(HC)/\|\mu\|^2$$ 随训练增大；固定 learning rate 下增大 batch 近似于一次 learning-rate decay，并提升硬件利用率。该做法见于 GPT-3、Llama 3、OLMo，仅较少绘入主图。最优 schedule 为截断幂律，在 LLM 的 hard regime 与离散约束下退化为「长期小 batch + 后期若干次翻倍」；Apertus 的 Double GBS 即其工程近似。NQM 与一个真实 45M transformer 都印证了这一形态优于常数 batch；但精确的切换点依赖实践中难以获得的 $$\beta$$，如何在单次训练内自适应地确定它，仍是开放问题。
 
 ## 参考资料
 
