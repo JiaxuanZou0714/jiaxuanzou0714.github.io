@@ -258,13 +258,15 @@ $$
 
 ## 参考资料
 
-- Apertus 技术报告（70B loss 曲线与 Double GBS 的出处）
+- Apertus 技术报告：[Apertus: Democratizing Open and Compliant LLMs for Global Language Environments](https://arxiv.org/abs/2509.14233)（70B loss 曲线与 Double GBS 的出处）
 - McCandlish, Kaplan, Amodei et al.：[An Empirical Model of Large-Batch Training](https://arxiv.org/abs/1812.06162)（gradient noise scale）
 - Smith, Kindermans, Le et al.：[Don't Decay the Learning Rate, Increase the Batch Size](https://arxiv.org/abs/1711.00489)
 - Brown et al.：[Language Models are Few-Shot Learners](https://arxiv.org/abs/2005.14165)（GPT-3 的 batch ramp）
 - [The Llama 3 Herd of Models](https://arxiv.org/abs/2407.21783)
-- OLMo / OLMo 2 技术报告，以及 OLMo 关于 critical batch size 的研究
-- Wang, Li, Zhou, Wu et al.：Fast Catch-Up, Late Switching: Optimal Batch Size Scheduling via Functional Scaling Laws（FSL 的 batch size 版本）
+- OLMo Team：[2 OLMo 2 Furious](https://arxiv.org/abs/2501.00656)（batch size warmup 配方）
+- [Critical Batch Size Revisited: A Simple Empirical Approach to Large-Batch Language Model Training](https://arxiv.org/abs/2505.23971)（OLMo 1B 上 batch warmup 省约 43% gradient step）
+- Li, Wang, …, Wu：[Optimal Learning-Rate Schedules under Functional Scaling Laws: Power Decay and Warmup-Stable-Decay](https://arxiv.org/abs/2602.06797)（FSL 框架与 source / capacity 指数）
+- Wang, Li, Zhou, …, Wu：[Fast Catch-Up, Late Switching: Optimal Batch Size Scheduling via Functional Scaling Laws](https://arxiv.org/abs/2602.14208)（FSL 的 batch size 版本）
 
 ## 引用
 
