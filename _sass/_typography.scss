@@ -133,6 +133,25 @@ table {
   }
 }
 
+// Markdown tables inside post content: give them visible structure
+// (header rule, row dividers, bottom margin). Scoped so CV / component
+// / distill tables are untouched.
+.post-content table {
+  width: auto;
+  margin: 0 0 1.5rem;
+  border-collapse: collapse;
+
+  th {
+    border-bottom: 2px solid var(--global-divider-color);
+    padding: 0.45rem 1.25rem 0.45rem 0;
+  }
+
+  td {
+    border-bottom: 1px solid var(--global-divider-color);
+    padding: 0.4rem 1.25rem 0.4rem 0;
+  }
+}
+
 .table-dark {
   background-color: transparent;
   &.table-bordered {
