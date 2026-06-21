@@ -39,7 +39,7 @@ z_{t+1}&=z_t-\eta_t\,\Delta_t,
 \end{aligned}
 $$
 
-其中 $$z$$ 为基础优化器序列，$$x$$ 为用于推理的 Polyak–Ruppert 平均，$$y$$ 为唯一计算梯度的点。将其改写为动量形式（[Through the River](https://arxiv.org/abs/2507.09846) §4.4），令 $$m_t:=(x_t-z_{t+1})/\gamma$$：
+其中 $$z$$ 为基础优化器序列，$$x$$ 为 $$z$$ 的 Polyak–Ruppert 平均、即推理/部署时使用的模型参数，$$y$$ 为唯一计算梯度的点（训练时前向所在的点）。将其改写为动量形式（[Through the River](https://arxiv.org/abs/2507.09846) §4.4），令 $$m_t:=(x_t-z_{t+1})/\gamma$$：
 
 $$
 \begin{aligned}
@@ -92,6 +92,16 @@ $$
 
 取极限的依据：$$c_{t+1}\sim1/t\to0$$，累积量部分 $$\big(\sim\beta^2c_{t+1}^2\cdot t/3\big)$$ 趋于零，但新鲜项每步注入一份比例为 $$(1-\beta)$$、未经缩减的单样本噪声，构成不随 $$t$$ 衰减的方差下界。因此 $$y$$ 轨迹的实际有效 batch size $$B_{\text{eff}}^{\text{realized}}=\sigma^2/\mathrm{Var}(\xi_t)\to 1/(1-\beta)^2$$ 为常数（$$\beta=0.9$$ 对应 $$100$$，$$\beta=0.98$$ 对应 $$2500$$）。即恒定 $$\beta$$ 的 vanilla SF 不向优化器提供增长的 batch size：结论 1 的方差缩减作用于仅用于推理的 $$x$$，而优化轨迹 $$y$$ 被 $$\beta$$ 限制为常数。该关系在 SGD 下成立；AdamW 预条件下 $$B_{\text{eff}}$$ 为由 $$\beta$$ 导出的*名义*有效 batch size，下文报告的均为此值。
 
+> ##### 时变 β 下的修正
+> §1 的动量重写取 $$\beta$$ 恒定。对一般时变 $$\beta_t$$，直接展开 $$y_{t+1}=(1-\beta_{t+1})z_{t+1}+\beta_{t+1}x_{t+1}$$（代入 $$x_{t+1}=(1-c_{t+1})x_t+c_{t+1}z_{t+1}$$、$$z_{t+1}=z_t-\gamma\Delta_t$$）得
+>
+> $$
+> y_{t+1}=y_t-\gamma\big[(1-\beta_t)\Delta_t+(\beta_t-\beta_{t+1}+\beta_{t+1}c_{t+1})\,m_t\big],
+> $$
+>
+> 仅当 $$\beta_{t+1}=\beta_t=\beta$$ 时才退化为前式 $$G^{\text{eff}}_t=(1-\beta)\Delta_t+\beta c_{t+1}m_t$$。因此本文 $$B_{\text{eff}}=1/(1-\beta_t)^2$$ 在时变 $$\beta_t$$ 下是 quasi-static 近似，要求 $$\lvert\beta_{t+1}-\beta_t\rvert\ll c_{t+1}$$，即 $$\beta_t$$ 的变化慢于平均速率。DASF 的 $$\beta_t$$ 由 EMA 平滑的统计量驱动、变化平缓，基本满足此条件；若 $$\beta_t$$ 快速跳变，多出的 $$(\beta_t-\beta_{t+1})\,m_t$$ 项会改变累积梯度项的符号与方差结构，须另行处理。
+{: .block-tip}
+
 由结论 2，要使优化轨迹也获得 batch size 增长，必须令 $$\beta_t\to1$$；问题因此归结为 $$\beta$$ 的调度。同时 $$\beta$$ 承担双重作用：它既决定有效 batch size，又决定稳定阈值（[Through the River](https://arxiv.org/abs/2507.09846) 为解耦二者引入参数 $$C$$）。
 
 **结论 3（$$\beta_t\to1$$ 解锁增长，$$\rho$$ 即增长指数）.** 将实际有效 batch size 对准目标 $$B^\ast(t)$$，得 $$\beta_t=1-1/\sqrt{B^\ast(t)}$$。[AMUSE](https://arxiv.org/abs/2605.22432)（Kim et al. 2026）令 $$1-\beta_t$$ 渐近按 $$t^{-\rho}$$ 衰减（其 Eq.5 实现含 warmup-hold，仅在大 $$t$$ 下为此幂律，见实验一节），故大 $$t$$ 下 $$B_{\text{eff}}^{\text{realized}}(t)\propto t^{2\rho}$$。即 AMUSE 用于保证稳定性的指数 $$\rho$$ 就是隐式 batch size 的增长指数；$$\rho=1/4$$ 给出 $$B_{\text{eff}}\propto\sqrt t$$，与 [Merrill 等](https://arxiv.org/abs/2505.23971)测得的 CBS 标度一致。AMUSE 将 $$\beta_t\uparrow$$ 解释为评估点由快序列 $$z$$ 移向平均序列 $$x$$ 以抑制振荡，而 batch size 视角下同一操作即逐步关闭新鲜噪声注入、使累积量带来的增长得以体现；二者等价，并赋予 $$\rho$$ 可证伪的含义。
@@ -125,7 +135,9 @@ $$
 
 综合四条结论：SF 的 $$1/t$$ 平均在读出端自带线性增长的有效 batch size（结论 1），但优化端被 $$\beta$$ 限制为常数（结论 2）；解放优化端只能令 $$\beta_t\to1$$，这正是 AMUSE 所做，其 $$\rho$$ 即增长指数、$$\rho=1/4$$ 复现 Merrill 的 $$\sqrt t$$（结论 3）；而该增长存在由陈旧性决定的立方根上限（结论 4）。因此无需引入新的优化器：合适的 schedule-free batch size 方法是保留 AMUSE 的结构，仅将 $$\beta_t$$ 由开环的 $$t^{-\rho}$$ 改为由就地测量的梯度统计量闭环驱动——以结论 4 的 $$W^\ast$$ 为目标、经结论 3 的换算设定 $$\beta_t$$，即下节的 DASF。
 
-以上分析基于若干近似：NQM（二次、加性常方差噪声）、逐特征方向（跨谱聚合需按谱加权）、漂移的局部线性化，以及读取 $$B_{\text{eff}}$$ 时对 $$c_t$$ 的准静态处理。这些只影响常数，不影响标度（$$t^{2\rho}$$、立方根等指数稳定）。
+> ##### 分析所用近似
+> 以上分析基于若干近似：NQM（二次、加性常方差噪声）、逐特征方向（跨谱聚合需按谱加权）、漂移的局部线性化，以及读取 $$B_{\text{eff}}$$ 时对 $$c_t$$ 的准静态处理。这些只影响常数，不影响标度（$$t^{2\rho}$$、立方根等指数稳定）。
+{: .block-tip}
 
 ## 3. DASF：drift-aware 闭环控制器
 
@@ -149,7 +161,9 @@ $$
 
 需强调：要估计 $$\lVert G\rVert^2$$ 的是作为对比的噪声尺度设定点 $$\operatorname{tr}\Sigma/\lVert G\rVert^2$$，而非 DASF。且 $$\lVert G\rVert^2$$ 必须取两点无偏解 $$\tfrac{B_{\text{big}}\lVert G_{\text{big}}\rVert^2-B_{\text{small}}\overline{\lVert g_{\text{small}}\rVert^2}}{B_{\text{big}}-B_{\text{small}}}$$——直接用 $$\lVert G_{\text{big}}\rVert^2$$ 会偏高 $$\operatorname{tr}\Sigma/B_{\text{big}}$$，该偏差在低信号后期（正是噪声尺度方案工作的区间）最大。DASF 绕开了这个最难估、最不可靠的量。
 
-需说明，指数 $$1/6$$ 由理论确定；公式中的常数（系数 2 及略去的窗形、物理 batch size 等归一化因子）只平移 $$\beta$$ 的绝对水平、不改变函数形式。又因 $$1/6$$ 次幂对尺度高度不敏感，直接代入实测量即可使 $$\beta$$ 落入合适区间。
+> ##### 公式中的常数
+> 指数 $$1/6$$ 由理论确定；公式中的常数（系数 2 及略去的窗形、物理 batch size 等归一化因子）只平移 $$\beta$$ 的绝对水平、不改变函数形式。又因 $$1/6$$ 次幂对尺度高度不敏感，直接代入实测量即可使 $$\beta$$ 落入合适区间。
+{: .block-tip}
 
 ## 4. 实验
 
@@ -160,7 +174,7 @@ $$
 - 闭环噪声尺度：$$1-\beta_t=\sqrt{\lVert G\rVert^2/\operatorname{tr}\Sigma}$$，故 $$B_{\text{eff}}=\operatorname{tr}\Sigma/\lVert G\rVert^2$$（即噪声尺度本身）。
 - 闭环 drift-aware：$$1-\beta_t=(\lVert\dot G\rVert^2/2\operatorname{tr}\Sigma)^{1/6}$$，故 $$B_{\text{eff}}=(2\operatorname{tr}\Sigma/\lVert\dot G\rVert^2)^{1/3}$$（即结论 4 的 $$W^\ast$$）。
 
-前两者为基线（常数、开环幂律），后两者为本文的闭环设定点。其中 AMUSE 按其 Eq.5 实现——warmup 内持 $$\beta_1$$，其后 $$1-\beta_t=(1-\beta_1)\big(\tfrac{T_0-1}{t-1}\big)^\rho$$（$$T_0$$ 为 warmup 步数，渐近 $$\propto t^{-\rho}$$）——且为充分调参的强基线：$$\rho$$ 与 $$\beta_1$$ 逐规模网格搜索取最优（45M：$$\rho=0.25$$、$$\beta_1=0.4$$；117M：$$\rho=0.6$$、$$\beta_1=0.4$$），故对比的是其最优调参版本，而 drift-aware 全程无调参。两个规模：45M / 600M 与 117M / 2.5B tokens。
+前两者为基线（常数、开环幂律），后两者为本文的闭环设定点。其中 AMUSE 按其 Eq.5 实现——warmup 内持 $$\beta_1$$，其后 $$1-\beta_t=(1-\beta_1)\big(\tfrac{T_0-1}{t-1}\big)^\rho$$（$$T_0$$ 为 warmup 步数，渐近 $$\propto t^{-\rho}$$）——且为充分调参的强基线：$$\rho$$ 与 $$\beta_1$$ 经网格搜索取最优（两规模均为 $$\rho=0.6$$、$$\beta_1=0.4$$），故对比的是其最优调参版本，而 drift-aware 全程无调参。两个规模：45M / 600M 与 117M / 2.5B tokens。
 
 {% include figure.liquid
   path='assets/img/post-06-20/bsf_compare.png'
