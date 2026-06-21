@@ -1,0 +1,202 @@
+<!DOCTYPE html> <html lang="en" dir="ltr"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta name="google-site-verification" content="6008LP9GeEsSEbJ0uBNp0GaBeYKF9egqGOamp3RtjOg"> <meta http-equiv="Permissions-Policy" content="interest-cohort=()"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> DASF：一种闭环的 batch size schedule-free 方法 | Jiaxuan Zou </title> <meta name="author" content="Jiaxuan Zou"> <meta name="description" content="本文提出 DASF（Drift-Aware Schedule-Free）：基于 Schedule-Free 的对偶（迭代平均↔学习率调度、梯度平均↔batch size 调度），用就地测得的梯度统计在线设定有效 batch size，无 schedule、无调参，省去为标定 batch 而训练代理模型、拟合 scaling law 的开销。真实 transformer 上匹配或超过经调参的基线，并给出「compute-optimal 下最优有效 batch 近似恒定、非 √t 增长」的可证伪负结果。"> <meta name="keywords" content="mechanistic interpretability, deep learning theory, optimization, scaling laws, academic homepage, machine learning research"> <meta property="og:site_name" content="Jiaxuan Zou"> <meta property="og:type" content="article"> <meta property="og:title" content="Jiaxuan Zou | DASF：一种闭环的 batch size schedule-free 方法"> <meta property="og:url" content="https://jiaxuanzou0714.github.io/blog/2026/schedule-free-effective-batch-size/"> <meta property="og:description" content="本文提出 DASF（Drift-Aware Schedule-Free）：基于 Schedule-Free 的对偶（迭代平均↔学习率调度、梯度平均↔batch size 调度），用就地测得的梯度统计在线设定有效 batch size，无 schedule、无调参，省去为标定 batch 而训练代理模型、拟合 scaling law 的开销。真实 transformer 上匹配或超过经调参的基线，并给出「compute-optimal 下最优有效 batch 近似恒定、非 √t 增长」的可证伪负结果。"> <meta property="og:image" content="https://jiaxuanzou0714.github.io/assets/img/social-preview.png"> <meta property="og:locale" content="en"> <meta name="twitter:card" content="summary_large_image"> <meta name="twitter:title" content="DASF：一种闭环的 batch size schedule-free 方法"> <meta name="twitter:description" content="本文提出 DASF（Drift-Aware Schedule-Free）：基于 Schedule-Free 的对偶（迭代平均↔学习率调度、梯度平均↔batch size 调度），用就地测得的梯度统计在线设定有效 batch size，无 schedule、无调参，省去为标定 batch 而训练代理模型、拟合 scaling law 的开销。真实 transformer 上匹配或超过经调参的基线，并给出「compute-optimal 下最优有效 batch 近似恒定、非 √t 增长」的可证伪负结果。"> <meta name="twitter:image" content="https://jiaxuanzou0714.github.io/assets/img/social-preview.png"> <meta name="twitter:site" content="@SmartPig_Joe"> <meta name="twitter:creator" content="@SmartPig_Joe"> <script type="application/ld+json">
+    {
+        "author":
+        {
+            "@type": "Person",
+            "name": "Jiaxuan Zou"
+        },
+        "url": "https://jiaxuanzou0714.github.io/blog/2026/schedule-free-effective-batch-size/",
+        "@type": "BlogPosting",
+        "description": "本文提出 DASF（Drift-Aware Schedule-Free）：基于 Schedule-Free 的对偶（迭代平均↔学习率调度、梯度平均↔batch size 调度），用就地测得的梯度统计在线设定有效 batch size，无 schedule、无调参，省去为标定 batch 而训练代理模型、拟合 scaling law 的开销。真实 transformer 上匹配或超过经调参的基线，并给出「compute-optimal 下最优有效 batch 近似恒定、非 √t 增长」的可证伪负结果。",
+        "headline": "DASF：一种闭环的 batch size schedule-free 方法",
+        
+        "sameAs": ["https://twitter.com/SmartPig_Joe","https://www.linkedin.com/in/%E5%98%89%E8%BD%A9-%E9%82%B9-bb3439341","https://scholar.google.com/citations?user=YE6iiwUAAAAJ","https://space.bilibili.com/282545566?spm_id_from=333.1007.0.0","https://www.xiaohongshu.com/user/profile/65fc3374000000000b00d833"],
+        
+        "name": "Jiaxuan Zou",
+        "@context": "https://schema.org"
+    }
+  </script> <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;"> <link rel="dns-prefetch" href="https://cdn.jsdelivr.net"> <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin> <link rel="stylesheet" href="/assets/css/bootstrap.min.css?v=a4b3f509e79c54a512b890d73235ef04"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="/assets/css/academicons.min.css?v=f0b7046b84e425c55f3463ac249818f5"> <link defer rel="stylesheet" href="/assets/css/scholar-icons.css?v=62b2ac103a88034e6882a5be5f3e2772"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link defer href="/assets/css/bootstrap-toc.min.css?v=6f5af0bb9aab25d79b2448143cbeaa88" rel="stylesheet"> <link rel="shortcut icon" href="/assets/img/favicon.png?v=b35afd813064e628008c6adc1069d782"> <link rel="stylesheet" href="/assets/css/main.css?v=d41d8cd98f00b204e9800998ecf8427e"> <link rel="canonical" href="https://jiaxuanzou0714.github.io/blog/2026/schedule-free-effective-batch-size/"> <script src="/assets/js/theme.js?v=48c9b5bd7f2e0605e39e579400e22553"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+    initTheme();
+  </script> </head> <body class="fixed-top-nav sticky-bottom-footer"> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title" href="/"> Jiaxuan Zou </a> <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse text-right" id="navbarNav"> <ul class="navbar-nav ml-auto flex-nowrap"> <style>
+              body {
+                top: 0 !important;
+              }
+              .goog-te-banner-frame.skiptranslate {
+                display: none !important;
+              }
+              .skiptranslate iframe {
+                display: none !important;
+              }
+              #goog-gt-tt,
+              .goog-te-balloon-frame {
+                display: none !important;
+              }
+              .goog-text-highlight {
+                background: transparent !important;
+                box-shadow: none !important;
+              }
+              .nav-translate {
+                display: flex;
+                align-items: center;
+                margin-left: 0.75rem;
+              }
+              .translate-toggle {
+                display: inline-flex;
+                align-items: center;
+                border: 1px solid var(--global-divider-color);
+                border-radius: 999px;
+                overflow: hidden;
+              }
+              .translate-toggle button {
+                border: 0;
+                background: transparent;
+                color: var(--global-text-color);
+                font-size: var(--text-xs);
+                line-height: 1;
+                padding: 0.35rem 0.65rem;
+                transition:
+                  background-color var(--transition-base),
+                  color var(--transition-base);
+              }
+              .translate-toggle button + button {
+                border-left: 1px solid var(--global-divider-color);
+              }
+              .translate-toggle button:hover {
+                color: var(--global-theme-color);
+                background: var(--global-bg-color);
+              }
+              .translate-toggle button.active {
+                background: transparent;
+                color: var(--global-theme-color);
+                font-weight: 600;
+              }
+              #google_translate_element {
+                position: absolute;
+                width: 0;
+                height: 0;
+                overflow: hidden;
+                opacity: 0;
+                pointer-events: none;
+              }
+              #google_translate_element .goog-te-gadget,
+              #google_translate_element .goog-te-combo,
+              #google_translate_element .goog-te-gadget-simple {
+                font-size: 0;
+              }
+              @media (max-width: 575.98px) {
+                .nav-translate {
+                  justify-content: flex-end;
+                  margin: 0.5rem 0 0;
+                }
+              }
+            </style> <li class="nav-item "> <a class="nav-link" href="/">About </a> </li> <li class="nav-item active"> <a class="nav-link" href="/blog/">Blog </a> </li> <li class="nav-item "> <a class="nav-link" href="/publications/">Publications </a> </li> <li class="nav-item "> <a class="nav-link" href="/projects/">Projects </a> </li> <li class="nav-item "> <a class="nav-link" href="/cv/">CV </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search" onclick="openSearchModal()"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="nav-item nav-translate"> <div class="translate-toggle" aria-label="切换语言"> <button type="button" class="translate-toggle-button" data-lang="zh-CN" aria-pressed="false" onclick="setGoogleTranslateLanguage('zh-CN')"> 中 </button> <button type="button" class="translate-toggle-button" data-lang="en" aria-pressed="false" onclick="setGoogleTranslateLanguage('en')"> EN </button> </div> <div id="google_translate_element" aria-hidden="true"></div> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> </header> <div class="container mt-5" role="main"> <div class="row"> <div class="col-sm-3"> <nav id="toc-sidebar" class="sticky-top"></nav> </div> <div class="col-sm-9"> <div class="post"> <header class="post-header"> <h1 class="post-title">DASF：一种闭环的 batch size schedule-free 方法</h1> <p class="post-meta"> Created on June 20, 2026 <span class="post-views" data-goatcounter-path="/blog/2026/schedule-free-effective-batch-size/">   ·  <i class="fa-regular fa-eye"></i> <span class="goatcounter-count">--</span> views </span> </p> <p class="post-tags"> <a href="/blog/2026"> <i class="fa-solid fa-calendar fa-sm"></i> 2026 </a>   ·   <a href="/blog/tag/optimization"> <i class="fa-solid fa-hashtag fa-sm"></i> optimization</a>   <a href="/blog/tag/deep-learning"> <i class="fa-solid fa-hashtag fa-sm"></i> deep-learning</a>   <a href="/blog/tag/llm"> <i class="fa-solid fa-hashtag fa-sm"></i> llm</a>   <a href="/blog/tag/schedule-free"> <i class="fa-solid fa-hashtag fa-sm"></i> schedule-free</a>   <a href="/blog/tag/batch-size"> <i class="fa-solid fa-hashtag fa-sm"></i> batch-size</a>   ·   <a href="/blog/category/deep-learning"> <i class="fa-solid fa-tag fa-sm"></i> deep-learning</a> </p> </header> <article class="post-content"> <div id="markdown-content"> <h2 id="动机">动机</h2> <p>在 LLM 预训练中设定 batch size 及其 schedule，通常依赖大范围超参搜索，或训练一系列小规模代理模型、拟合 critical batch size（CBS）的 scaling law 后外推到目标规模。这类做法成本高，且外推未必可靠：<a href="https://arxiv.org/abs/2505.23971" rel="external nofollow noopener" target="_blank">Merrill 等</a>发现，由小模型外推的梯度噪声尺度在 7B 规模上与 CBS 的实际趋势并不一致。</p> <p>因此，降低上述成本的关键不在于方法是否”自适应”，而在于直接利用目标训练自身就地测量的梯度统计量在线设定 batch size，避免跨规模外推。这也是方法可即插即用的前提。</p> <p>上一篇 <a href="https://jiaxuanzou0714.github.io/blog/2026/why-double-batch-size-llm-pretraining/">《为什么 LLM pretrain 过程中途要把 batch size 翻倍》</a> 调节的是<strong>物理 batch size</strong>：用变分法导出截断幂律形式的最优调度，但其最优切换点依赖一个实践中难以获得的指数。本文转而固定物理 batch size，利用 <a href="https://arxiv.org/abs/2405.15682" rel="external nofollow noopener" target="_blank">Schedule-Free</a>（SF）内在的平均机制在线设定<strong>有效 batch size</strong>。</p> <p>采用 SF 的依据是如下对偶关系：SF 对迭代点做平均，由此获得隐式的学习率衰减；与之对偶，对梯度做平均可获得隐式的有效 batch size 增大，因为对梯度的方差缩减等价于增大有效 batch size。</p> <blockquote class="block-tip"> <h5 id="核心对偶">核心对偶</h5> <p><strong>迭代平均 ↔ 学习率调度</strong><br><strong>梯度平均 ↔ batch size 调度</strong></p> </blockquote> <p>二者都无需预设调度，因为平均窗口随 \(t\) 自动变宽（\(c_t=1/t\)），无需预先知道训练总步数。本文据此提出 <strong>DASF（Drift-Aware Schedule-Free）</strong>：把这条对偶落到算法上——用就地测得的梯度漂移与噪声闭环设定 SF 的插值系数 \(\beta_t\)（即隐式有效 batch size），使有效 batch size 全程 schedule-free、无调参。下文沿这一对偶关系展开。</p> <h2 id="1-sf-与其动量形式">1. SF 与其动量形式</h2> <p>时变 SF 由三条序列定义（\(\Delta_t\) 为评估点 \(y_t\) 处的随机梯度，\(c_t=1/t\)）：</p> \[\begin{aligned} x_t&amp;=(1-c_t)\,x_{t-1}+c_t\,z_t,\\ y_t&amp;=(1-\beta_t)\,z_t+\beta_t\,x_t,\\ z_{t+1}&amp;=z_t-\eta_t\,\Delta_t, \end{aligned}\] <p>其中 \(z\) 为基础优化器序列，\(x\) 为 \(z\) 的 Polyak–Ruppert 平均、即推理/部署时使用的模型参数，\(y\) 为唯一计算梯度的点（训练时前向所在的点）。将其改写为动量形式（<a href="https://arxiv.org/abs/2507.09846" rel="external nofollow noopener" target="_blank">Through the River</a> §4.4），令 \(m_t:=(x_t-z_{t+1})/\gamma\)：</p> \[\begin{aligned} m_t&amp;=(1-c_t)\,m_{t-1}+\Delta_t,\\ y_{t+1}&amp;=y_t-\gamma\big(\beta\,c_{t+1}\,m_t+(1-\beta)\,\Delta_t\big). \end{aligned}\] <p>\(m_t\) 是一个窗口随 \(t\) 变宽的梯度累积量，即”动机”中对偶关系里”梯度平均”所对应的对象，它已内含于 SF，无需额外引入。每步实际使用的梯度是累积量 \(m_t\)（陈旧、低方差）与新鲜梯度 \(\Delta_t\)（满方差）的凸组合，\(\beta\) 为组合权重。下一节在 NQM 中分析 \(m_t\)，以确定 \(\beta\) 究竟提供多大的有效 batch size。</p> <h2 id="2-nqm-分析四个结论">2. NQM 分析：四个结论</h2> <p>取噪声二次模型（NQM），沿 Hessian 的特征方向逐坐标分析（标量）：曲率 \(h\)，真梯度 \(g(\theta)=h\theta\)，单样本随机梯度 \(\Delta=h\theta+\epsilon\)，\(\epsilon\sim\mathcal N(0,\sigma^2)\)。物理 batch size \(B\) 将噪声方差缩小为 \(\sigma^2/B\)，据此给出有效 batch size 的操作定义：噪声方差被压低的倍数。分析对象是 §1 的累积量</p> \[m_t=(1-c_t)\,m_{t-1}+\Delta_t=\sum_{s\le t}w_{t,s}\,\Delta_s,\qquad w_{t,s}=\prod_{r=s+1}^{t}(1-c_r).\] <p><strong>结论 1（读出端的有效 batch size 线性增长）.</strong> 当 \(c_t=1/t\)，权重逐项相消，化简为 \(w_{t,s}=\prod_{r=s+1}^t\frac{r-1}{r}=\frac{s}{t}\)。归一化累积梯度（对信号无偏）的有效样本量由 Kish 公式给出</p> \[B_{\text{eff}}(t)=\frac{\big(\sum_s w_{t,s}\big)^2}{\sum_s w_{t,s}^2}=\frac{(t/2)^2}{t/3}=\frac{3}{4}\,t,\] <p>即用于推理的平均序列 \(x\) 所聚合的梯度有效样本量约为 \(3t/4\)，随 \(t\) 线性增长。就”SF 是否隐式进行 batch warmup”而言，读出端的回答是肯定的。</p> <p><strong>结论 2（优化端的有效 batch size 被 \(\beta\) 限制为常数）.</strong> 基础步 \(z_{t+1}=z_t-\eta\Delta_t\) 使用单个新鲜梯度，\(z\) 本身无方差缩减，方差缩减只存在于平均序列 \(x\)。但真正决定损失下降的既非 \(z\) 也非 \(x\)，而是计算梯度的评估点序列 \(y\)。其等价更新为 \(y_{t+1}=y_t-\gamma\,G^{\text{eff}}_t\)，每步实际使用的有效梯度是累积量 \(m_t\) 与新鲜梯度 \(\Delta_t\) 的凸组合：</p> \[G^{\text{eff}}_t=\beta\,c_{t+1}\,m_t+(1-\beta)\,\Delta_t.\] <p>下面计算 \(G^{\text{eff}}_t\) 的噪声。设单样本梯度 \(\Delta_s=h\theta_s+\epsilon_s\)，其中噪声 \(\epsilon_s\) 相互独立、方差均为 \(\sigma^2\)；累积量按结论 1 展开为 \(m_t=\sum_{s\le t}w_{t,s}\Delta_s\)、\(w_{t,s}=s/t\)。代入后，\(G^{\text{eff}}_t\) 的噪声部分 \(\xi_t\) 是这些独立噪声 \(\{\epsilon_s\}\) 的线性组合：</p> \[\xi_t=\beta c_{t+1}\sum_{s\le t}\tfrac{s}{t}\,\epsilon_s\;+\;(1-\beta)\,\epsilon_t\;=\;\sum_{s\le t}a_s\,\epsilon_s,\] <p>两项分别来自累积量 \(m_t\) 与新鲜梯度 \(\Delta_t\)。这里 \(a_s\) 指噪声 \(\epsilon_s\) 进入 \(\xi_t\) 时所乘的权重，它分两种情形：当前噪声 \(\epsilon_t\) 同时出现在两项中（在 \(m_t\) 内权重 \(w_{t,t}=1\)，在新鲜项内权重 \(1-\beta\)），而过去噪声 \(\epsilon_s\,(s&lt;t)\) 只经由 \(m_t\) 进入，故</p> \[a_t=(1-\beta)+\beta c_{t+1},\qquad a_s=\beta c_{t+1}\,\tfrac{s}{t}\ \ (s&lt;t).\] <p>由独立性，方差等于系数平方之和 \(\mathrm{Var}(\xi_t)=\sigma^2\sum_{s}a_s^2\)，即</p> \[\frac{\mathrm{Var}(\xi_t)}{\sigma^2}=\big[(1-\beta)+\beta c_{t+1}\big]^2+\beta^2 c_{t+1}^2\sum_{s&lt;t}\Big(\frac{s}{t}\Big)^2\ \xrightarrow{\,t\to\infty\,}\ (1-\beta)^2.\] <p>取极限的依据：\(c_{t+1}\sim1/t\to0\)，累积量部分 \(\big(\sim\beta^2c_{t+1}^2\cdot t/3\big)\) 趋于零，但新鲜项每步注入一份比例为 \((1-\beta)\)、未经缩减的单样本噪声，构成不随 \(t\) 衰减的方差下界。因此 \(y\) 轨迹的实际有效 batch size \(B_{\text{eff}}^{\text{realized}}=\sigma^2/\mathrm{Var}(\xi_t)\to 1/(1-\beta)^2\) 为常数（\(\beta=0.9\) 对应 \(100\)，\(\beta=0.98\) 对应 \(2500\)）。即恒定 \(\beta\) 的 vanilla SF 不向优化器提供增长的 batch size：结论 1 的方差缩减作用于仅用于推理的 \(x\)，而优化轨迹 \(y\) 被 \(\beta\) 限制为常数。该关系在 SGD 下成立；AdamW 预条件下 \(B_{\text{eff}}\) 为由 \(\beta\) 导出的<em>名义</em>有效 batch size，下文报告的均为此值。</p> <blockquote class="block-tip"> <h5 id="时变-β-下的修正">时变 β 下的修正</h5> <p>§1 的动量重写取 \(\beta\) 恒定。对一般时变 \(\beta_t\)，直接展开 \(y_{t+1}=(1-\beta_{t+1})z_{t+1}+\beta_{t+1}x_{t+1}\)（代入 \(x_{t+1}=(1-c_{t+1})x_t+c_{t+1}z_{t+1}\)、\(z_{t+1}=z_t-\gamma\Delta_t\)）得</p> \[y_{t+1}=y_t-\gamma\big[(1-\beta_t)\Delta_t+(\beta_t-\beta_{t+1}+\beta_{t+1}c_{t+1})\,m_t\big],\] <p>仅当 \(\beta_{t+1}=\beta_t=\beta\) 时才退化为前式 \(G^{\text{eff}}_t=(1-\beta)\Delta_t+\beta c_{t+1}m_t\)。因此本文 \(B_{\text{eff}}=1/(1-\beta_t)^2\) 在时变 \(\beta_t\) 下是 quasi-static 近似，要求 \(\lvert\beta_{t+1}-\beta_t\rvert\ll c_{t+1}\)，即 \(\beta_t\) 的变化慢于平均速率。DASF 的 \(\beta_t\) 由 EMA 平滑的统计量驱动、变化平缓，基本满足此条件；若 \(\beta_t\) 快速跳变，多出的 \((\beta_t-\beta_{t+1})\,m_t\) 项会改变累积梯度项的符号与方差结构，须另行处理。</p> </blockquote> <p>由结论 2，要使优化轨迹也获得 batch size 增长，必须令 \(\beta_t\to1\)；问题因此归结为 \(\beta\) 的调度。同时 \(\beta\) 承担双重作用：它既决定有效 batch size，又决定稳定阈值（<a href="https://arxiv.org/abs/2507.09846" rel="external nofollow noopener" target="_blank">Through the River</a> 为解耦二者引入参数 \(C\)）。</p> <p><strong>结论 3（\(\beta_t\to1\) 解锁增长，\(\rho\) 即增长指数）.</strong> 将实际有效 batch size 对准目标 \(B^\ast(t)\)，得 \(\beta_t=1-1/\sqrt{B^\ast(t)}\)。<a href="https://arxiv.org/abs/2605.22432" rel="external nofollow noopener" target="_blank">AMUSE</a>（Kim et al. 2026）令 \(1-\beta_t\) 渐近按 \(t^{-\rho}\) 衰减（其 Eq.5 实现含 warmup-hold，仅在大 \(t\) 下为此幂律，见实验一节），故大 \(t\) 下 \(B_{\text{eff}}^{\text{realized}}(t)\propto t^{2\rho}\)。即 AMUSE 用于保证稳定性的指数 \(\rho\) 就是隐式 batch size 的增长指数；\(\rho=1/4\) 给出 \(B_{\text{eff}}\propto\sqrt t\)，与 <a href="https://arxiv.org/abs/2505.23971" rel="external nofollow noopener" target="_blank">Merrill 等</a>测得的 CBS 标度一致。AMUSE 将 \(\beta_t\uparrow\) 解释为评估点由快序列 \(z\) 移向平均序列 \(x\) 以抑制振荡，而 batch size 视角下同一操作即逐步关闭新鲜噪声注入、使累积量带来的增长得以体现；二者等价，并赋予 \(\rho\) 可证伪的含义。</p> <p><strong>结论 4（陈旧性给出立方根上限）.</strong> \(y\) 轨迹用一个对过去约 \(W=B_{\text{eff}}\) 个梯度的窗口平均，来估计当前真梯度 \(G(y_t)\)。但它不是同尺寸的 i.i.d. batch，而是沿移动轨迹的时间平均，故加宽窗口需权衡两个方向相反的误差。</p> <p>其一，方差。平均 \(W\) 个梯度样本，噪声按大数定律降低 \(W\) 倍：</p> \[V(W)\approx\frac{\sigma^2}{W}\qquad(\text{窗越宽越小}).\] <p>其二，陈旧偏置。窗口内的梯度算在过去的点 \(y_s\,(s&lt;t)\) 上，而迭代持续移动。设梯度随步数以速率 \(\dot g\) 漂移（NQM 中 \(\dot g=h\dot y\)，\(h\) 为曲率、\(\dot y\) 为迭代速度），窗口的权重质心滞后当前步约 \(W/2\) 步（\(c_t=1/t\) 时质心在 \(2t/3\)、滞后 \(t/3\)，同阶），故平均梯度系统偏离当前真梯度：</p> \[\text{bias}\approx\dot g\cdot\frac{W}{2}\ \Longrightarrow\ \text{bias}^2\approx\frac{\dot g^2 W^2}{4}\qquad(\text{窗越宽越大}).\] <p>两项相加为均方误差；对 \(W\) 求导并令其为零，即得最优窗 \(W^\ast\)：</p> \[\begin{aligned} \mathrm{MSE}(W)&amp;=\frac{\sigma^2}{W}+\frac{\dot g^2 W^2}{4},\\ \frac{d\,\mathrm{MSE}}{dW}&amp;=-\frac{\sigma^2}{W^2}+\frac{\dot g^2 W}{2}=0 \ \Longrightarrow\ W^3=\frac{2\sigma^2}{\dot g^2} \ \Longrightarrow\ W^\ast=\Big(\frac{2\sigma^2}{\dot g^2}\Big)^{1/3}. \end{aligned}\] <p>有用累积窗宽（即有用有效 batch size 的上限）由梯度噪声 \(\sigma^2\) 与梯度漂移率平方 \(\dot g^2\) 之比的立方根决定。其结构类似噪声尺度 \(\sigma^2/g^2\)，但分母是梯度的变化率 \(\dot g\) 而非梯度本身，因为陈旧性取决于梯度变化的快慢而非其大小；两个量都可就地测量。而 \(c_t=1/t\) 给出线性 \(W\sim t\)，远超此立方根最优，故 vanilla SF 在读出端过度累积，\(B_{\text{eff}}\propto t\) 在后期将超过 CBS。</p> <p>综合四条结论：SF 的 \(1/t\) 平均在读出端自带线性增长的有效 batch size（结论 1），但优化端被 \(\beta\) 限制为常数（结论 2）；解放优化端只能令 \(\beta_t\to1\)，这正是 AMUSE 所做，其 \(\rho\) 即增长指数、\(\rho=1/4\) 复现 Merrill 的 \(\sqrt t\)（结论 3）；而该增长存在由陈旧性决定的立方根上限（结论 4）。因此无需引入新的优化器：合适的 schedule-free batch size 方法是保留 AMUSE 的结构，仅将 \(\beta_t\) 由开环的 \(t^{-\rho}\) 改为由就地测量的梯度统计量闭环驱动——以结论 4 的 \(W^\ast\) 为目标、经结论 3 的换算设定 \(\beta_t\)，即下节的 DASF。</p> <blockquote class="block-tip"> <h5 id="分析所用近似">分析所用近似</h5> <p>以上分析基于若干近似：NQM（二次、加性常方差噪声）、逐特征方向（跨谱聚合需按谱加权）、漂移的局部线性化，以及读取 \(B_{\text{eff}}\) 时对 \(c_t\) 的准静态处理。这些只影响常数，不影响标度（\(t^{2\rho}\)、立方根等指数稳定）。</p> </blockquote> <h2 id="3-dasfdrift-aware-闭环控制器">3. DASF：drift-aware 闭环控制器</h2> <p>由结论 3–4，控制器的形式即确定：以结论 4 的 \(W^\ast\) 为目标有效 batch size，经结论 3 的 \(\beta_t=1-1/\sqrt{B^\ast}\) 换算。将立方根定律由逐坐标形式聚合（\(\sigma^2\to\operatorname{tr}\Sigma\)，\(\dot g^2\to\lVert\dot G\rVert^2\)）并代入，得设定点</p> \[1-\beta_t=\Big(\frac{\lVert\dot G\rVert^2}{2\,\operatorname{tr}\Sigma}\Big)^{1/6}.\] <p>指数 \(1/6=\tfrac13\times\tfrac12\)：\(\tfrac13\) 来自结论 4 的 bias–variance 最优窗口，\(\tfrac12\) 来自结论 2–3 的 \(B_{\text{eff}}=1/(1-\beta)^2\) 换算。其中 \(\operatorname{tr}\Sigma\)、\(\lVert G\rVert^2\)、\(\lVert\dot G\rVert^2\) 三个量全部在训练中就地估计、不碰数据管线（方法见下）。与 AMUSE 相比，本控制器省去了三处人工选择——启发式的 warmup-hold、经验指数 \(\rho\)、初始 \(\beta_1\)：DASF 的 \(\beta_t\) 整条轨迹（含早期的小 batch 段）由就地测得的 \(\dot G\) 与 \(\operatorname{tr}\Sigma\) 逐点定出，而非预设曲线——这正是它相对 AMUSE 的关键简化。</p> <p>设定点取决于梯度漂移 \(\dot G\) 而非梯度大小 \(G\)，这是本设计的核心。若直接以噪声尺度 \(\operatorname{tr}\Sigma/\lVert G\rVert^2\) 作为设定点，则随信号收敛、\(\lVert G\rVert\to0\)，噪声尺度发散，\(\beta\) 被推高至 \(0.99\) 以上、有效 batch size 增至上万，导致过度累积乃至发散。梯度变小并不意味着进入噪声主导区。drift-aware 设定点以梯度漂移率为依据：信号快速下降时 \(\dot G\) 较大，故 batch size 保持较小，避免过度滞后。这与 <a href="https://arxiv.org/abs/2505.23971" rel="external nofollow noopener" target="_blank">Merrill</a> 关于噪声尺度不可靠的结论在机制上一致。</p> <p><strong>就地估计.</strong> DASF 只需两个量：噪声 \(\operatorname{tr}\Sigma\) 与漂移 \(\lVert\dot G\rVert^2\)——它并不需要梯度大小 \(\lVert G\rVert^2\)。\(\operatorname{tr}\Sigma\) 用 <a href="https://arxiv.org/abs/1812.06162" rel="external nofollow noopener" target="_blank">McCandlish</a> 两点法：把一个物理 batch 拆成大小 \(B_{\text{small}}\) 的 micro-batch，由单 micro 范数平方均值 \(\overline{\lVert g_{\text{small}}\rVert^2}\) 与整批范数平方 \(\lVert G_{\text{big}}\rVert^2\)、据 \(\mathbb E\lVert g_B\rVert^2=\lVert G\rVert^2+\operatorname{tr}\Sigma/B\) 消去 \(\lVert G\rVert^2\)，得</p> \[\operatorname{tr}\Sigma=\frac{\overline{\lVert g_{\text{small}}\rVert^2}-\lVert G_{\text{big}}\rVert^2}{1/B_{\text{small}}-1/B_{\text{big}}}.\] <p>漂移 \(\lVert\dot G\rVert^2\) 取相邻 \(k\) 步整批梯度之差 \(\lVert G_t-G_{t-k}\rVert^2\)，再减去噪声地板 \(2\operatorname{tr}\Sigma/B_{\text{big}}\)（两个独立含噪梯度之差的噪声方差）而得。两量各自做 EMA 以压噪；探针只把同一物理 batch 拆小来读，不额外消耗 token。</p> <p>需强调：要估计 \(\lVert G\rVert^2\) 的是作为对比的噪声尺度设定点 \(\operatorname{tr}\Sigma/\lVert G\rVert^2\)，而非 DASF。且 \(\lVert G\rVert^2\) 必须取两点无偏解 \(\tfrac{B_{\text{big}}\lVert G_{\text{big}}\rVert^2-B_{\text{small}}\overline{\lVert g_{\text{small}}\rVert^2}}{B_{\text{big}}-B_{\text{small}}}\)——直接用 \(\lVert G_{\text{big}}\rVert^2\) 会偏高 \(\operatorname{tr}\Sigma/B_{\text{big}}\)，该偏差在低信号后期（正是噪声尺度方案工作的区间）最大。DASF 绕开了这个最难估、最不可靠的量。</p> <blockquote class="block-tip"> <h5 id="公式中的常数">公式中的常数</h5> <p>指数 \(1/6\) 由理论确定；公式中的常数（系数 2 及略去的窗形、物理 batch size 等归一化因子）只平移 \(\beta\) 的绝对水平、不改变函数形式。又因 \(1/6\) 次幂对尺度高度不敏感，直接代入实测量即可使 \(\beta\) 落入合适区间。</p> </blockquote> <h2 id="4-实验">4. 实验</h2> <p>设置与上一篇严格对齐：标准 GPT（FineWeb，GPT-2 tokenizer），SF-AdamW，learning rate 全程恒定，相同的初始化与数据顺序。唯一变量为 \(\beta_t\)。对比四种 \(\beta_t\) 调度（均为固定物理 batch、vanilla SF），各自的 \(1-\beta_t\) 与（由结论 2 换算的）隐含有效 batch size \(B_{\text{eff}}=1/(1-\beta_t)^2\) 为：</p> <ul> <li>常数 \(\beta\)：\(1-\beta_t\) 与 \(B_{\text{eff}}\) 均为常数。</li> <li>AMUSE（开环）：\(1-\beta_t\propto t^{-\rho}\)，故 \(B_{\text{eff}}\propto t^{2\rho}\)。</li> <li>闭环噪声尺度：\(1-\beta_t=\sqrt{\lVert G\rVert^2/\operatorname{tr}\Sigma}\)，故 \(B_{\text{eff}}=\operatorname{tr}\Sigma/\lVert G\rVert^2\)（即噪声尺度本身）。</li> <li>闭环 drift-aware：\(1-\beta_t=(\lVert\dot G\rVert^2/2\operatorname{tr}\Sigma)^{1/6}\)，故 \(B_{\text{eff}}=(2\operatorname{tr}\Sigma/\lVert\dot G\rVert^2)^{1/3}\)（即结论 4 的 \(W^\ast\)）。</li> </ul> <p>前两者为基线（常数、开环幂律），后两者为本文的闭环设定点。其中 AMUSE 按其 Eq.5 实现——warmup 内持 \(\beta_1\)，其后 \(1-\beta_t=(1-\beta_1)\big(\tfrac{T_0-1}{t-1}\big)^\rho\)（\(T_0\) 为 warmup 步数，渐近 \(\propto t^{-\rho}\)）——且为充分调参的强基线：\(\rho\) 与 \(\beta_1\) 经网格搜索取最优（两规模均为 \(\rho=0.6\)、\(\beta_1=0.4\)），故对比的是其最优调参版本，而 drift-aware 全程无调参。两个规模：45M / 600M 与 117M / 2.5B tokens。</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/post-06-20/bsf_compare-240.webp 240w,/assets/img/post-06-20/bsf_compare-480.webp 480w,/assets/img/post-06-20/bsf_compare-800.webp 800w,/assets/img/post-06-20/bsf_compare-1400.webp 1400w," type="image/webp" sizes="95vw"></source> <img src="/assets/img/post-06-20/bsf_compare.png" class="img-fluid rounded z-depth-1" width="100%" height="auto" alt="45M transformer comparison of beta schedules on FineWeb" data-zoomable="" loading="lazy" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"> </picture> <figcaption class="caption">45M / 600M tokens。四面板：$B_\text{eff}$（左上）、val loss（右上）、$\beta_t$（左下）、实测噪声尺度（右下）。drift-aware（红，即 DASF，无调参）val loss 最低，略优于手调 const $\beta=0.9$，优于 AMUSE 与 const $\beta=0.98$。</figcaption> </figure> <p>右下子图说明了 drift-aware 设定点的必要性：面对同一条发散的噪声尺度，噪声尺度方案过度累积并发散，drift-aware 方案改用 \(\dot G\)，保持稳定并取得最低 val loss。这与 Merrill 关于噪声尺度不可靠的论述一致。</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/post-06-20/bsf_big_compare-240.webp 240w,/assets/img/post-06-20/bsf_big_compare-480.webp 480w,/assets/img/post-06-20/bsf_big_compare-800.webp 800w,/assets/img/post-06-20/bsf_big_compare-1400.webp 1400w," type="image/webp" sizes="95vw"></source> <img src="/assets/img/post-06-20/bsf_big_compare.png" class="img-fluid rounded z-depth-1" width="100%" height="auto" alt="117M transformer comparison showing effective batch stays small" data-zoomable="" loading="lazy" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"> </picture> <figcaption class="caption">117M / 2.5B tokens（modded-nanogpt）。drift-aware 复现优势（val loss 最低）；其 $B_\text{eff}$（右上红线）触底 25 后仅回升至约 43、后半程在 27–52 间波动，未进入 batch 放大阶段；AMUSE 在约 1750M 出现一次不稳定的 val loss 回升。</figcaption> </figure> <p>两个规模的结果一致：</p> <table class="table table-striped table-sm"> <thead> <tr> <th style="text-align: left"> </th> <th style="text-align: center">45M / 600M</th> <th style="text-align: center">117M / 2.5B</th> </tr> </thead> <tbody> <tr> <td style="text-align: left">drift-aware（无调参）val</td> <td style="text-align: center"><strong>4.235</strong></td> <td style="text-align: center"><strong>3.643</strong></td> </tr> <tr> <td style="text-align: left">const \(\beta=0.9\)</td> <td style="text-align: center">4.275</td> <td style="text-align: center">3.659</td> </tr> <tr> <td style="text-align: left">AMUSE 式开环</td> <td style="text-align: center">显著落后</td> <td style="text-align: center">3.990</td> </tr> <tr> <td style="text-align: left">drift-aware 的 \(B_{\text{eff}}\)</td> <td style="text-align: center">~14–37</td> <td style="text-align: center">~27–52</td> </tr> </tbody> </table> <p>DASF 在两个规模上均匹配或超过经过调参的 AMUSE 与最优手调常数，达成即插即用、免代理模型标定的目标。但其优势并非来自更大的隐式 batch——DASF 的 \(B_{\text{eff}}\)（约 40）小于 const \(\beta=0.9\)（100）；在此体制下较小的有效 batch 反而更优，DASF 的价值在于自动校准到合适的（小）值、不过度累积。</p> <h2 id="5-结论与方法定位">5. 结论与方法定位</h2> <p>作为方法，本文将 SF 的 \(\beta\) 用作有效 batch size 的在线控制量、以 drift-aware 立方根定律闭环，得到 DASF，一个无需调参的有效 batch size 设定器：在 45M 与 117M 上均匹配或略优于手调常数、明显优于开环 AMUSE，并规避了噪声尺度方案的发散。</p> <p>作为一项可证伪的科学发现，batch size 增长的收益始终未出现：即使在 117M / 2.5B / compute-optimal 下，\(B_{\text{eff}}\) 也仅在数十量级、领先不随训练扩大。更确切地说，compute-optimal 体制下最优有效 batch size 小且近似恒定，而非按 \(\sqrt t\) 增长——按 <a href="https://arxiv.org/abs/2203.15556" rel="external nofollow noopener" target="_blank">Chinchilla</a> 比例训练时梯度持续高速变化，结论 4 的立方根公式始终给出较小的 batch size。这也解释了恒定 \(\beta\) 的 SF 在该体制下为何已经够用。</p> <p>关于定位：固定物理 batch size 下，\(\beta\) 只改变每步梯度的方差、不改变优化步数；而 <a href="https://arxiv.org/abs/2505.23971" rel="external nofollow noopener" target="_blank">Merrill</a> 式 batch warmup 收益的主要来源，是早期较小的物理 batch 在同 token 预算下提供的更多优化步（step-count 通道），\(\beta\) 在结构上无法触及。故 DASF 是有效 batch size（方差）的设定器，而非物理 batch size 的调度器——即 Route A（动物理 batch、有 step-count 收益但有系统开销）与 Route B（动有效 batch、即插即用）之分中，Route B 的上界。要兑现增长收益，须转入 \(B^\ast\) 实质变化的体制：重度过训练、LR cooldown，或令物理 batch 本身变化。</p> <h2 id="参考文献">参考文献</h2> <ol> <li>A. Defazio, X. Yang, H. Mehta, K. Mishchenko, A. Khaled, and A. Cutkosky. “The Road Less Scheduled.” <em>NeurIPS</em>, 2024. <a href="https://arxiv.org/abs/2405.15682" rel="external nofollow noopener" target="_blank">arXiv:2405.15682</a>.</li> <li>S. McCandlish, J. Kaplan, D. Amodei, and OpenAI Dota Team. “An Empirical Model of Large-Batch Training.” <a href="https://arxiv.org/abs/1812.06162" rel="external nofollow noopener" target="_blank">arXiv:1812.06162</a>, 2018.</li> <li>W. Merrill, S. Arora, D. Groeneveld, and H. Hajishirzi. “Critical Batch Size Revisited: A Simple Empirical Approach to Large-Batch Language Model Training.” <em>NeurIPS</em>, 2025. <a href="https://arxiv.org/abs/2505.23971" rel="external nofollow noopener" target="_blank">arXiv:2505.23971</a>.</li> <li>M. Song, B. Baek, K. Ahn, and C. Yun. “Through the River: Understanding the Benefit of Schedule-Free Methods for Language Model Training.” <em>NeurIPS</em>, 2025. <a href="https://arxiv.org/abs/2507.09846" rel="external nofollow noopener" target="_blank">arXiv:2507.09846</a>.</li> <li>J. Kim, B. Shin, J. Yun, B. Baek, M. Song, and C. Yun. “AMUSE: Anytime Muon with Stable Gradient Evaluation.” <a href="https://arxiv.org/abs/2605.22432" rel="external nofollow noopener" target="_blank">arXiv:2605.22432</a>, 2026.</li> <li>D. Morwani et al. “Connections between Schedule-Free Optimizers, AdEMAMix, and Accelerated SGD Variants.” <a href="https://arxiv.org/abs/2502.02431" rel="external nofollow noopener" target="_blank">arXiv:2502.02431</a>, 2025.</li> <li>J. Hoffmann et al. “Training Compute-Optimal Large Language Models.” <a href="https://arxiv.org/abs/2203.15556" rel="external nofollow noopener" target="_blank">arXiv:2203.15556</a>, 2022.</li> </ol> <p><em>姊妹篇：<a href="https://jiaxuanzou0714.github.io/blog/2026/why-double-batch-size-llm-pretraining/">为什么 LLM pretrain 过程中途要把 batch size 翻倍</a>（物理 batch size 调度的变分解）。</em></p> <h2 id="引用">引用</h2> <p>如果您需要引用本文，请参考：</p> <div class="language-bibtex highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">@article</span><span class="p">{</span><span class="nl">zou2026sfbatch</span><span class="p">,</span>
+  <span class="na">title</span><span class="p">=</span><span class="s">{DASF：一种闭环的 batch size schedule-free 方法}</span><span class="p">,</span>
+  <span class="na">author</span><span class="p">=</span><span class="s">{Zou, Jiaxuan}</span><span class="p">,</span>
+  <span class="na">journal</span><span class="p">=</span><span class="s">{Jiaxuan's Blog}</span><span class="p">,</span>
+  <span class="na">year</span><span class="p">=</span><span class="s">{2026}</span><span class="p">,</span>
+  <span class="na">url</span><span class="p">=</span><span class="s">{https://jiaxuanzou0714.github.io/blog/2026/schedule-free-effective-batch-size/}</span>
+<span class="p">}</span>
+</code></pre></div></div> </div> </article> <br> <hr> <br> <ul class="list-disc pl-8"></ul> <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2> <p class="mb-2">Here are some more articles you might like to read next:</p> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/why-double-batch-size-llm-pretraining/">为什么 LLM pretrain 过程中途要把 batch size 翻倍</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/civilizational-centralism-and-young-technical-leaders/">不要只学习 19 世纪的西方：文明中心论、世界主义与青年领袖的公共责任</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/bet-on-scaling-first-principles/">重听杨植麟：Bet on Scaling、第一性原理和长期主义</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/mup-map/">μP Map</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2026/llm-gradient-noise-training-dynamics/">在 LLM 语境下，梯度里的噪声会如何影响 training dynamics？</a> </li> <div id="giscus_thread" style="max-width: 930px; margin: 0 auto;"> <br> <script defer src="/assets/js/giscus-setup.js"></script> <noscript> Please enable JavaScript to view the <a href="http://giscus.app/?ref_noscript" rel="external nofollow noopener" target="_blank">comments powered by giscus.</a> </noscript> </div> </div> </div> </div> </div> <footer class="mt-5" role="contentinfo"> <div class="container"> © Copyright 2026 Jiaxuan Zou. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. </div> </footer> <script defer src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <script defer src="/assets/js/bootstrap.bundle.min.js"></script> <script defer src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script> <script defer src="/assets/js/zoom.js?v=85ddb88934d28b74e78031fd54cf8308"></script> <script defer src="/assets/js/bootstrap-toc.min.js?v=c82ff4de8b0955d6ff14f5b05eed7eb6"></script> <script defer src="/assets/js/no_defer.js?v=2781658a0a2b13ed609542042a859126"></script> <script defer src="/assets/js/common.js?v=628cda93f090b0d9c88f9fcc94d82899"></script> <script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?v=d9f17b6adc2311cbabd747f4538bb15f"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" integrity="sha256-Cm3tWrvOEzMWWN0jnzQ4Kr0GSSx0txth6MqoES7FX6U=" crossorigin="anonymous"></script> <script src="/assets/js/mathjax-setup.js?v=60dfac0fa9b6e581ca1428717c01ee35"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script data-goatcounter="https://jiaxuanzou.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script> <script defer src="/assets/js/goatcounter-analytics-setup.js?v=314d2e28ac09516d998ee7737807b2f6"></script> <script>
+    function applyNoTranslateToElements() {
+      // Protect code and structured math elements from being translated
+      var protectedSelectors = [
+        'code',
+        'pre',
+        '.highlight',
+        '.MathJax',
+        '.MathJax_Display',
+        'mjx-container',
+        'math',
+        '.equation',
+        'script[type^="math/tex"]'
+      ];
+      document.querySelectorAll(protectedSelectors.join(', ')).forEach(function(el) {
+        el.classList.add('notranslate');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', applyNoTranslateToElements);
+    
+    // Catch dynamic math elements that load later (like MathJax rendering)
+    window.addEventListener('load', function() {
+      setTimeout(applyNoTranslateToElements, 1000);
+    });
+
+    window.googleTranslateConfig = {
+      pageLanguage: "zh-CN",
+      includedLanguages: "en,zh-CN"
+    };
+
+    window.getGoogleTranslateLanguage = function () {
+      var sourceLanguage = window.googleTranslateConfig.pageLanguage;
+      var match = document.cookie.match(/(?:^|; )googtrans=([^;]+)/);
+
+      if (!match) {
+        return sourceLanguage;
+      }
+
+      var parts = decodeURIComponent(match[1]).split('/');
+      var targetLanguage = parts[parts.length - 1];
+
+      if (!targetLanguage || targetLanguage === parts[parts.length - 2]) {
+        return sourceLanguage;
+      }
+
+      return targetLanguage;
+    };
+
+    window.updateGoogleTranslateToggleState = function () {
+      var currentLanguage = window.getGoogleTranslateLanguage();
+      var buttons = document.querySelectorAll('.translate-toggle-button');
+
+      buttons.forEach(function (button) {
+        var isActive = button.dataset.lang === currentLanguage;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+    };
+
+    window.setGoogleTranslateLanguage = function (language) {
+      var sourceLanguage = window.googleTranslateConfig.pageLanguage;
+      var cookieValue = '/' + sourceLanguage + '/' + language;
+
+      document.cookie = 'googtrans=' + encodeURIComponent(cookieValue) + ';path=/;max-age=31536000';
+      window.updateGoogleTranslateToggleState();
+      window.location.reload();
+    };
+
+    window.loadGoogleTranslate = function () {
+      if (document.querySelector('script[data-google-translate="true"]')) {
+        return;
+      }
+
+      var script = document.createElement('script');
+      script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      script.async = true;
+      script.defer = true;
+      script.dataset.googleTranslate = 'true';
+      document.body.appendChild(script);
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      window.updateGoogleTranslateToggleState();
+
+      if (window.getGoogleTranslateLanguage() !== window.googleTranslateConfig.pageLanguage) {
+        window.loadGoogleTranslate();
+      }
+    });
+
+    window.googleTranslateElementInit = function () {
+      new google.translate.TranslateElement(
+        {
+          pageLanguage: window.googleTranslateConfig.pageLanguage,
+          includedLanguages: window.googleTranslateConfig.includedLanguages,
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false
+        },
+        "google_translate_element"
+      );
+
+      window.updateGoogleTranslateToggleState();
+    };
+  </script> <script defer src="/assets/js/search-loader.js?v=82e0188f0f9f8f5a8e0d55b01239fbeb"></script> </body> </html>
