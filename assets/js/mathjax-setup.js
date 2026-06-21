@@ -150,7 +150,9 @@ window.MathJax = {
       node.childNodes.forEach(walk);
       if (block && out && !out.endsWith("\n")) out += "\n";
     }
-    walk(frag);
+    // Start from the fragment's children: a DocumentFragment is neither a text
+    // nor an element node, so walking it directly would bail immediately.
+    frag.childNodes.forEach(walk);
 
     return out.replace(/\n{3,}/g, "\n\n").trim();
   }
