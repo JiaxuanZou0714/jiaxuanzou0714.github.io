@@ -4,7 +4,7 @@ title: About
 description: Jiaxuan Zou's academic homepage, with research notes and publications on mechanistic interpretability, deep learning theory, optimization, and scaling laws.
 keywords: academic homepage, mechanistic interpretability, deep learning theory, optimization, scaling laws
 permalink: /
-subtitle: Undergraduate Student @ XJTU | Research Intern @ GSAI, RUC
+subtitle: Undergraduate Student @ XJTU | Research Intern @ ByteDance Seed Pre-training
 
 profile:
   align: right
@@ -34,13 +34,13 @@ latest_posts:
 
 Hi, I am **Jiaxuan Zou (邹嘉轩)**.
 
-I am an undergraduate student in Mathematics and Statistics at Xi'an Jiaotong University and a research intern at the [Gaoling School of Artificial Intelligence](http://ai.ruc.edu.cn/), Renmin University of China, advised by [Prof. Yong Liu](https://gsai.ruc.edu.cn/liuyong).
+I am an undergraduate student in Mathematics and Statistics at <a class="affiliation-link" href="https://en.xjtu.edu.cn/" target="_blank" rel="external nofollow noopener"><img class="affiliation-icon affiliation-icon--seal" src="{{ '/assets/img/affiliations/xjtu-emblem.png' | relative_url }}" alt="" aria-hidden="true">Xi'an Jiaotong University</a> and currently a research intern in the <a class="affiliation-link" href="https://seed.bytedance.com/en/" target="_blank" rel="external nofollow noopener"><img class="affiliation-icon affiliation-icon--seed" src="{{ '/assets/img/affiliations/bytedance-seed.png' | relative_url }}" alt="" aria-hidden="true">ByteDance Seed Pre-training team</a>. Previously, I was a research intern at the <a class="affiliation-link" href="http://ai.ruc.edu.cn/" target="_blank" rel="external nofollow noopener"><img class="affiliation-icon affiliation-icon--seal" src="{{ '/assets/img/affiliations/gsai-ruc-emblem.png' | relative_url }}" alt="" aria-hidden="true">Gaoling School of Artificial Intelligence</a>, Renmin University of China, advised by [Prof. Yong Liu](https://gsai.ruc.edu.cn/liuyong).
 
 My research focuses on mechanistic interpretability, deep learning theory, optimization, and scaling laws. I am especially interested in turning empirical training phenomena into first-principles mechanisms: why models train, where behaviors emerge, and when scaling or optimization rules break.
 
-I also work as an AI Technical Consultant for a Tsinghua-affiliated AI startup developing "AI + K-12 Education" products with the Beijing Dongcheng District Education Commission.
+I also work as an AI Technical Consultant for a Tsinghua-affiliated AI startup.
 
-I write research notes on my blog and welcome conversations on these topics. I am currently seeking industry research internships in LLM pre-training and AI theory, as well as PhD positions for Fall 2028. More background: [English]({{ '/autobiography/' | relative_url }}) / [中文]({{ '/autobiography/zh/' | relative_url }}).
+I write research notes on my blog and welcome conversations on these topics. I am interested in future research opportunities in LLM pre-training and AI theory, as well as PhD positions for Fall 2028. More background: [English]({{ '/autobiography/' | relative_url }}) / [中文]({{ '/autobiography/zh/' | relative_url }}).
 
 ## Research Interests
 

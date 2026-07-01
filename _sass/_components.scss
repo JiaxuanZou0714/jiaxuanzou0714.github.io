@@ -188,6 +188,25 @@ ul.task-list input[type="checkbox"] {
   }
 }
 
+.affiliation-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  white-space: nowrap;
+  vertical-align: -0.12em;
+}
+
+.affiliation-icon {
+  flex: 0 0 auto;
+  width: 1.08em;
+  height: 1.08em;
+  object-fit: contain;
+}
+
+.affiliation-icon--seal {
+  border-radius: 50%;
+}
+
 // About page
 
 .about-home {
