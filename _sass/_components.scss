@@ -2,6 +2,8 @@
  * Reusable component styles: Cards, captions, profiles, etc.
  ******************************************************************************/
 
+@use "variables" as v;
+
 // Checklist
 
 ul.task-list {
@@ -46,7 +48,9 @@ ul.task-list input[type="checkbox"] {
   }
 
   .card-title,
-  .card-text {
+  .card-text,
+  .card-body .card-title,
+  .card-body .card-text {
     color: var(--global-text-color);
     overflow-wrap: anywhere;
   }
@@ -168,6 +172,12 @@ ul.task-list input[type="checkbox"] {
   }
 }
 
+html[data-theme="dark"] .profile-social .contact-icons a img,
+html[data-theme="dark"] .profile-social .contact-icons a svg {
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
+}
+
 .profile.float-right {
   margin-left: 1rem;
 }
@@ -207,9 +217,171 @@ ul.task-list input[type="checkbox"] {
   border-radius: 50%;
 }
 
+@media (max-width: 319.98px) {
+  .affiliation-link {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}
+
 // About page
 
 .about-home {
+  .home-spark-cellular {
+    position: relative;
+    left: 50%;
+    clear: both;
+    width: var(--spark-band-width, 100%);
+    max-width: none;
+    height: clamp(13.75rem, 20vw, 17.5rem);
+    margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+    overflow: hidden;
+    isolation: isolate;
+    transform: translateX(-50%);
+    contain: layout paint;
+    background: var(--global-bg-color);
+  }
+
+  .home-spark-cellular__fallback {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    display: block;
+    width: clamp(7.5rem, 13vw, 10.5rem);
+    height: auto;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity var(--transition-slow);
+  }
+
+  .home-spark-cellular__canvas {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0;
+    transition: opacity var(--transition-slow);
+    -webkit-mask-image: radial-gradient(
+      ellipse 72% 92% at center,
+      #000 48%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      ellipse 72% 92% at center,
+      #000 48%,
+      transparent 100%
+    );
+  }
+
+  .home-spark-cellular[data-spark-state="running"],
+  .home-spark-cellular[data-spark-state="paused"] {
+    .home-spark-cellular__canvas {
+      opacity: 1;
+    }
+  }
+
+  .home-spark-cellular[data-spark-state="static"],
+  .home-spark-cellular[data-spark-state="fallback"] {
+    .home-spark-cellular__fallback {
+      opacity: 0.92;
+    }
+  }
+
+  .home-spark-cellular__toggle {
+    position: absolute;
+    z-index: 3;
+    right: max(1rem, calc((100% - #{v.$max-content-width}) / 2));
+    bottom: clamp(0.75rem, 2vw, 1.25rem);
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    place-items: center;
+    color: var(--global-text-color-light);
+    background: var(--global-bg-color);
+    border: 1px solid var(--global-divider-color);
+    border-radius: 50%;
+    opacity: 0.72;
+    transition:
+      color var(--transition-fast),
+      border-color var(--transition-fast),
+      opacity var(--transition-fast),
+      transform var(--transition-fast);
+
+    &:hover {
+      color: var(--global-theme-color);
+      border-color: var(--global-theme-color);
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      color: var(--global-theme-color);
+      outline: 2px solid var(--global-theme-color);
+      outline-offset: 3px;
+      opacity: 1;
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .home-spark-cellular__toggle-icon {
+    position: relative;
+    display: block;
+    width: 0.875rem;
+    height: 0.875rem;
+
+    &::before,
+    &::after {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 0.2rem;
+      content: "";
+      background: currentColor;
+      border-radius: 0.1rem;
+    }
+
+    &::before {
+      left: 0.14rem;
+    }
+
+    &::after {
+      right: 0.14rem;
+    }
+  }
+
+  .home-spark-cellular__toggle[aria-pressed="true"] {
+    .home-spark-cellular__toggle-icon::before {
+      top: 0.02rem;
+      bottom: auto;
+      left: 0.2rem;
+      width: 0;
+      height: 0;
+      background: transparent;
+      border-top: 0.42rem solid transparent;
+      border-bottom: 0.42rem solid transparent;
+      border-left: 0.62rem solid currentColor;
+      border-radius: 0;
+    }
+
+    .home-spark-cellular__toggle-icon::after {
+      display: none;
+    }
+  }
+
   .clearfix > h2,
   > article > h2 {
     font-family: var(--font-sans);
@@ -222,11 +394,13 @@ ul.task-list input[type="checkbox"] {
 
   .news {
     table {
+      color: var(--global-text-color);
       margin-bottom: 0;
     }
 
     th,
     td {
+      color: var(--global-text-color);
       padding-top: 0.35rem;
       padding-bottom: 0.35rem;
       font-size: var(--text-base);
@@ -267,6 +441,41 @@ ul.task-list input[type="checkbox"] {
           font-size: var(--text-xs);
         }
       }
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .about-home .home-spark-cellular {
+    height: clamp(11.5rem, 52vw, 13rem);
+    margin-top: 2.5rem;
+  }
+
+  .about-home .home-spark-cellular__canvas {
+    -webkit-mask-image: radial-gradient(
+      ellipse 92% 90% at center,
+      #000 52%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      ellipse 92% 90% at center,
+      #000 52%,
+      transparent 100%
+    );
+  }
+
+  .about-home .home-spark-cellular__toggle {
+    right: 1rem;
+    bottom: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-home {
+    .home-spark-cellular__fallback,
+    .home-spark-cellular__canvas,
+    .home-spark-cellular__toggle {
+      transition: none;
     }
   }
 }

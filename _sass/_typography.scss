@@ -106,6 +106,10 @@ table.table a {
   }
 }
 
+.post p a:not(.btn) {
+  text-decoration: underline;
+}
+
 // ── Horizontal rule ─────────────────────────────────────────────────────────
 
 hr {
@@ -115,6 +119,8 @@ hr {
 // ── Tables ──────────────────────────────────────────────────────────────────
 
 table {
+  color: var(--global-text-color);
+
   td,
   th {
     font-size: var(--text-sm);
@@ -131,6 +137,10 @@ table {
   td {
     font-variant-numeric: tabular-nums;
   }
+}
+
+table.table {
+  color: var(--global-text-color);
 }
 
 // Markdown tables inside post content: give them visible structure

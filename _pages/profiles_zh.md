@@ -9,7 +9,7 @@ giscus_comments: true
 
 profiles:
   - align: right
-    image: autobiography/teaching2.png
+    image: autobiography/teaching2.jpg
     image_circular: false
     more_info: >
 ---

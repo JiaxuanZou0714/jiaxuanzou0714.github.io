@@ -5,6 +5,7 @@ description: Jiaxuan Zou's academic homepage, with research notes and publicatio
 keywords: academic homepage, mechanistic interpretability, deep learning theory, optimization, scaling laws
 permalink: /
 subtitle: Undergraduate Student @ XJTU | Research Intern @ ByteDance Seed Pre-training
+home_spark_cellular: true
 
 profile:
   align: right
@@ -29,7 +30,7 @@ announcements:
 latest_posts:
   enabled: true
   scrollable: true # adds a vertical scroll bar if there are more than 3 new posts items
-  limit: 5 # leave blank to include all the blog posts
+  limit: 8 # leave blank to include all the blog posts
 ---
 
 Hi, I am **Jiaxuan Zou (邹嘉轩)**.
@@ -49,3 +50,7 @@ I write research notes on my blog and welcome conversations on these topics. I a
 - Optimizer design for LLM pre-training
 - Scaling laws and their failure modes
 - Deep learning theory and optimization
+
+{% if page.home_spark_cellular %}
+{% include home-spark-cellular.liquid %}
+{% endif %}

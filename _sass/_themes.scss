@@ -11,14 +11,15 @@
   --global-text-color: #{v.$black-color};
   --global-text-color-light: #{v.$grey-color};
   --global-theme-color: #{v.$purple-color};
-  --global-hover-color: #c96442;
-  --global-hover-text-color: #{v.$black-color};
+  --global-hover-color: #{v.$seed-deep-blue};
+  --global-hover-text-color: #{v.$white-color};
   --global-footer-bg-color: #{v.$black-color};
   --global-footer-text-color: #{v.$grey-color-light};
   --global-footer-link-color: #{v.$white-color};
+  --global-footer-link-hover-color: #{v.$seed-mint};
   --global-distill-app-color: #{v.$grey-color};
-  --global-divider-color: rgba(31, 30, 29, 0.15);
-  --global-card-bg-color: #fff;
+  --global-divider-color: rgba(10, 58, 122, 0.14);
+  --global-card-bg-color: #fcfdff;
 
   // Typography tokens
   --font-serif: #{v.$font-family-serif};
@@ -49,7 +50,7 @@
   --transition-base: #{v.$transition-base};
   --transition-slow: #{v.$transition-slow};
 
-  --global-highlight-color: #{v.$purple-color};
+  --global-highlight-color: #{v.$seed-bright-blue};
   --global-back-to-top-bg-color: rgba(
     #{color.channel(v.$black-color, "red", v.$space: rgb)},
     #{color.channel(v.$black-color, "green", v.$space: rgb)},
@@ -109,15 +110,15 @@ html[data-theme="dark"] {
   --global-bg-color: #{v.$grey-color-dark};
   --global-code-bg-color: #{v.$code-bg-color-dark};
   --global-text-color: #{v.$white-color};
-  --global-text-color-light: #c2c0b6;
-  --global-theme-color: #{v.$purple-color};
-  --global-hover-color: #e18a6f;
+  --global-text-color-light: #b7c4d6;
+  --global-theme-color: #{v.$seed-light-blue};
+  --global-hover-color: #{v.$seed-mint};
   --global-hover-text-color: #{v.$black-color};
   --global-footer-bg-color: #{v.$black-color};
   --global-footer-text-color: #{v.$grey-color-light};
   --global-footer-link-color: #{v.$white-color};
-  --global-distill-app-color: #c2c0b6;
-  --global-divider-color: rgba(222, 220, 209, 0.15);
+  --global-distill-app-color: #b7c4d6;
+  --global-divider-color: rgba(127, 179, 255, 0.18);
   --global-card-bg-color: #{v.$grey-900};
   --global-back-to-top-bg-color: rgba(
     #{color.channel(v.$white-color, "red", v.$space: rgb)},
@@ -128,6 +129,7 @@ html[data-theme="dark"] {
   --global-back-to-top-text-color: #{v.$black-color};
   --global-newsletter-bg-color: #{v.$grey-900};
   --global-newsletter-text-color: #{v.$white-color};
+  --global-highlight-color: #{v.$seed-light-blue};
 
   --global-tip-block: #42b983;
   --global-tip-block-bg: #215d42;

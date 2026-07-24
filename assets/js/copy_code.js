@@ -2,7 +2,8 @@
 var codeBlocks = document.querySelectorAll("pre");
 codeBlocks.forEach(function (codeBlock) {
   if (
-    (codeBlock.querySelector("pre:not(.lineno)") || codeBlock.querySelector("code")) &&
+    (codeBlock.querySelector("pre:not(.lineno)") ||
+      codeBlock.querySelector("code")) &&
     codeBlock.querySelector("code:not(.language-chartjs)") &&
     codeBlock.querySelector("code:not(.language-diff2html)") &&
     codeBlock.querySelector("code:not(.language-echarts)") &&
@@ -46,6 +47,9 @@ codeBlocks.forEach(function (codeBlock) {
     // create wrapper div
     var wrapper = document.createElement("div");
     wrapper.className = "code-display-wrapper";
+
+    // Let keyboard users focus and horizontally scroll long code blocks.
+    codeBlock.tabIndex = 0;
 
     // add copy button and code block to wrapper div
     const parent = codeBlock.parentElement;

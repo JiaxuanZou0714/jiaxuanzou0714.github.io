@@ -11,7 +11,6 @@ Gemfile.lock
 # Ignore files created by npm
 node_modules
 package-lock.json
-_posts/2026-03-13-finite-width-mup-scaling.md
 
 # Ignore the vendor file at root level and bundle for alternative installation
 /vendor/
@@ -20,6 +19,3 @@ _posts/2026-03-13-finite-width-mup-scaling.md
 # Ignore folders related to IDEs
 .vscode/
 .DS_Store
-
-
-_posts/2026-03-16-finite-width-dynamics-scaling-law.md

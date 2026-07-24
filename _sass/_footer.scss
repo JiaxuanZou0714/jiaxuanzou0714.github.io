@@ -15,10 +15,13 @@ footer.fixed-bottom {
 
   a {
     color: var(--global-footer-link-color);
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.16em;
 
     &:hover {
-      color: var(--global-theme-color);
-      text-decoration: none;
+      color: var(--global-footer-link-hover-color);
+      text-decoration-thickness: 0.12em;
     }
   }
 }
@@ -48,10 +51,13 @@ footer {
 
   a {
     color: var(--global-footer-link-color);
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.16em;
 
     &:hover {
-      color: var(--global-theme-color);
-      text-decoration: none;
+      color: var(--global-footer-link-hover-color);
+      text-decoration-thickness: 0.12em;
     }
   }
 }
