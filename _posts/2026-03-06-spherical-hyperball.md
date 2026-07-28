@@ -9,6 +9,7 @@ featured: false
 giscus_comments: true
 toc:
   sidebar: left
+lang: zh-CN
 ---
 
 在现代神经网络训练中，跨模型规模迁移超参数始终是核心问题。对含归一化（如rmsnorm）的架构而言，关键不再是参数本身，而是特征在超球面上的演化 [[2]](https://arxiv.org/abs/2006.08419)。

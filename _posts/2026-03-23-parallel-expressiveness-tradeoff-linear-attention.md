@@ -9,6 +9,7 @@ featured: false
 giscus_comments: true
 toc:
   sidebar: left
+lang: zh-CN
 ---
 
 > 本文整理自半年前我的一篇笔记，名叫《当我们谈论LLM reasoning的时候，我们在谈论什么》，那个时候我刚加入高瓴，做llm latent reasoning相关方向（虽然现在我觉得无论是cot还是latent reasoning，都没触及到本质）。最近有人重新翻出那篇笔记，我发现其中部分内容已过时，遂重新梳理后以blog的形式发出来。

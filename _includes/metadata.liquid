@@ -157,7 +157,7 @@
         {% capture link %}https://www.last.fm/user/{{ social[1] }}{% endcapture %}
         {% assign sameaslinks = sameaslinks | push: link %}
       {% when 'lattes_id' %}
-        {% capture link %}http://lattes.cnpq.br/{{ social[1] }}{% endcapture %}
+        {% capture link %}https://lattes.cnpq.br/{{ social[1] }}{% endcapture %}
         {% assign sameaslinks = sameaslinks | push: link %}
       {% when 'leetcode_id' %}
         {% capture link %}https://leetcode.com/u/{{ social[1] }}/{% endcapture %}

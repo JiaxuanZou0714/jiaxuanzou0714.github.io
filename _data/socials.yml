@@ -9,15 +9,15 @@ linkedin_username: "%E5%98%89%E8%BD%A9-%E9%82%B9-bb3439341" # your LinkedIn user
 scholar_userid: YE6iiwUAAAAJ # your Google Scholar ID
 # Custom Socials
 bilibili_social:
-  logo: https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/bilibili.svg
+  logo: /assets/img/social-icons/bilibili.svg
   title: Bilibili
   url: https://space.bilibili.com/282545566?spm_id_from=333.1007.0.0
 xiaohongshu_social:
-  logo: https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/xiaohongshu.svg
+  logo: /assets/img/social-icons/xiaohongshu.svg
   title: XiaoHongShu
   url: https://www.xiaohongshu.com/user/profile/65fc3374000000000b00d833
 wechat_social:
-  logo: https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/wechat.svg
+  logo: /assets/img/social-icons/wechat.svg
   title: "WeChat: Jiaxuan_Zou"
   url: "#"
 

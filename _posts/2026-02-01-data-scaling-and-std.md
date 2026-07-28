@@ -9,36 +9,37 @@ featured: false
 giscus_comments: true
 toc:                      # 目录配置
   sidebar: left           # 侧边栏目录 (left/right)
+lang: zh-CN
 ---
 ## 现象
 我们在 上一篇 blog ([Can We Derive Scaling Law From First Principles]({% post_url 2025-12-30-scaling-law %})) 中讨论了 scaling law 到底是如何产生的。我们在其预印本中增加了实验章节，其中有一系列图展示了不同 $\alpha$ 下的 data scaling 曲线，比如其中一张图，展示了在数据受限的情况下，loss 与 datasize 的关系
 
-{% include figure.liquid 
-    path="assets/img/post-02-01/data-scaling-0p01.png" 
-    class="img-fluid rounded z-depth-1 mx-auto d-block" 
-    width="50%" 
-    zoomable=true   
-    alt="替代文本" 
+{% include figure.liquid
+    path="assets/img/post-02-01/data-scaling-0p01.png"
+    class="img-fluid rounded z-depth-1 mx-auto d-block"
+    width="50%"
+    zoomable=true
+    alt="初始化 std=0.01 时，数据受限条件下 loss 随数据量变化的 scaling 曲线" 
 %}
 
 为了确保发生 feature learning，在这张图里，我们设定初始化的 std=0.01。但是如果我们把 std 增大一些，设置成 0.05，会发生什么呢？结果如下
 
-{% include figure.liquid 
-    path="assets/img/post-02-01/data-scaling-0p05.png" 
-    class="img-fluid rounded z-depth-1 mx-auto d-block" 
-    width="50%" 
-    zoomable=true   
-    alt="替代文本" 
+{% include figure.liquid
+    path="assets/img/post-02-01/data-scaling-0p05.png"
+    class="img-fluid rounded z-depth-1 mx-auto d-block"
+    width="50%"
+    zoomable=true
+    alt="初始化 std=0.05 时的 data scaling 曲线，相比 std=0.01 出现偏移" 
 %}
 
 我们可以看见，std=0.05 时，data scaling 的曲线发生了偏移，那如果再增大一些呢？设置成 0.1，结果如下
 
-{% include figure.liquid 
-    path="assets/img/post-02-01/data-scaling-0p1.png" 
-    class="img-fluid rounded z-depth-1 mx-auto d-block" 
-    width="50%" 
-    zoomable=true   
-    alt="替代文本" 
+{% include figure.liquid
+    path="assets/img/post-02-01/data-scaling-0p1.png"
+    class="img-fluid rounded z-depth-1 mx-auto d-block"
+    width="50%"
+    zoomable=true
+    alt="初始化 std=0.1 时的 data scaling 曲线，empirical 直线进一步偏离理论预测"
 %}
 随着初始化 std 增大，empirical 的直线逐渐偏离理论预测的直线。那如果我们把 empirical slope 关于 std 的曲线画出来会是什么样子？结果如下
 
@@ -48,6 +49,7 @@ toc:                      # 目录配置
             path="assets/img/post-02-01/fix_lr.png" 
             class="img-fluid rounded z-depth-1" 
             zoomable=true 
+            alt="固定学习率下，empirical slope 与初始化 std 的关系曲线"
             caption="empirical slope 与初始化 std 的关系" 
             id="fig:std-slope"
         %}
@@ -57,6 +59,7 @@ toc:                      # 目录配置
             path="assets/img/post-02-01/all-curves-fix.png" 
             class="img-fluid rounded z-depth-1" 
             zoomable=true 
+            alt="固定学习率、不同初始化 std 下的 data scaling 曲线"
             caption="不同初始化 std 下的 data scaling 曲线" 
             id="fig:all-curves-fix"
         %}
@@ -169,6 +172,7 @@ $$
             path="assets/img/post-02-01/ada_lr.png" 
             class="img-fluid rounded z-depth-1" 
             zoomable=true 
+            alt="自适应学习率下，empirical slope 与初始化 std 的关系曲线"
             caption="empirical slope 与初始化 std 的关系" 
             id="fig:std-slope"
         %}
@@ -178,6 +182,7 @@ $$
             path="assets/img/post-02-01/all-curves-ada.png" 
             class="img-fluid rounded z-depth-1" 
             zoomable=true 
+            alt="自适应学习率、不同初始化 std 下的 data scaling 曲线"
             caption="不同初始化 std 下的 data scaling 曲线" 
             id="fig:all-curves-ada"
         %}
@@ -189,6 +194,7 @@ $$
     path="assets/img/post-02-01/compare-fix-ada.png" 
     class="img-fluid rounded z-depth-1" 
     zoomable=true 
+    alt="固定学习率与自适应学习率的 empirical slope 对比图"
     caption="有无自适应学习率的empirical slope对比" 
     id="fig:compare-fix-ada"
 %}
@@ -358,6 +364,7 @@ $$
             path="assets/img/post-02-01/recons.png" 
             class="img-fluid rounded z-depth-1" 
             zoomable=true 
+            alt="对齐后 empirical slope 与初始化 std 的关系曲线"
             caption="对齐后 empirical slope 与初始化 std 的关系" 
             id="fig:std-slope"
         %}
@@ -367,6 +374,7 @@ $$
             path="assets/img/post-02-01/all-curves-recon.png" 
             class="img-fluid rounded z-depth-1" 
             zoomable=true 
+            alt="对齐后不同初始化 std 下的 data scaling 曲线"
             caption="对齐后不同初始化 std 下的 data scaling 曲线" 
             id="fig:all-curves-recon"
         %}

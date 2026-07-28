@@ -181,6 +181,21 @@ exclude:
   - purgecss.config.js
   - README.md
   - vendor
+  # Unused libraries: no page sets `tikzjax` or uses the distill layout.
+  # Remove these entries if you enable those features.
+  - assets/js/tikzjax.min.js
+  - assets/css/tikzjax.min.css
+  - assets/js/distillpub/template.v2.js
+  - assets/js/distillpub/template.v2.js.map
+  - assets/js/distillpub/transforms.v2.js
+  - assets/js/distillpub/transforms.v2.js.map
+  # Source maps (dev-only artifacts)
+  - assets/js/bootstrap.bundle.min.js.map
+  # Font Awesome SCSS only references .woff2; the .ttf files are never fetched
+  - assets/webfonts/fa-brands-400.ttf
+  - assets/webfonts/fa-regular-400.ttf
+  - assets/webfonts/fa-solid-900.ttf
+  - assets/webfonts/fa-v4compatibility.ttf
 keep_files:
   - CNAME
   - .nojekyll
@@ -482,9 +497,11 @@ third_party_libraries:
     version: "8.0.6"
   jquery:
     integrity:
-      js: "sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      js: "sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
     url:
-      js: "https://cdn.jsdelivr.net/npm/jquery@{{version}}/dist/jquery.min.js"
+      # slim build: excludes ajax/effects modules, which neither Bootstrap 4.6
+      # nor this site's own scripts use
+      js: "https://cdn.jsdelivr.net/npm/jquery@{{version}}/dist/jquery.slim.min.js"
     version: "3.6.0"
   leaflet:
     integrity:

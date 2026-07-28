@@ -33,7 +33,7 @@ cv:
       - company: Gaoling School of Artificial Intelligence, Renmin University of China
         position: Research Intern
         location: Beijing, China
-        url: http://ai.ruc.edu.cn/
+        url: https://ai.ruc.edu.cn/
         summary: Advised by Prof. Yong Liu.
         highlights:
           - Work on mechanistic interpretability, deep learning theory, optimizer design, and scaling laws.

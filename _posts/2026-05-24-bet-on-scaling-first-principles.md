@@ -9,6 +9,7 @@ featured: false
 giscus_comments: true
 toc:
   sidebar: left
+lang: zh-CN
 ---
 
 今天午饭时闲着没事，重听了一遍杨植麟和张小珺在 2024 年 1 月的对谈。

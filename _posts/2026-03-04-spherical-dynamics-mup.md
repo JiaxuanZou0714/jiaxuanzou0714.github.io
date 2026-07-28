@@ -9,6 +9,7 @@ featured: false
 giscus_comments: true
 toc:
   sidebar: left
+lang: zh-CN
 ---
 
 在现代大模型架构中，RMSNorm 使得权重向量的模长对最终输出的影响被剥离，梯度的作用本质上是改变权重的方向。在推导神经网络的缩放法则时，传统的 Tensor Programs 理论依赖于对大量随机变量的坐标系微观统计。本文将提供一个完全不同的路径：在具有严格尺度不变性的设定下，将整个线性层的动力学等价映射为在超球面上的切空间运动，进而严谨推导出 μP 所要求的超参数缩放规律。如果你想先看 Tensor Programs 路线下的推导，可以参考 [《Tensor Programs (一)：从Feature Learning 的谱条件到 μP》]({% post_url 2026-02-14-spectral-condition-feature-learning %}) 和 [《Tensor Programs (二)：从Tensor Programs到 μP》]({% post_url 2026-03-02-tensor-programs-mup-intuition %})；本文可以视为与它们并行的一条几何化推导路径。

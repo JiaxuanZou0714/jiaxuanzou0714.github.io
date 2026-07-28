@@ -7,5 +7,7 @@ module.exports = {
   // CDN, so its class names appear in neither the built HTML nor any local JS).
   // Without safelisting, PurgeCSS strips their rules — including the z-index
   // that lifts a zoomed image/overlay above the TOC sidebar.
-  safelist: [":root", /data-theme/, /^medium-zoom/],
+  // MDB (now served locally) creates waves-ripple elements at runtime when
+  // elements opt into the waves effect, so keep those rules as well.
+  safelist: [":root", /data-theme/, /^medium-zoom/, /^waves/],
 };

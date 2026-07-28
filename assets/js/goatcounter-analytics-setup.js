@@ -1,13 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const analyticsScript = document.querySelector('script[data-goatcounter]');
   const counters = Array.from(document.querySelectorAll('[data-goatcounter-path]'));
 
-  if (!analyticsScript || counters.length === 0) {
-    return;
-  }
-
-  const endpoint = analyticsScript.getAttribute('data-goatcounter');
-  if (!endpoint) {
+  // The count.js script element is injected lazily after window load, so the
+  // endpoint is shared via window.goatcounterEndpoint instead of being read
+  // from the script tag (which does not exist yet at DOMContentLoaded).
+  const endpoint = window.goatcounterEndpoint;
+  if (!endpoint || counters.length === 0) {
     return;
   }
 

@@ -9,6 +9,7 @@ featured: false
 giscus_comments: true
 toc:
   sidebar: left
+lang: zh-CN
 ---
 
 Apertus 70B 的训练 loss 曲线上有一条标注为 Double GBS 的竖线：训练约 4.4T tokens 时，global batch size 由 8.4M 增至 16.8M tokens，learning rate 不变，loss 随之下降一小段。

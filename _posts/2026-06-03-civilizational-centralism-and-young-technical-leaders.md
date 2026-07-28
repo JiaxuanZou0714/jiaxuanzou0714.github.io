@@ -9,6 +9,7 @@ featured: false
 giscus_comments: true
 toc:
   sidebar: left
+lang: zh-CN
 ---
 
 最近一直在想一个问题：中国政治哲学的未来，到底该怎么想象？

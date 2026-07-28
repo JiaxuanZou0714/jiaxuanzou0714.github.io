@@ -2,7 +2,7 @@
 layout: page
 title: ScalingOpt
 description: "Exploring the core role of optimizers in the era of large language models, focusing on the synergy between optimizer design, model architecture, and training configurations under the Scaling Law paradigm. A systematic discussion platform and scientific benchmark for LLM training."
-img: assets/img/scalingopt-preview.png
+img: assets/img/scalingopt-preview.jpg
 importance: 1
 category: research # 将该项目分类到科研类（或者填写您自定义的分类名称）
 redirect: https://tianshijing.github.io/ScalingOpt/

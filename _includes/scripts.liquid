@@ -6,14 +6,12 @@
   crossorigin="anonymous"
 ></script>
 
-<!-- Bootsrap & MDB scripts -->
+<!-- Bootsrap scripts -->
+<!-- MDB JS is intentionally not loaded: nothing on the site uses it (waves
+     effect is explicitly disabled in common.js), and Bootstrap's bundle
+     already covers the interactive components used (collapse, scrollspy,
+     popovers). -->
 <script defer src="{{ '/assets/js/bootstrap.bundle.min.js' | relative_url }}"></script>
-<script
-  defer
-  src="{{ site.third_party_libraries.mdb.url.js }}"
-  integrity="{{ site.third_party_libraries.mdb.integrity.js }}"
-  crossorigin="anonymous"
-></script>
 
 {% if site.enable_masonry %}
   <!-- Masonry & imagesLoaded -->
@@ -191,8 +189,8 @@
   <script src="{{ '/assets/js/tooltips-setup.js' | relative_url | bust_file_cache }}"></script>
 {% endif %}
 
-{% if site.enable_medium_zoom %}
-  <!-- Medium Zoom JS -->
+{% if site.enable_medium_zoom and page.content contains 'data-zoomable' %}
+  <!-- Medium Zoom JS (only on pages that actually have zoomable images) -->
   <script
     defer
     src="{{ site.third_party_libraries.medium_zoom.url.js }}"
@@ -223,8 +221,10 @@
 <script defer src="{{ '/assets/js/common.js' | relative_url | bust_file_cache }}"></script>
 <script defer src="{{ '/assets/js/copy_code.js' | relative_url | bust_file_cache }}" type="text/javascript"></script>
 
-<!-- Jupyter Open External Links New Tab -->
-<script defer src="{{ '/assets/js/jupyter_new_tab.js' | relative_url | bust_file_cache }}"></script>
+{% if page.content contains 'jupyter-notebook-iframe-container' %}
+  <!-- Jupyter Open External Links New Tab -->
+  <script defer src="{{ '/assets/js/jupyter_new_tab.js' | relative_url | bust_file_cache }}"></script>
+{% endif %}
 
 <!-- Badges -->
 {% if site.enable_publication_badges.altmetric %}
@@ -304,11 +304,21 @@
 
 {% if site.enable_goatcounter_analytics %}
   <!-- GoatCounter Analytics -->
-  <script
-    data-goatcounter="https://{{ site.goatcounter_analytics }}.goatcounter.com/count"
-    async
-    src="https://gc.zgo.at/count.js"
-  ></script>
+  <!-- count.js is injected only after window load: an async script tag in the
+       initial HTML delays the load event until the CDN responds, and gc.zgo.at
+       can hang for over a minute on some networks. (Avoid angle-bracket tag
+       names in this comment: jekyll-minifier misparses them and eats the
+       block.) -->
+  <script>
+    window.goatcounterEndpoint = 'https://{{ site.goatcounter_analytics }}.goatcounter.com/count';
+    window.addEventListener('load', function () {
+      var script = document.createElement('script');
+      script.dataset.goatcounter = window.goatcounterEndpoint;
+      script.async = true;
+      script.src = 'https://gc.zgo.at/count.js';
+      document.body.appendChild(script);
+    });
+  </script>
   <script defer src="{{ '/assets/js/goatcounter-analytics-setup.js' | relative_url | bust_file_cache }}"></script>
 {% endif %}
 
@@ -405,110 +415,7 @@
 
 {% if site.google_translate and site.google_translate.enabled %}
   <!-- Google Translate -->
-  <script>
-    function applyNoTranslateToElements() {
-      // Protect code and structured math elements from being translated
-      var protectedSelectors = [
-        'code',
-        'pre',
-        '.highlight',
-        '.MathJax',
-        '.MathJax_Display',
-        'mjx-container',
-        'math',
-        '.equation',
-        'script[type^="math/tex"]'
-      ];
-      document.querySelectorAll(protectedSelectors.join(', ')).forEach(function(el) {
-        el.classList.add('notranslate');
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', applyNoTranslateToElements);
-
-    // Catch dynamic math elements that load later (like MathJax rendering)
-    window.addEventListener('load', function() {
-      setTimeout(applyNoTranslateToElements, 1000);
-    });
-
-    window.googleTranslateConfig = {
-      pageLanguage: "{{ site.google_translate.page_language | default: site.lang | default: 'en' }}",
-      includedLanguages: "{{ site.google_translate.included_languages | default: 'en,zh-CN' }}"
-    };
-
-    window.getGoogleTranslateLanguage = function () {
-      var sourceLanguage = window.googleTranslateConfig.pageLanguage;
-      var match = document.cookie.match(/(?:^|; )googtrans=([^;]+)/);
-
-      if (!match) {
-        return sourceLanguage;
-      }
-
-      var parts = decodeURIComponent(match[1]).split('/');
-      var targetLanguage = parts[parts.length - 1];
-
-      if (!targetLanguage || targetLanguage === parts[parts.length - 2]) {
-        return sourceLanguage;
-      }
-
-      return targetLanguage;
-    };
-
-    window.updateGoogleTranslateToggleState = function () {
-      var currentLanguage = window.getGoogleTranslateLanguage();
-      var buttons = document.querySelectorAll('.translate-toggle-button');
-
-      buttons.forEach(function (button) {
-        var isActive = button.dataset.lang === currentLanguage;
-        button.classList.toggle('active', isActive);
-        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-      });
-    };
-
-    window.setGoogleTranslateLanguage = function (language) {
-      var sourceLanguage = window.googleTranslateConfig.pageLanguage;
-      var cookieValue = '/' + sourceLanguage + '/' + language;
-
-      document.cookie = 'googtrans=' + encodeURIComponent(cookieValue) + ';path=/;max-age=31536000';
-      window.updateGoogleTranslateToggleState();
-      window.location.reload();
-    };
-
-    window.loadGoogleTranslate = function () {
-      if (document.querySelector('script[data-google-translate="true"]')) {
-        return;
-      }
-
-      var script = document.createElement('script');
-      script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-      script.async = true;
-      script.defer = true;
-      script.dataset.googleTranslate = 'true';
-      document.body.appendChild(script);
-    };
-
-    document.addEventListener('DOMContentLoaded', function () {
-      window.updateGoogleTranslateToggleState();
-
-      if (window.getGoogleTranslateLanguage() !== window.googleTranslateConfig.pageLanguage) {
-        window.loadGoogleTranslate();
-      }
-    });
-
-    window.googleTranslateElementInit = function () {
-      new google.translate.TranslateElement(
-        {
-          pageLanguage: window.googleTranslateConfig.pageLanguage,
-          includedLanguages: window.googleTranslateConfig.includedLanguages,
-          layout: google.translate.TranslateElement.InlineLayout.{{ site.google_translate.layout | default: 'SIMPLE' }},
-          autoDisplay: false
-        },
-        "google_translate_element"
-      );
-
-      window.updateGoogleTranslateToggleState();
-    };
-  </script>
+  <script defer src="{{ '/assets/js/google-translate-setup.js' | relative_url | bust_file_cache }}"></script>
 {% endif %}
 
 {% if site.search_enabled %}
