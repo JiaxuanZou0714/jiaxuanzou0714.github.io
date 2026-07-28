@@ -1,0 +1,94 @@
+/* https://github.com/jwarby/jekyll-pygments-themes */
+.highlight pre {
+  background-color: #404040;
+}
+.highlight .c {
+  color: #999999;
+  font-style: italic;
+} /* Comment */ /* Error */
+.highlight .g {
+  color: #d0d0d0;
+} /* Generic */
+.highlight .k {
+  color: #6ab825;
+  font-weight: bold;
+} /* Keyword */
+.highlight .l {
+  color: #d0d0d0;
+} /* Literal */
+.highlight .n {
+  color: #d0d0d0;
+} /* Name */
+.highlight .o {
+  color: #d0d0d0;
+} /* Operator */
+.highlight .x {
+  color: #d0d0d0;
+} /* Other */
+.highlight .p {
+  color: #d0d0d0;
+} /* Punctuation */ /* Comment.Multiline */ /* Comment.Preproc */ /* Comment.Single */
+.highlight .cs {
+  color: #e50808;
+  font-weight: bold;
+  background-color: #520000;
+} /* Comment.Special */ /* Generic.Deleted */
+.highlight .ge {
+  color: #d0d0d0;
+  font-style: italic;
+} /* Generic.Emph */ /* Generic.Error */ /* Generic.Heading */
+.highlight .gi {
+  color: #589819;
+} /* Generic.Inserted */
+.highlight .go {
+  color: #cccccc;
+} /* Generic.Output */ /* Generic.Prompt */ /* Generic.Strong */ /* Generic.Subheading */
+.highlight .gt {
+  color: #d22323;
+} /* Generic.Traceback */ /* Keyword.Constant */ /* Keyword.Declaration */ /* Keyword.Namespace */ /* Keyword.Pseudo */ /* Keyword.Reserved */
+.highlight .kt {
+  color: #6ab825;
+  font-weight: bold;
+} /* Keyword.Type */
+.highlight .ld {
+  color: #d0d0d0;
+} /* Literal.Date */
+.highlight .m {
+  color: #3677a9;
+} /* Literal.Number */
+.highlight .s {
+  color: #ed9d13;
+} /* Literal.String */
+.highlight .na {
+  color: #bbbbbb;
+} /* Name.Attribute */ /* Name.Builtin */
+.highlight .nc {
+  color: #447fcf;
+  text-decoration: underline;
+} /* Name.Class */
+.highlight .no {
+  color: #40ffff;
+} /* Name.Constant */ /* Name.Decorator */ /* Name.Entity */
+.highlight .ne {
+  color: #bbbbbb;
+} /* Name.Exception */ /* Name.Function */
+.highlight .nl {
+  color: #d0d0d0;
+} /* Name.Label */
+.highlight .nn {
+  color: #447fcf;
+  text-decoration: underline;
+} /* Name.Namespace */ /* Name.Other */
+.highlight .py {
+  color: #d0d0d0;
+} /* Name.Property */
+.highlight .nt {
+  color: #6ab825;
+  font-weight: bold;
+} /* Name.Tag */ /* Name.Variable */ /* Operator.Word */
+.highlight .w {
+  color: #666666;
+} /* Text.Whitespace */ /* Literal.Number.Float */ /* Literal.Number.Hex */ /* Literal.Number.Integer */ /* Literal.Number.Oct */ /* Literal.String.Backtick */ /* Literal.String.Char */ /* Literal.String.Doc */ /* Literal.String.Double */
+.highlight .se {
+  color: #ed9d13;
+} /* Literal.String.Escape */ /* Literal.String.Heredoc */ /* Literal.String.Interpol */ /* Literal.String.Other */ /* Literal.String.Regex */ /* Literal.String.Single */ /* Literal.String.Symbol */ /* Name.Builtin.Pseudo */ /* Name.Variable.Class */ /* Name.Variable.Global */ /* Name.Variable.Instance */ /* Literal.Number.Integer.Long */
