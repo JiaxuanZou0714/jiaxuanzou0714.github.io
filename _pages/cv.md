@@ -2,7 +2,7 @@
 layout: cv
 permalink: /cv/
 title: CV
-nav: false
+nav: true
 published: true
 nav_order: 5
 cv_format: rendercv
