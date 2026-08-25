@@ -17,3 +17,13 @@ node_modules
 # Ignore folders related to IDEs
 .vscode/
 .DS_Store
+
+# Ignore LaTeX build artifacts from the CV source.
+# The built PDF is committed only at its published path, assets/Jiaxuan_Zou_CV.pdf.
+cv/*.aux
+cv/*.log
+cv/*.out
+cv/*.fls
+cv/*.fdb_latexmk
+cv/*.synctex.gz
+cv/Jiaxuan_Zou_CV.pdf
