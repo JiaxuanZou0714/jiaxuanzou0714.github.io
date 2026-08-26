@@ -430,6 +430,19 @@ async function translateFile(fileName, cache) {
 // ---------------------------------------------------------------------------
 
 async function main() {
+  // Check credentials before reading or writing anything, so a missing key
+  // fails on the first line rather than partway through the first post.
+  if (!DRY_RUN && !API_KEY) {
+    const hasEnvFile = existsSync(path.join(ROOT, ".env"));
+    process.stderr.write(
+      hasEnvFile
+        ? "DEEPSEEK_API_KEY is empty in .env. Fill in the value after the '=' and rerun.\n"
+        : "DEEPSEEK_API_KEY is not set. Run `cp .env.example .env`, add the key, and rerun.\n",
+    );
+    process.stderr.write("To check structure without a key, use: npm run translate:check\n");
+    process.exit(1);
+  }
+
   const cache = await loadCache();
   const before = Object.keys(cache).length;
 
