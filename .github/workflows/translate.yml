@@ -1,0 +1,48 @@
+name: Translate
+
+# Manual only. The deploy workflow must never call DeepSeek, so translation is
+# a deliberate step that commits its output for deploy to pick up later.
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Ignore the cache and retranslate every block"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: translate
+  cancel-in-progress: false
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check structure before spending any API budget
+        run: node scripts/translate.mjs --dry-run
+
+      - name: Translate
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: node scripts/translate.mjs ${{ inputs.force && '--force' || '' }}
+
+      - name: Commit translations
+        run: |
+          if [ -z "$(git status --porcelain -- _en_posts _data/i18n)" ]; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _en_posts _data/i18n
+          git commit -m "Update English translations of the Chinese posts"
+          git push

@@ -190,6 +190,20 @@
   margin-top: 0.5rem;
 }
 
+.post-lang-switch {
+  font-size: var(--text-sm);
+  padding-bottom: 1rem;
+  margin-bottom: 0;
+
+  a {
+    color: var(--global-text-color-light);
+
+    &:hover {
+      color: var(--global-theme-color);
+    }
+  }
+}
+
 .post-title,
 .post-description,
 #table-of-contents,

@@ -18,6 +18,10 @@ node_modules
 .vscode/
 .DS_Store
 
+# Secrets for scripts/translate.mjs. Never commit the real key.
+.env
+.env.local
+
 # Ignore LaTeX build artifacts from the CV source.
 # The built PDF is committed only at its published path, assets/Jiaxuan_Zou_CV.pdf.
 cv/*.aux

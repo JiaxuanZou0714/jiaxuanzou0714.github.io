@@ -145,9 +145,7 @@
 }
 
 .navbar-nav .nav-item,
-.navbar-nav .nav-link,
-.nav-translate,
-.translate-toggle {
+.navbar-nav .nav-link {
   min-width: 0;
 }
 
@@ -155,7 +153,6 @@
 .dropdown-item,
 #search-toggle,
 #light-toggle,
-.translate-toggle button,
 .navbar-toggler {
   transition:
     color var(--transition-base),
@@ -260,10 +257,6 @@
   align-items: center;
   gap: 0.35rem;
   white-space: nowrap;
-}
-
-.translate-toggle button {
-  min-height: 2rem;
 }
 
 @media (max-width: 575.98px) {

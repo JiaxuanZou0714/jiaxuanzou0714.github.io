@@ -32,6 +32,8 @@ pagination:
   <p>
     This page collects my long-form notes on mechanistic interpretability, deep learning theory, optimization, and scaling laws.
     If you are new here, start from the latest posts below.
+    Most posts are written in Chinese; English translations are collected on the
+    <a href="{{ '/en/blog/' | relative_url }}">English blog page</a>.
   </p>
 {% endif %}
 

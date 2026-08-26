@@ -73,7 +73,31 @@
       content="{% if page.og_image %}{{ page.og_image }}{% else %}{{ site.og_image }}{% endif %}"
     >
   {% endif %}
-  <meta property="og:locale" content="{{ site.lang }}">
+  <meta property="og:locale" content="{{ page.lang | default: site.lang }}">
+
+  {% comment %}
+    Declare the Chinese post and its English translation as alternates of each
+    other so the pair is not read as duplicated content.
+  {% endcomment %}
+  {% if page.collection == 'en_posts' %}
+    {% assign alternate = site.posts | where: 'slug', page.ref | first %}
+    {% assign alternate_lang = 'zh-CN' %}
+  {% elsif page.layout == 'post' %}
+    {% assign alternate = site.en_posts | where: 'ref', page.slug | first %}
+    {% assign alternate_lang = 'en' %}
+  {% endif %}
+  {% if alternate %}
+    <link
+      rel="alternate"
+      hreflang="{{ alternate_lang }}"
+      href="{{ alternate.url | prepend: site.baseurl | prepend: site.url }}"
+    >
+    <link
+      rel="alternate"
+      hreflang="{{ page.lang | default: site.lang }}"
+      href="{{ page.url | prepend: site.baseurl | prepend: site.url | remove_first: 'index.html' }}"
+    >
+  {% endif %}
 
   <!-- Twitter card -->
   <meta name="twitter:card" content="summary_large_image">

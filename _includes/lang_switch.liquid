@@ -1,0 +1,26 @@
+{% comment %}
+  Links a Chinese post to its generated English translation and back.
+
+  The two documents are paired on the source filename slug. scripts/translate.mjs
+  writes that slug into the generated document's `ref` field, so neither side has
+  to guess at the other's URL.
+{% endcomment %}
+
+{% if page.collection == 'en_posts' %}
+  {% assign counterpart = site.posts | where: 'slug', page.ref | first %}
+  {% assign switch_label = '中文' %}
+  {% assign switch_lang = 'zh-CN' %}
+{% else %}
+  {% assign counterpart = site.en_posts | where: 'ref', page.slug | first %}
+  {% assign switch_label = 'English' %}
+  {% assign switch_lang = 'en' %}
+{% endif %}
+
+{% if counterpart %}
+  <p class="post-lang-switch">
+    <a href="{{ counterpart.url | relative_url }}" hreflang="{{ switch_lang }}" lang="{{ switch_lang }}">
+      <i class="fa-solid fa-language fa-sm"></i>
+      {{ switch_label }}
+    </a>
+  </p>
+{% endif %}

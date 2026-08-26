@@ -408,11 +408,6 @@
   </script>
 {% endif %}
 
-{% if site.google_translate and site.google_translate.enabled %}
-  <!-- Google Translate -->
-  <script defer src="{{ '/assets/js/google-translate-setup.js' | relative_url | bust_file_cache }}"></script>
-{% endif %}
-
 {% if site.search_enabled %}
   <!-- Search -->
   <script defer src="{{ '/assets/js/search-loader.js' | relative_url | bust_file_cache }}"></script>
