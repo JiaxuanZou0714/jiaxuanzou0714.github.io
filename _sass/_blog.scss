@@ -191,15 +191,31 @@
 }
 
 .post-lang-switch {
-  font-size: var(--text-sm);
+  padding-top: 0.35rem;
   padding-bottom: 1rem;
   margin-bottom: 0;
 
   a {
-    color: var(--global-text-color-light);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--global-theme-color);
+    border: 1px solid var(--global-theme-color);
+    border-radius: 999px;
+    text-decoration: none;
+    transition:
+      color var(--transition-base),
+      background-color var(--transition-base);
 
-    &:hover {
-      color: var(--global-theme-color);
+    &:hover,
+    &:focus-visible {
+      color: var(--global-bg-color);
+      background-color: var(--global-theme-color);
+      text-decoration: none;
     }
   }
 }
