@@ -1,7 +1,8 @@
 {
   "scripts": {
     "translate": "node scripts/translate.mjs",
-    "translate:check": "node scripts/translate.mjs --dry-run"
+    "translate:check": "node scripts/translate.mjs --dry-run",
+    "translate:verify": "node scripts/check-translations.mjs"
   },
   "devDependencies": {
     "@shopify/prettier-plugin-liquid": "^1.10.0",

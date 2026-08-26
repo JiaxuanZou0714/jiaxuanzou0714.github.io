@@ -10,9 +10,16 @@
 //   node scripts/translate.mjs                  translate everything that changed
 //   node scripts/translate.mjs --dry-run        report work to be done, call no API
 //   node scripts/translate.mjs --only <slug>    restrict to one post
-//   node scripts/translate.mjs --force          ignore the cache and retranslate
+//   node scripts/translate.mjs --force          retranslate and overwrite
 //
-// Requires DEEPSEEK_API_KEY, read from the environment or from a local .env.
+// Requires DEEPSEEK_API_KEY, read from the environment or from a local .env,
+// except for --dry-run which makes no API calls.
+//
+// The generated files in _en_posts/ are meant to be correctable by hand, so a
+// normal run must never clobber them. Each generated file records the hash of
+// the Chinese source it came from. When that hash still matches, the file is
+// left completely alone. A post is only rebuilt once its source has actually
+// changed, and --force is required to discard hand edits deliberately.
 
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
@@ -69,6 +76,7 @@ const THINKING = process.env.DEEPSEEK_THINKING || "disabled";
 const args = process.argv.slice(2);
 const DRY_RUN = args.includes("--dry-run");
 const FORCE = args.includes("--force");
+const VERBOSE_KEPT = args.includes("--verbose");
 const ONLY = (() => {
   const i = args.indexOf("--only");
   return i !== -1 ? args[i + 1] : null;
@@ -563,12 +571,39 @@ function bodyUnits(text) {
   return { parts, units };
 }
 
+function sourceSha(raw) {
+  return createHash("sha256").update(raw).digest("hex").slice(0, 16);
+}
+
+// Leave a hand-corrected translation alone unless its source actually moved.
+// A file with no recorded hash predates this guard, so adopt it as current
+// rather than overwriting work that may already have been reviewed.
+async function upToDateReason(fileName, raw) {
+  const outPath = path.join(OUTPUT_DIR, fileName);
+  if (FORCE || !existsSync(outPath)) return null;
+  const existing = await readFile(outPath, "utf8");
+  const recorded = splitFrontMatter(existing).frontMatter?.match(
+    /^source_sha:[ \t]*(\S+)[ \t]*$/m,
+  )?.[1];
+  if (recorded === undefined) {
+    const stamped = existing.replace(/^(---\n)/, `$1source_sha: ${sourceSha(raw)}\n`);
+    await writeFile(outPath, stamped, "utf8");
+    return "adopted the existing translation";
+  }
+  return recorded === sourceSha(raw) ? "source unchanged" : null;
+}
+
 async function translateFile(fileName, cache) {
   const raw = await readFile(path.join(SOURCE_DIR, fileName), "utf8");
   const { frontMatter, body } = splitFrontMatter(raw);
   if (frontMatter === null) return { fileName, skipped: "no front matter" };
   if (!/^lang:[ \t]*zh-CN[ \t]*$/m.test(frontMatter)) {
     return { fileName, skipped: `lang is not ${SOURCE_LANG}` };
+  }
+
+  if (!DRY_RUN) {
+    const reason = await upToDateReason(fileName, raw);
+    if (reason) return { fileName, kept: reason };
   }
 
   const { text, items } = protect(body);
@@ -627,6 +662,7 @@ async function translateFile(fileName, cache) {
   // site.related_posts is populated from the Chinese posts, so the widget would
   // recommend articles this reader cannot read.
   fm = setFrontMatterField(fm, "related_posts", "false");
+  fm = setFrontMatterField(fm, "source_sha", sourceSha(raw));
 
   await mkdir(OUTPUT_DIR, { recursive: true });
   await writeFile(path.join(OUTPUT_DIR, fileName), `---\n${fm}\n---\n${translatedBody}`, "utf8");
@@ -747,6 +783,7 @@ async function main() {
 
   const written = results.filter((r) => r.written || r.planned).length;
   const skipped = results.filter((r) => r.skipped);
+  const kept = results.filter((r) => r.kept);
   const broken = results.filter((r) => r.roundTripFailed);
 
   if (broken.length > 0) {
@@ -762,6 +799,10 @@ async function main() {
       : `written        ${written} file(s) to _en_posts/\n`,
   );
   for (const s of skipped) process.stdout.write(`skipped        ${s.fileName} (${s.skipped})\n`);
+  if (kept.length > 0) {
+    process.stdout.write(`kept           ${kept.length} existing translation(s) untouched\n`);
+    if (VERBOSE_KEPT) for (const k of kept) process.stdout.write(`               ${k.fileName} (${k.kept})\n`);
+  }
   process.stdout.write(`cache hits     ${stats.hits}\n`);
   if (DRY_RUN) {
     process.stdout.write(`would call     ${stats.wouldCall} unit(s)\n`);

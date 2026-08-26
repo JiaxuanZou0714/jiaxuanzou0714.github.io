@@ -35,6 +35,9 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: node scripts/translate.mjs ${{ inputs.force && '--force' || '' }}
 
+      - name: Verify translations against their sources
+        run: node scripts/check-translations.mjs
+
       - name: Commit translations
         run: |
           if [ -z "$(git status --porcelain -- _en_posts _data/i18n)" ]; then
