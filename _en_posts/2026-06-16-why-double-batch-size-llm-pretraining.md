@@ -1,4 +1,5 @@
 ---
+source_sha: 589c5a2dcb98f527
 layout: post
 title: "Why does the batch size need to be doubled midway through LLM pretraining?"
 date: 2026-06-16 14:00:00
@@ -15,13 +16,13 @@ ref: why-double-batch-size-llm-pretraining
 related_posts: false
 ---
 
-The training loss curve of Apertus 70B has a vertical line labeled Double GBS: at approximately 4.4T tokens, the global batch size increases from 8.4M to 16.8M tokens, the learning rate remains unchanged, and the loss drops by a small segment.
+The training loss curve of Apertus 70B has a vertical line labeled Double GBS: at approximately 4.4T tokens, the global batch size increases from 8.4M to 16.8M tokens, the learning rate remains unchanged, and the loss drops slightly in response.
 
 {% include figure.liquid
   path='assets/img/post-06-16/image.png'
   class='img-fluid rounded z-depth-1'
   width='100%'
-  caption='Apertus 70B loss curve. The red dashed line marks the mid-course Double GBS (global batch size doubled from 8.4M to 16.8M tokens), and the remaining vertical lines indicate data stage switches.'
+  caption='Apertus 70B loss curve. The red dashed line marks the mid-training Double GBS (global batch size doubled from 8.4M to 16.8M tokens), and the remaining vertical lines indicate data stage switches.'
   zoomable=true
   alt='Apertus 70B loss curve with a Double GBS line'
 %}
@@ -61,7 +62,7 @@ $$
 \mathcal G=\frac{\operatorname{tr}(C)}{\|\mu\|^2},
 $$
 
-They satisfy $$\text{SNR}(B)=B/\mathcal G$$. Maintaining the signal-to-noise ratio requires $$B\propto \mathcal G$$. Late in training, as the model approaches the low-loss region, $$\|\mu\|$$ decreases while $$\operatorname{tr}(C)$$ does not decrease correspondingly, so $$\mathcal G$$ increases, and the required batch size increases accordingly. This is the first-layer reason why the batch size increase should occur late.
+They satisfy $$\text{SNR}(B)=B/\mathcal G$$. Maintaining the signal-to-noise ratio requires $$B\propto \mathcal G$$. Late in training, as the model approaches the low-loss region, $$\|\mu\|$$ decreases while $$\operatorname{tr}(C)$$ does not decrease correspondingly, so $$\mathcal G$$ increases, and the required batch size increases accordingly. This is the first reason why the batch size increase should occur late in training.
 
 ### 1.1 Single-step update analysis
 
@@ -71,13 +72,13 @@ $$
 \mathbb E[L(\theta^+)]\approx L(\theta)-\eta \|\mu\|^2+\frac{\eta^2}{2}\mu^\top H\mu+\frac{\eta^2}{2B}\operatorname{tr}(HC),\qquad H=\nabla^2 L(\theta).
 $$
 
-Only the last term $$\frac{\eta^2}{2B}\operatorname{tr}(HC)$$ depends on $$B$$; it is the loss introduced by noise and is proportional to $$1/B$$. Requiring it not to exceed a fixed fraction of the effective descent term $$\eta\|\mu\|^2$$ yields the critical batch size
+Only the last term $$\frac{\eta^2}{2B}\operatorname{tr}(HC)$$ depends on $$B$$; it is the loss penalty introduced by noise and is proportional to $$1/B$$. Requiring it not to exceed a fixed fraction of the effective descent term $$\eta\|\mu\|^2$$ yields the critical batch size
 
 $$
 B_{\text{crit}}\sim\frac{\eta\operatorname{tr}(HC)}{\|\mu\|^2}.
 $$
 
-Early in training, $$\|\mu\|^2$$ is large and $$B_{\text{crit}}$$ is small, so an overly large batch only reduces the number of update steps; late in training, $$\|\mu\|^2$$ decreases and $$B_{\text{crit}}$$ increases, and if a small batch is maintained, the loss is dominated by the noise term.
+Early in training, $$\|\mu\|^2$$ is large and $$B_{\text{crit}}$$ is small, so an overly large batch only reduces the number of optimizer steps; late in training, $$\|\mu\|^2$$ decreases and $$B_{\text{crit}}$$ increases, and if a small batch is maintained, the loss is dominated by the noise term.
 
 ### 1.2 One-dimensional case
 
@@ -96,16 +97,16 @@ $$
 That is, with a fixed learning rate, doubling the batch halves the noise floor; the drop at Double GBS in the figure corresponds to this floor moving down. Combining the above,
 
 $$
-\|\mu\|^2 \downarrow \;\Rightarrow\; \mathcal G=\frac{\operatorname{tr}(C)}{\|\mu\|^2}\uparrow \;\Rightarrow\; B_{\text{crit}}\uparrow \;\Rightarrow\; \text{增大 batch}.
+\|\mu\|^2 \downarrow \;\Rightarrow\; \mathcal G=\frac{\operatorname{tr}(C)}{\|\mu\|^2}\uparrow \;\Rightarrow\; B_{\text{crit}}\uparrow \;\Rightarrow\; \text{increase the batch size}.
 $$
 
-The cost is that under a fixed token budget, the number of update steps decreases, so an overly large batch should not be used early.
+The cost is that under a fixed token budget, the number of optimizer steps decreases, so an overly large batch should not be used early.
 
-## 2. Is this practice common
+## 2. Is this practice common?
 
-Dynamically increasing the batch size during training (batch ramp / warmup) is a common configuration in large model pretraining, though it is rarely plotted separately in the loss curve. GPT-3's batch size increases linearly from 32k to full batch over the first 4–12B tokens; Llama 3 405B increases in stages from 4M to 8M and then to 16M; OLMo-65B starts at 2M and doubles every 100B tokens up to 16M. The prerequisite for its applicability is large models, synchronous data parallelism, many GPUs, and the importance of parallel efficiency; small models, LoRA/SFT, and CV training typically use a fixed batch size and only adjust the learning rate.
+Dynamically increasing the batch size during training (batch ramp / warmup) is a common configuration in large model pretraining, though it is rarely plotted separately in the loss curve. GPT-3's batch size increases linearly from 32k to full batch over the first 4–12B tokens; Llama 3 405B increases in stages from 4M to 8M and then to 16M; OLMo-65B starts at 2M and doubles every 100B tokens up to 16M. It applies when the model is large, training uses synchronous data parallelism, the GPU count is high, and parallel efficiency matters; small models, LoRA/SFT, and CV training typically use a fixed batch size and only adjust the learning rate.
 
-Whether to increase depends on whether the current batch size is close to the critical batch size. The gradient noise scale proposed by McCandlish et al. is used to estimate the "maximum useful batch size" and increases as the loss decreases; the OLMo CBS study also found that CBS rises rapidly early on and then plateaus. However, an overly large batch size hurts token efficiency: under a fixed budget, the number of optimizer steps decreases, and the loss worsens. The critical batch size is the trade-off point between data-parallel efficiency and token efficiency.
+Whether to increase depends on whether the current batch size is close to the critical batch size. The gradient noise scale proposed by McCandlish et al. is used to estimate the "maximum useful batch size" and increases as the loss decreases; the OLMo CBS study also found that CBS rises rapidly early on and then plateaus. However, an overly large batch size hurts token efficiency: under a fixed budget, the number of optimizer steps decreases, and the loss is worse as a result. The critical batch size is the trade-off point between data-parallel efficiency and token efficiency.
 
 ## 3. Optimal batch size schedule
 
@@ -173,9 +174,9 @@ B_{\max}(T^*-t+1)^{\frac{1}{2\beta}-1}, & T_1^*\le t\le T^*,
 \end{cases}
 $$
 
-And the fraction of the growth segment decreases with $$D$$, $$\frac{T^*-T_1^*}{T^*}\asymp D^{-\frac{1-1/\beta-s}{2-1/\beta}}$$. Intuitively, in the hard regime, what is scarce early on is the number of optimizer steps, not low-noise gradients, so one should maintain a small batch for a long time to accumulate steps, and only later use a large batch to reduce noise. FSL calls this shape stable-growth, i.e., the batch-size version of WSD. LLM pretraining falls into this category.
+The fraction occupied by the growth segment also shrinks as $$D$$ increases, $$\frac{T^*-T_1^*}{T^*}\asymp D^{-\frac{1-1/\beta-s}{2-1/\beta}}$$. Intuitively, for a hard task, what is scarce early on is the number of optimizer steps, not low-noise gradients, so one should maintain a small batch for a long time to accumulate steps, and only later use a large batch to reduce noise. FSL calls this shape stable-growth, i.e., the batch-size version of WSD. LLM pretraining falls into this category.
 
-This explains the "double GBS midway": the continuous optimal is monotonically rapidly increasing, but engineering constraints limit the number of available batch sizes, so on the curve it appears as one or two vertical jumps; a single doubling is an engineering approximation of the clipped power-law.
+This explains the "Double GBS" that appears midway through training: the continuous optimum grows monotonically and rapidly, but engineering constraints limit the number of available batch sizes, so on the curve it appears as one or two vertical jumps; a single doubling is an engineering approximation of the clipped power-law.
 
 ### 3.4 Explicit solutions for two-segment and multi-segment schedules
 
@@ -195,19 +196,19 @@ $$
 A\,s\,S^{-s-1}=C\left[\frac{K(S)}{B_1}+\frac{K(R)}{B_2}\right],\qquad S=\frac{D_1}{B_1}+\frac{D-D_1}{B_2},\quad R=\frac{D-D_1}{B_2}.
 $$
 
-The left-hand side is the signal gain from extending the small batch to accumulate steps, and the right-hand side is the noise accumulation cost; the balance point is the switch. Multi-stage doubling is analogous: take $$B_j=B_{\min}r^j$$ and let each stage boundary fall on the continuous solution, yielding
+The left-hand side is the signal gain from extending the small batch to accumulate steps, and the right-hand side is the noise accumulation cost; the point at which the two balance is the switch point. Multi-segment doubling is analogous: take $$B_j=B_{\min}r^j$$ and let each stage boundary fall on the continuous solution, yielding
 
 $$
 t_j=T+1-\left(\frac{B_j}{c}\right)^{1/p},\qquad p=\tfrac{1}{2\beta}-1,
 $$
 
-Converting to the token axis $$z_j=\int_0^{t_j} b^*(u)\,du$$ gives the timing of each doubling, then align to checkpoint or data stage boundaries.
+Converting to the token axis $$z_j=\int_0^{t_j} b^*(u)\,du$$ gives the timing of each doubling, which is then aligned to checkpoint or data stage boundaries.
 
 ### 3.5 Empirical Alternatives
 
-The variational solution requires estimating $$s,\beta,K$$ in advance. A more practical approach is to track the critical batch size directly: OLMo's CBS study estimates CBS online, starting from a small batch and doubling once CBS increases, saving about 43% of update steps on OLMo 1B without loss degradation.
+The variational solution requires estimating $$s,\beta,K$$ in advance. A more practical approach is to track the critical batch size directly: OLMo's CBS study estimates CBS online, starting from a small batch and doubling once CBS increases, saving about 43% of optimizer steps on OLMo 1B without loss degradation.
 
-Note that "optimal" depends on the objective: final validation loss under a fixed budget, wall-clock to reach a target loss, or accounting for communication and utilization costs, correspond to different optimal $$b(t)$$. The FSL main analysis is based on vanilla SGD with constant learning rate; modern LLMs mostly use AdamW, and the joint learning-rate / batch-size schedule still requires further analysis.
+Note that "optimal" depends on the objective function: final validation loss under a fixed budget, wall-clock time to reach a target loss, or accounting for communication and utilization costs each correspond to a different optimal $$b(t)$$. FSL's main analysis is based on vanilla SGD with a constant learning rate; modern LLMs mostly use AdamW, and the joint learning-rate / batch-size schedule still requires further analysis.
 
 ## 4. Numerical Verification on NQM
 
@@ -220,12 +221,12 @@ $$
 Expanding to step $$T$$,
 
 $$
-L_T=\underbrace{S(T)}_{\text{信号项, 只依赖步数}}+\sum_k\frac{\kappa(T-1-k)}{B_k},\qquad \kappa(j)=\tfrac12\eta^2\sum_i h_i\sigma_i^2(1-\eta h_i)^{2j},
+L_T=\underbrace{S(T)}_{\text{signal term, depends only on step count}}+\sum_k\frac{\kappa(T-1-k)}{B_k},\qquad \kappa(j)=\tfrac12\eta^2\sum_i h_i\sigma_i^2(1-\eta h_i)^{2j},
 $$
 
-This is isomorphic to the FSL form in Section 3. Hence, under a fixed budget $$D=\sum_k B_k$$, Cauchy–Schwarz directly gives $$B_k^*\propto\sqrt{\kappa(T-1-k)}$$, i.e., the clipped power-law is exact in NQM.
+This is isomorphic to the FSL form in Section 3. Hence, under a fixed budget $$D=\sum_k B_k$$, Cauchy–Schwarz directly gives $$B_k^*\propto\sqrt{\kappa(T-1-k)}$$, i.e., the clipped power-law is the exact solution in NQM.
 
-Taking a power-law spectrum, we measure $$s\approx0.49$$ and $$\beta\approx1.96$$, which lie in the hard regime, corresponding to LLMs. With fixed budget and constant learning rate, only the schedule changes; results are as follows.
+Taking a power-law spectrum, we measure $$s\approx0.49$$ and $$\beta\approx1.96$$, which lie in the hard regime, corresponding to LLMs. With the budget and the learning rate held fixed and only the schedule changed, the results are as follows.
 
 {% include figure.liquid
   path='assets/img/post-06-16/batch_schedule_experiment.png'
@@ -238,10 +239,10 @@ Taking a power-law spectrum, we measure $$s\approx0.49$$ and $$\beta\approx1.96$
 
 Main results:
 
-- The optimal schedule (red) maintains $$B_{\min}$$ for most of training to accumulate steps, then increases batch size with a power law at the end, dropping loss to about $$1/10$$ of the constant-batch loss, consistent with WSD / optimal lr schedule curves.
+- The optimal schedule (red) maintains $$B_{\min}$$ for most of training to accumulate steps, then increases batch size with a power law at the end, with the loss dropping sharply to about $$1/10$$ of the constant-batch loss, consistent with WSD / optimal lr schedule curves.
 - The optimal schedule matches the analytic form $$(T-t+1)^{1/2\beta-1}$$ (black dashed).
-- Final loss under the same budget: constant 1.0×, two-stage 3.8×, doubling 9.9×, optimal 10.2×.
-- The optimal solution's final loss is already below the noise floor $$L_\infty(B)$$ of the optimal constant batch, which is unattainable at any budget.
+- Final loss under the same budget: constant 1.0×, two-segment 3.8×, doubling 9.9×, optimal 10.2×.
+- The final loss of the optimal solution is already below the noise floor $$L_\infty(B)$$ of the optimal constant batch, and that floor cannot be reached at any budget.
 
 Two supporting results: the noise floor is exactly $$\propto 1/B$$, and the kernel $$\kappa(j)$$ is a power law.
 
@@ -258,9 +259,9 @@ Code is at `experiments/batch_schedule_nqm.py` (pure NumPy); adjusting the spect
 
 ## 5. Verification on a Real Transformer
 
-NQM has an inherent weakness: its expected loss is deliberately constructed to be isomorphic to FSL, so "the optimal schedule wins in NQM" is nearly self-fulfilling. To break this loop, we redo the comparison on a real transformer: the model is no longer tailored to FSL.
+NQM has an inherent weakness: its expected loss is deliberately constructed to be isomorphic to FSL, so "the optimal schedule wins on NQM" is nearly circular. To break this circularity, we redo the comparison on a real transformer: the model is no longer tailored to FSL.
 
-Setup: a 45M-parameter standard GPT (6 layers, $$d=512$$, block 1024), trained on FineWeb (GPT-2 tokenizer) with AdamW, learning rate **constant throughout** (unchanged after 8M token linear warmup), fixed total budget **600M tokens**, same initialization and data order, **the only variable is the batch schedule**. Compare four schedules: constant batch 64k / 128k / 512k tokens, and a late-switch doubling ramp (64k→128k→256k→512k).
+Setup: a 45M-parameter standard GPT (6 layers, $$d=512$$, block 1024), trained on FineWeb (GPT-2 tokenizer) with AdamW, learning rate **constant throughout** (unchanged after 8M token linear warmup), fixed total budget **600M tokens**, same initialization and data order, **the only variable is the batch schedule**. Four schedules are compared: constant batch 64k / 128k / 512k tokens, and a late-switch doubling ramp (64k→128k→256k→512k).
 
 {% include figure.liquid
   path='assets/img/post-06-16/gpu_batch_schedule.png'
@@ -280,22 +281,22 @@ Results (same budget, same lr):
 | constant 64k | 4.145 | 9156 |
 | **doubling ramp** | **4.091** | 6182 |
 
-The doubled ramp reaches the final loss of the strongest constant batch (64k) at step 5990 (consuming 520M tokens), **using about 35% fewer optimizer steps**, and continues to decline to 4.091, below all constant batches. This is consistent with OLMo's "43% fewer steps at the same loss" and reflects the mechanisms of §1 and §3 on a real AdamW transformer: small batches accumulate steps early, while large batches reduce noise later.
+The doubling ramp reaches the final loss of the strongest constant batch (64k) at step 5990 (consuming 520M tokens), **using about 35% fewer optimizer steps**, and continues to decline to 4.091, below all constant batches. This is consistent with OLMo's "43% fewer steps at the same loss" and reflects the mechanisms of §1 and §3 on a real AdamW transformer: small batches accumulate steps early, while large batches reduce noise later.
 
-I must honestly note four points:
+Four points must be stated honestly:
 
 1. **The ramp switch points are chosen empirically** (the token proportions for each stage are hand-picked), guided only by the qualitative conclusion of §3 (hard regime → late switch), not by the exact discretization computed from $$z_j=\int_0^{t_j}b^*$$ in §3.4.
-2. **Exact determination requires $$\beta$$, but $$\beta$$ is not identifiable here.** Jointly fitting the FSL across three constant-batch curves, the residual is nearly flat in $$\beta$$ (fixing $$\beta$$ at 4 or 8 leaves RMS unchanged), because all three curves are far from the noise floor (final loss is monotone in batch size, signal-dominated), while $$\beta$$ only manifests in the shape of approaching the floor. This limitation is **structural** in real LLM training: no one runs multiple constant-batch sweeps just to fit $$\beta$$, and even a single large training run almost always stops in the signal-dominated regime. This is precisely why §3.5 points to empirical schemes like tracking the critical batch size online.
-3. **AdamW $$\neq$$ FSL of vanilla SGD.** Empirically, the gains in the large-batch final stage even exceed the fitted prediction, indicating that the noise–batch relationship under Adam is not fully consistent with SGD theory.
+2. **Exact determination requires $$\beta$$, but $$\beta$$ is not identifiable here.** When the FSL is fitted jointly to the three constant-batch curves, the residual is nearly flat in $$\beta$$ (fixing $$\beta$$ at 4 or 8 leaves RMS unchanged), because all three curves are far from the noise floor (final loss is monotone in batch size, signal-dominated), while $$\beta$$ shows up only in the shape of the approach to the floor. This limitation is **structural** in real LLM training: no one runs multiple constant-batch sweeps just to fit $$\beta$$, and even a single large training run almost always stops in the signal-dominated regime. This is precisely why §3.5 points to empirical schemes like tracking the critical batch size online.
+3. **AdamW $$\neq$$ FSL's vanilla SGD.** Empirically, the gains from the large batch in the final stage even exceed the prediction of that fit, indicating that the noise–batch relationship under Adam is not fully consistent with SGD theory.
 4. **Single seed, single run**, no error bars.
 
-The conclusion of this section is therefore limited but clear: **the late-switch doubling schedule does outperform constant batch size on real transformers, validating the qualitative predictions of §3; however, the "optimal switch point" depends on a $$\beta$$ that is unavailable in practice, and the current ramp remains an empirical choice. The realistic direction for making it principled is not offline fitting, but online adaptation within a single training run (e.g., CBS tracking), which remains an open problem.**
+The conclusion of this section is therefore limited but clear: **the late-switch doubling schedule does outperform constant batch size on a real transformer, validating the qualitative predictions of §3; however, the "optimal switch point" depends on a $$\beta$$ that is unavailable in practice, and the current ramp remains an empirical choice. The realistic direction for making it principled is not offline fitting, but online adaptation within a single training run (e.g., CBS tracking), which remains an open problem.**
 
 Training code `experiments/bsched_gpt.py`, FSL fitting diagnostics `experiments/fit_fsl.py`.
 
 ## Summary
 
-The essence of increasing the batch size later in training is that the noise term $$\frac{\eta^2}{2B}\operatorname{tr}(HC)$$ decays with $$1/B$$, while $$B_{\text{crit}}\sim \eta\operatorname{tr}(HC)/\|\mu\|^2$$ grows with training; with a fixed learning rate, increasing the batch size approximates a learning-rate decay and improves hardware utilization. This practice appears in GPT-3, Llama 3, and OLMo, though it is rarely plotted in the main figures. The optimal schedule is a clipped power-law, which in the hard regime and under discrete constraints for LLMs degenerates into "a long phase of small batch size followed by several doublings late in training"; Apertus's Double GBS is an engineering approximation of this. Both the NQM and a real 45M transformer confirm that this shape outperforms a constant batch size; however, the exact switching point depends on $$\beta$$, which is difficult to obtain in practice, and how to determine it adaptively within a single training run remains an open question.
+The essence of increasing the batch size later in training is that the noise penalty term $$\frac{\eta^2}{2B}\operatorname{tr}(HC)$$ decays with $$1/B$$, while $$B_{\text{crit}}\sim \eta\operatorname{tr}(HC)/\|\mu\|^2$$ grows with training; with a fixed learning rate, increasing the batch size approximates a learning-rate decay and improves hardware utilization. This practice appears in GPT-3, Llama 3, and OLMo, though it is rarely plotted in the main figures. The optimal schedule is a clipped power-law, which in the hard regime and under discrete constraints for LLMs degenerates into "a long phase of small batch size followed by several doublings late in training"; Apertus's Double GBS is an engineering approximation of this. Both the NQM and a real 45M transformer confirm that this shape outperforms a constant batch size; however, the exact switching point depends on $$\beta$$, which is difficult to obtain in practice, and how to determine it adaptively within a single training run remains an open question.
 
 ## References
 

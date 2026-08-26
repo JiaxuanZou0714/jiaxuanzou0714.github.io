@@ -1,4 +1,5 @@
 ---
+source_sha: 07b17b621a2ff242
 layout: post
 title: "On the Hypersphere: From Spherical Dynamics to μP"
 date: 2026-03-05 08:47:35
@@ -15,8 +16,8 @@ ref: spherical-dynamics-mup
 related_posts: false
 ---
 
-In modern large-model architectures, RMSNorm strips the influence of the weight vector's norm on the final output, so the effect of the gradient is essentially to change the direction of the weights. When deriving scaling laws for neural networks, the traditional Tensor Programs theory relies on microscopic statistics of coordinate systems for a large number of random variables. This article provides a completely different path: under a setting with strict scale invariance, we equivalently map the dynamics of the entire linear layer to motion in the tangent space of a hypersphere, and then rigorously derive the hyperparameter scaling rule required by μP. If you want to see the derivation along the Tensor Programs route, you can refer to [Tensor Programs (Part 1): From the Spectral Conditions of Feature Learning to μP](/en/blog/2026/spectral-condition-feature-learning/) and [Tensor Programs (Part 2): From Tensor Programs to μP](/en/blog/2026/tensor-programs-mup-intuition/); this article can be viewed as a geometric derivation path parallel to them.
-> The core insight is that, when using rmsnorm, the object to be aligned should be the evolution rate of features on the hypersphere (i.e., angular velocity).
+In modern large-model architectures, RMSNorm strips the influence of the weight vector's norm on the final output, so the effect of the gradient is essentially to change the direction of the weights. When deriving scaling laws for neural networks, the traditional Tensor Programs theory relies on microscopic, coordinate-level statistics of a large number of random variables. This article provides a completely different path: under a setting with strict scale invariance, we equivalently map the dynamics of the entire linear layer to motion in the tangent space of a hypersphere, and then rigorously derive the hyperparameter scaling rule required by μP. If you want to see the derivation along the Tensor Programs route, you can refer to [Tensor Programs (Part 1): From the Spectral Conditions of Feature Learning to μP](/en/blog/2026/spectral-condition-feature-learning/) and [Tensor Programs (Part 2): From Tensor Programs to μP](/en/blog/2026/tensor-programs-mup-intuition/); this article can be viewed as a geometric derivation path parallel to them.
+> The core insight is that, when using RMSNorm, the object to be aligned should be the evolution rate of features on the hypersphere (i.e., angular velocity).
 
 ## 1. Scale Invariance and the Natural Orthogonality of the Gradient
 
@@ -128,9 +129,9 @@ $$
 
 ## 3. Initialization Scaling (same approach as Tensor Programs)
 
-The ordinary differential equation itself describes the rate of change of the system state and cannot directly internalize the scale of the system at the initial time. Therefore, the logic for deriving the initialization scaling rule in this section is highly consistent with the theoretical basis of the Tensor Programs framework. We need to rely on the law of large numbers for random variables to establish the initialization scaling.
+The ordinary differential equation itself describes the rate of change of the system state and cannot by itself generate the scale of the system at the initial time. Therefore, the logic for deriving the initialization scaling rule in this section is highly consistent with the theoretical basis of the Tensor Programs framework. We need to rely on the law of large numbers for random variables to establish the initialization scaling.
 
-In order for the model to extract and transmit meaningful features in the forward pass, and to prevent singularity or degeneration in the backward pass (eliminating the influence of $n$), the coordinates of the pre-activation vector must be maintained at the order of $\Theta(1)$.
+In order for the model to extract and transmit meaningful features in the forward pass, and to prevent singularity or degeneracy in the backward pass (eliminating the influence of $n$), the coordinates of the pre-activation vector must be maintained at the order of $\Theta(1)$.
 
 Let the weights $W_{ij}$ be independent and identically distributed with mean $0$ and variance $\sigma_w^2$. Compute the variance of the unnormalized output $y_i$:
 
@@ -181,7 +182,7 @@ It is easy to prove that, from the spherical dynamics perspective, aligning $\fr
 
 ## 5. Summary
 
-The derivation path of spherical dynamics avoids the cumbersome process of probabilistic limits on matrix elements and directly exploits the spherical structure and Jacobian projection brought by RMSNorm. It proves that $\eta = \Theta(1/n)$ is the unique solution to ensure consistent angular velocity on the hypersphere for networks of different sizes. Continuing along this geometric route, one can next read ["On the Sphere: μP Scaling for Optimizers with the Hyperball Mechanism"](/en/blog/2026/spherical-hyperball/); that article further discusses how the scaling rules for different optimizers change after introducing the Hyperball constraint.
+The derivation path of spherical dynamics avoids the cumbersome process of probabilistic limits on matrix elements and directly exploits the spherical structure and Jacobian projection brought by RMSNorm. It proves that $\eta = \Theta(1/n)$ is the unique solution that guarantees a consistent angular velocity on the hypersphere for networks of different widths. Continuing along this geometric route, one can next read ["On the Sphere: μP Scaling for Optimizers with the Hyperball Mechanism"](/en/blog/2026/spherical-hyperball/); that article further discusses how the scaling rules for different optimizers change after introducing the Hyperball constraint.
 
 ## Citation
 

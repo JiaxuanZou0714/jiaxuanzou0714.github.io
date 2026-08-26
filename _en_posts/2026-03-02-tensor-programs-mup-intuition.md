@@ -1,8 +1,9 @@
 ---
+source_sha: 4e858171907184e5
 layout: post
 title: "Tensor Programs (Part 2): From Tensor Programs to μP"
 date: 2026-03-02 19:33:00
-description: "This article systematically reviews the core theoretical derivations of the maximal update parameterization (μP) derived from Tensor Programs. The most fundamental and core insight of Tensor Programs theory in deriving neural network scaling laws is that one must strictly distinguish and apply the law of large numbers (LLN) and the central limit theorem (CLT) based on the different generation mechanisms of weight tensors."
+description: "This article systematically reviews the core theoretical derivations of the maximal update parameterization (μP) obtained from Tensor Programs. The most fundamental and central insight of Tensor Programs theory in deriving neural network scaling laws is that one must strictly distinguish and apply the law of large numbers (LLN) and the central limit theorem (CLT) according to the different generation mechanisms of weight tensors."
 tags: [deep-learning, tensor-programs, muP, feature-learning]
 categories: [deep-learning]
 featured: false
@@ -16,13 +17,13 @@ related_posts: false
 ---
 
 
-This article systematically reviews the core theoretical derivation of maximal update parameterization ($\mu$P) derived from Tensor Programs. In deriving neural network scaling laws, the most fundamental and central insight of Tensor Programs theory is that one must strictly distinguish and apply the law of large numbers (LLN) and the central limit theorem (CLT) according to the different generation mechanisms of weight tensors. If you haven't seen the starting point of this series, you can first read [Tensor Programs (Part 1): From the Spectral Conditions of Feature Learning to μP](/en/blog/2026/spectral-condition-feature-learning/); that article explains why $\mu$P is needed from the spectral condition, while this article further clarifies the scaling rules for initialization and learning rate.
+This article systematically reviews the core theoretical derivation of the maximal update parameterization ($\mu$P) obtained from Tensor Programs. In deriving neural network scaling laws, the most fundamental and central insight of Tensor Programs theory is that one must strictly distinguish and apply the law of large numbers (LLN) and the central limit theorem (CLT) according to the different generation mechanisms of weight tensors. If you haven't seen the starting point of this series, you can first read [Tensor Programs (Part 1): From the Spectral Conditions of Feature Learning to μP](/en/blog/2026/spectral-condition-feature-learning/); that article starts from the spectral condition and explains why $\mu$P is needed, while this article goes further and treats the scaling rules for initialization and for the learning rate separately.
 
 ## 1. Probability Theory Foundations and Core Statistical Theorems
 
 In the theoretical analysis of infinitely wide neural networks (width $n \to \infty$), the output of a network layer is essentially a sum of a large number of random variables. The key to determining the asymptotic scale of these summands lies in whether they are correlated and whether their expectation is zero.
 
->Law of large numbers (LLN): If $x_1, \dots, x_n, \dots$ "look like" random independent samples of a random variable $X$, then the empirical mean converges to the expectation:
+>Law of large numbers (LLN): If $x_1, \dots, x_n, \dots$ "look like" independent random samples of a random variable $X$, then the empirical mean converges to the expectation:
 >$$
 >\frac{1}{n} \sum_{i=1}^n x_i \to \mathbb{E}[X], \quad \text{as } n \to \infty
 >$$
@@ -33,7 +34,7 @@ In the theoretical analysis of infinitely wide neural networks (width $n \to \in
 >$$
 >where $\sigma(X)$ is the standard deviation of the random variable $X$.
 
-Core intuition: Based on the above two theorems, we can derive a basic intuition about the sum of a large number of random variables $\sum_{i=1}^n x_i$. When $n$ is large, the "typical size" of this sum (which can be understood as the order of magnitude it occupies most of the time) is:
+Core intuition: Based on the above two theorems, we can derive a basic intuition about the sum of a large number of random variables $\sum_{i=1}^n x_i$. When $n$ is large, the "typical size" of this sum (which can be understood as the order of magnitude it takes most of the time) is:
 
 $$
 \sum_{i=1}^n x_i \text{ has typical size }
@@ -44,18 +45,18 @@ $$
 $$
 
 This constitutes the basic criterion for deriving $\mu$P from Tensor Programs:
-* Use CLT for initialization scaling: at initialization, weights are random variables sampled independently and identically distributed from a specific distribution, with expectation strictly zero. The sum of zero-mean independent variables is dominated by the central limit theorem, producing a scale of $\Theta(\sqrt{n})$.
+* Use CLT for initialization scaling: at initialization, weights are random variables drawn i.i.d. from a specific distribution, with expectation strictly zero. The sum of zero-mean independent variables is dominated by the central limit theorem, producing a scale of $\Theta(\sqrt{n})$.
 * Use LLN for gradient and learning rate scaling: during training, the weight update is an outer product computed from forward activations and backward gradients. The variables involved have strong intrinsic correlation, and the expectation of the product term is nonzero. The sum of nonzero-mean variables is dominated by the law of large numbers, producing a scale of $\Theta(n)$.
 
 > Again, when to use LLN and when to use CLT is one of the core insights of Tensor Programs.
 
-## 2. Random Variable Representation and Coordinate Typical Size
+## 2. Random Variable Representation and Typical Coordinate Size
 
 To rigorously describe the distributional characteristics of vectors, we introduce the following notation system.
 
 Definition: We say that a vector $v \in \mathbb{R}^n$ has coordinates of size $\Theta(n^a)$ (or simply $\Theta(n^a)$ coordinates) if $\|v\|^2/n = \Theta(n^{2a})$ as $n \to \infty$. In the case where the coordinates are approximately independent and identically distributed, this intuitively means that each component of $v$ has typical size $\Theta(n^a)$.
 
-Empirical distribution random variable $Z$: For each vector $v$ with $\Theta(1)$ coordinate size, we can associate a random variable $Z^v$. This random variable is independent of $n$ and represents the empirical distribution of the coordinates of $v$ in the infinite width limit. Its key property is that if vectors $u$ and $v$ are correlated, then the corresponding random variables $Z^u$ and $Z^v$ will also be correlated, and their inner product over the entire dimension converges to the expectation of the product of these two random variables:
+Empirical distribution random variable $Z$: For each vector $v$ with $\Theta(1)$ coordinate size, we can associate a random variable $Z^v$. This random variable is independent of $n$ and represents the empirical distribution of the coordinates of $v$ in the infinite-width limit. Its key property is that if vectors $u$ and $v$ are correlated, then the corresponding random variables $Z^u$ and $Z^v$ will also be correlated, and their inner product across all coordinates converges to the expectation of the product of these two random variables:
 $$
 \lim_{n \to \infty} \frac{v^\top u}{n} = \mathbb{E}[Z^u Z^v]
 $$
@@ -67,7 +68,7 @@ Assume that all coordinates of the input vector $x \in \mathbb{R}^n$ have size $
 
 ### 3.1 Linear Tensor Product Matrix (Deriving SGD Update Scaling)
 
-In gradient descent, a single step of weight update takes the form of an outer product. Given vectors $u, v, x \in \mathbb{R}^n$ with approximately independent and identically distributed coordinates (of size $\Theta(1)$). Construct the outer product:
+In gradient descent, a single step of weight update takes the form of an outer product. Take vectors $u, v, x \in \mathbb{R}^n$ with approximately independent and identically distributed coordinates (of size $\Theta(1)$), and construct the outer product:
 
 $$
 A \triangleq u \otimes v / n = u v^\top / n
@@ -91,7 +92,7 @@ $$
 Ax = \sum_{i=1}^k u^i \frac{(v^i)^\top x}{n}, \quad \text{with coordinates distributed as } Z^{Ax} = \sum_{i=1}^k Z^{u^i} \mathbb{E}[Z^{v^i} Z^x]
 $$
 
-Deep insight: Since the coordinates of $u$ and $v$ are both $\Theta(1)$, the elements of the original unscaled outer product matrix $u v^\top$ are naturally of size $\Theta(1)$. If used directly to update the network, the law of large numbers in the summation would cause the output $Ax$ to explode to $\Theta(n)$ level. To keep the result $Ax$ at $\Theta(1)$, a $1/n$ scaling factor must be introduced in the formula, making the coordinate size of $A$ become $\Theta(1/n)$. In the actual SGD update formula $\Delta W = - \eta \nabla W$, the elements of the gradient matrix $\nabla W$ are already at the $\Theta(1)$ level, so this $1/n$ factor necessary for system stability naturally and only can be placed in the learning rate $\eta$. This rigorously proves why SGD requires a learning rate of $\Theta(1/n)$.
+Key insight: Since the coordinates of $u$ and $v$ are both $\Theta(1)$, the elements of the original unscaled outer product matrix $u v^\top$ are naturally of size $\Theta(1)$. If used directly to update the network, the law of large numbers in the summation would cause the output $Ax$ to explode to the $\Theta(n)$ level. To keep the result $Ax$ at $\Theta(1)$, a $1/n$ scaling factor must be introduced in the formula, making the coordinate size of $A$ become $\Theta(1/n)$. In the actual SGD update formula $\Delta W = - \eta \nabla W$, the elements of the gradient matrix $\nabla W$ are already at the $\Theta(1)$ level, so the $1/n$ factor required to keep the system stable can naturally only be placed in the learning rate $\eta$. This rigorously proves why SGD requires a learning rate of $\Theta(1/n)$.
 
 ### 3.2 Nonlinear Tensor Product Matrix (Deriving Adam Update Scaling)
 
@@ -119,7 +120,7 @@ $$
 Z^{Ax} \triangleq \Psi(Z^{u^1}, \dots, Z^{u^k})
 $$
 
-Key insight: The core mechanism of the Adam algorithm is to force each element of its update matrix to be normalized to $\Theta(1)$. As derived above, any matrix with elements of size $\Theta(1)$ and correlated with the input will, due to the cumulative effect of the law of large numbers, amplify the activations of the next layer by a factor of $n$. To counteract this explosion, we set $\psi = n^{-1} \bar{\psi}$ in the mathematical construction, i.e., we force the coordinate size of matrix $A$ to be $\Theta(1/n)$. In practice, since the update step size produced by Adam is itself fixed at $\Theta(1)$, we must intervene externally—namely, strictly scale Adam's base learning rate to $\Theta(1/n)$—to close this theoretical requirement.
+Key insight: The core mechanism of the Adam algorithm is to force each element of its update matrix to be normalized to $\Theta(1)$. As derived above, any matrix with elements of size $\Theta(1)$ and correlated with the input will, due to the cumulative effect of the law of large numbers, amplify the activations of the next layer by a factor of $n$. To counteract this explosion, we set $\psi = n^{-1} \bar{\psi}$ in the mathematical construction, i.e., we force the coordinate size of matrix $A$ to be $\Theta(1/n)$. In practice, since the update step size produced by Adam is itself fixed at $\Theta(1)$, we must intervene externally—namely, strictly scale Adam's base learning rate to $\Theta(1/n)$—to meet this theoretical requirement.
 
 ### 3.3 Initialization Scaling (Applicability of CLT)
 
@@ -146,12 +147,12 @@ Based on the underlying mathematical mechanics above, we can clearly see that di
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | Hidden layer initialization | $W \in \mathbb{R}^{n \times n}$ | Ensure forward activations do not explode | Central limit theorem (CLT)<br>sum of zero-mean, independent random variables | $\Theta(1/\sqrt{n})$ | Weight variance must be set to $\Theta(1/n)$ |
 | Hidden layer update | $\Delta W \in \mathbb{R}^{n \times n}$ | Ensure maximal feature learning without divergence | Law of large numbers (LLN)<br>sum of nonzero-mean, highly correlated variables | $\Theta(1/n)$ | Learning rate must be set to $\Theta(1/n)$ |
-| Output layer initialization | $W \in \mathbb{R}^{1 \times n}$ | Ensure scalar output stable at $\Theta(1)$ | Law of large numbers (LLN)<br>to maintain mathematical consistency with update magnitude | $\Theta(1/n)$ | Weight variance must be set to $\Theta(1/n^2)$ |
+| Output layer initialization | $W \in \mathbb{R}^{1 \times n}$ | Ensure the scalar output stays at $\Theta(1)$ | Law of large numbers (LLN)<br>to maintain mathematical consistency with update magnitude | $\Theta(1/n)$ | Weight variance must be set to $\Theta(1/n^2)$ |
 | Output layer update | $\Delta W \in \mathbb{R}^{1 \times n}$ | Ensure numerical fidelity of output | Law of large numbers (LLN)<br>sum of nonzero-mean, highly correlated variables | $\Theta(1/n)$ | Learning rate must be set to $\Theta(1/n)$ |
 | Input layer initialization | $W \in \mathbb{R}^{n \times d}$ | Finite sum over constant dimension $d$ | None (constant-order operation) | $\Theta(1)$ | Weight variance set to $\Theta(1)$ |
 | Input layer update | $\Delta W \in \mathbb{R}^{n \times d}$ | Finite sum over constant dimension $d$ | None (constant-order operation) | $\Theta(1)$ | Learning rate set to $\Theta(1)$ |
 {: .table .table-striped .table-sm .w-auto .mx-auto style="font-size: 0.8em;"}
-If this article is viewed as a probabilistic version under the Tensor Programs framework, the corresponding geometric version can be found in ["On the Sphere: From Spherical Dynamics to μP"](/en/blog/2026/spherical-dynamics-mup/). That article bypasses the formal derivations of LLN/CLT and directly starts from spherical dynamics under RMSNorm, obtaining the same learning rate scaling conclusions; on this basis, further incorporating optimizers and norm constraints, one can continue to ["On the Sphere: μP Scaling for Optimizers with Hyperball Mechanisms"](/en/blog/2026/spherical-hyperball/).
+If this article is viewed as a probabilistic version under the Tensor Programs framework, the corresponding geometric version can be found in ["On the Sphere: From Spherical Dynamics to μP"](/en/blog/2026/spherical-dynamics-mup/). That article bypasses the formal derivations of LLN/CLT and starts directly from spherical dynamics under RMSNorm, arriving at the same learning rate scaling conclusions; and if optimizers and norm constraints are added on top of that, continue with ["On the Sphere: μP Scaling for Optimizers with Hyperball Mechanisms"](/en/blog/2026/spherical-hyperball/).
 
 ## Citation
 

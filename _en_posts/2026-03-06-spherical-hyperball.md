@@ -1,4 +1,5 @@
 ---
+source_sha: e1bbab6019904f66
 layout: post
 title: "On the Hypersphere: μP Scaling of Optimizers with the Hyperball Mechanism"
 date: 2026-03-07 10:24:00
@@ -15,9 +16,9 @@ ref: spherical-hyperball
 related_posts: false
 ---
 
-In modern neural network training, transferring hyperparameters across model scales is always a core issue. For architectures with normalization (e.g., RMSNorm), the key is no longer the parameters themselves, but the evolution of features on the hypersphere [[2]](https://arxiv.org/abs/2006.08419).
+In modern neural network training, transferring hyperparameters across model scales has always been a core problem. For architectures with normalization (e.g., RMSNorm), the key is no longer the parameters themselves, but the evolution of features on the hypersphere [[2]](https://arxiv.org/abs/2006.08419).
 
-Since normalized features satisfy $\lVert z \rVert_2 = \sqrt{n}$, when aligning across widths, there is no need to worry about the feature norm itself; the components of $z$ already satisfy $\lvert z_i \rvert = \Theta(1)$. We only need to ensure:
+Since normalized features satisfy $\lVert z \rVert_2 = \sqrt{n}$, when aligning across widths there is no longer any need to consider the feature norm itself; the components of $z$ already satisfy $\lvert z_i \rvert = \Theta(1)$. We only need to ensure:
 > Ensure that the evolution rate of the normalized feature $z$, $\lvert \left(\frac{dz}{dt}\right)_i \rvert = \Theta(1)$, remains at a stable magnitude.
 
 Below, we first explain the problems with standard optimizers, then derive the scaling laws for the Hyperball family of optimizers proposed by Wen et al. [[1]](https://tinyurl.com/muonh). If you haven't read the previous article in this geometric line, you can first read ["On the Hypersphere: From Spherical Dynamics to μP"](/en/blog/2026/spherical-dynamics-mup/); that article establishes the basic correspondence between spherical dynamics and $\mu$P learning rate scaling in RMSNorm architectures, without the Hyperball constraint.
@@ -46,7 +47,7 @@ $$
 \lVert y_t \rVert_2 = \Theta(\lVert W_t \rVert_F)
 $$
 
-After applying RMSNorm, the feature passed backward is:
+After applying RMSNorm, the feature passed downstream is:
 
 $$
 z = \sqrt{n}\frac{y_t}{\lVert y_t \rVert_2}
@@ -70,9 +71,9 @@ $$
 \eta = \frac{\Theta(\lVert W_t \rVert_F)}{\sqrt{n} \lvert (P_y (U_t x))_i \rvert}
 $$
 
-## 2. Intrinsic Radius Dependence and Dynamic Balance Dilemma of Standard Optimizers [[2]](https://arxiv.org/abs/2006.08419)
+## 2. Intrinsic Radius Dependence and the Dynamical Equilibrium Dilemma of Standard Optimizers [[2]](https://arxiv.org/abs/2006.08419)
 
-From the above, it is clear that what truly determines the spherical angular velocity of the feature is not the base learning rate $\eta$, but the effective spherical step size $\eta_{\mathrm{eff}}^{(i)}(t)$:
+From the equation above, it is clear that what truly determines the spherical angular velocity of the feature is not the base learning rate $\eta$, but the effective spherical step size $\eta_{\mathrm{eff}}^{(i)}(t)$:
 
 $$
 \eta_{\mathrm{eff}}^{(i)}(t) := \eta \frac{\sqrt{n} \lvert (P_y (U_t x))_i \rvert}{\lVert W_t \rVert_F}
@@ -168,9 +169,9 @@ $$
 w^* = \Theta\left(n^{3/4} (n^{-1})^{1/4}\right) = \Theta(n^{1/2}) = \Theta(\sqrt{n})
 $$
 
-This shows that if the system can instantaneously reach dynamical equilibrium, then when $\eta = \Theta(1/n)$, the intrinsic weight norm of standard optimization will automatically converge to $\Theta(\sqrt{n})$, consistent with the magnitude corresponding to standard initialization variance. Its core insight is consistent with mup.
+This shows that if the system can instantaneously reach dynamical equilibrium, then when $\eta = \Theta(1/n)$, the intrinsic weight norm of standard optimization will automatically converge to $\Theta(\sqrt{n})$, consistent with the magnitude corresponding to standard initialization variance. Its core insight is the same as that of μP.
 
-However, in practical engineering, relying on this mechanism to approach the natural stationary point to maintain hyperparameter alignment encounters three problems:
+However, in practical engineering, relying on this mechanism to approach the natural stationary point in order to maintain hyperparameter alignment runs into three problems:
 
 1. Convergence delay: $w^*$ is an asymptotic limit, and the weight norm does not instantly reach the equilibrium point. In the early training phase, $\lVert W_t \rVert_F$ has not yet converged to $\Theta(\sqrt{n})$, so the effective step size on the hypersphere is incorrect.
 2. Imbalance upon learning rate changes: Modern training commonly uses multi-stage learning rate schedules. Once $\eta$ decays, the corresponding equilibrium point $w^*$ immediately changes, but the weight norm takes time to catch up with the new equilibrium point. During this transition period, the alignment condition does not hold.
@@ -210,7 +211,7 @@ $$
 \eta = \frac{\lVert u_t \rVert_F}{\Theta(\sqrt{n}) \lvert (P_y (u_t x))_i \rvert}
 $$
 
-| | without hyperball | with Hyperball |
+| | without Hyperball | with Hyperball |
 | :--- | :--- | :--- |
 | learning rate constraint | $\eta = \Theta\left(\frac{\lVert W_t \rVert_F}{\sqrt{n} \lvert (P_y (U_t x))_i \rvert}\right)$ | $\eta = \Theta\left(\frac{\lVert u_t \rVert_F}{\sqrt{n} \lvert (P_y (u_t x))_i \rvert}\right)$ |
 {: .table .table-striped .table-sm .w-auto .mx-auto style="font-size: 0.8em;"}
@@ -242,7 +243,7 @@ $$
 P_y (u_t x) = P_y (\Theta(n) P_y g) = \Theta(n) P_y g
 $$
 
-By the premise assumption $\lvert (P_y g)_i \rvert = \Theta(1)$, we have $\lvert (P_y (u_t x))_i \rvert = \Theta(n)$. Substituting into the master equation:
+From the assumption above that $\lvert (P_y g)_i \rvert = \Theta(1)$, we have $\lvert (P_y (u_t x))_i \rvert = \Theta(n)$. Substituting into the master equation:
 
 $$
 \eta = \frac{\Theta(n)}{\Theta(\sqrt{n}) \Theta(n)} = \Theta\left(\frac{1}{\sqrt{n}}\right)
@@ -250,7 +251,7 @@ $$
 
 ### 4.2 Alignment derivation for AdamH
 
-Here we only retain the result of the assumption $\lVert u_t \rVert_F = \Theta(n)$ shared by AdamH and MuonH below. A more detailed Frobenius norm estimate can be found in ["Frobenius Norm Estimates for the Update Matrices of Adam and Muon Optimizers"](/en/blog/2026/optimizer-update-matrix-norm/), which devotes a separate section to this step.
+For the assumption $\lVert u_t \rVert_F = \Theta(n)$ used by both AdamH and MuonH below, we keep only the result itself. A more detailed Frobenius norm estimate can be found in ["Frobenius Norm Estimates for the Update Matrices of Adam and Muon Optimizers"](/en/blog/2026/optimizer-update-matrix-norm/), which devotes a separate section to this step.
 
 After extracting the sign matrix of the gradient, the update matrix $u_t$ contains $n^2$ elements with absolute value $1$, so its norm is:
 
@@ -266,7 +267,7 @@ $$
 
 ### 4.3 Alignment derivation for MuonH and its isotropy advantage
 
-In the actual engineering implementation of Muon, the orthogonalized update is further adjusted by a learning rate so that the root mean square magnitude of the update across different matrix shapes is consistent with standard optimizers.
+In the actual engineering implementation of Muon, the orthogonalized update is further adjusted by a learning rate so that the root mean square magnitude of the update across different matrix shapes matches that of standard optimizers.
 
 Under this setting, the leading order of the Frobenius norm of the update matrix is:
 
@@ -303,7 +304,7 @@ Based on the above master equation in feature space, the learning rates $\eta$ r
 
 ## 6. Conclusion
 
-Traditional optimization relies on the intrinsic weight norm to find natural equilibrium points, but this mechanism is deeply coupled with network width, scheduling strategy, and model architecture, so it cannot guarantee cross-scale consistency of spherical angular velocity when model scale changes. Hyperball eliminates this intrinsic dependence through geometric projection constraints on the hypersphere, simplifying the Jacobian prefactor to a scalar constant. The derivation shows that only by taking $\lvert \left(\frac{dz}{dt}\right)_i \rvert = \Theta(1)$ as the unified alignment criterion and cutting off the coupling between the intrinsic weight norm and hyperparameters can the scaling law of optimizer hyperparameters be clearly characterized. If you wish to further complete the assumptions on the update matrix norm used by AdamH / MuonH in this article, you can continue reading ["Frobenius Norm Estimates of the Update Matrices of Adam and Muon Optimizers"](/en/blog/2026/optimizer-update-matrix-norm/).
+Traditional optimization relies on the intrinsic weight norm to find natural equilibrium points, but this mechanism is deeply coupled with network width, scheduling strategy, and model architecture, so it cannot guarantee cross-scale consistency of spherical angular velocity when model scale changes. Hyperball eliminates this intrinsic dependence through geometric projection constraints on the hypersphere, simplifying the Jacobian prefactor to a scalar constant. The derivation shows that only by taking $\lvert \left(\frac{dz}{dt}\right)_i \rvert = \Theta(1)$ as the unified alignment criterion and cutting off the coupling between the intrinsic weight norm and hyperparameters can the scaling law of optimizer hyperparameters be clearly characterized. If you wish to fill in the update matrix norm assumptions used for AdamH / MuonH in this article, you can go on to read ["Frobenius Norm Estimates of the Update Matrices of Adam and Muon Optimizers"](/en/blog/2026/optimizer-update-matrix-norm/).
 
 ## References
 

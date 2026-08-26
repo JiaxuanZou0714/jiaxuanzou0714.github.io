@@ -1,4 +1,5 @@
 ---
+source_sha: 43ec354b1ec23362
 layout: post
 title: "Bias and Fluctuations of the Spectral Norm of Random Gaussian Matrices at Finite Width"
 date: 2026-03-11 12:00:00
@@ -15,9 +16,9 @@ ref: finite-width-spectral-norm
 related_posts: false
 ---
 
-> **Preface**: In the previous blog posts on muP, we often had to deal with quantities such as random matrices, spectral norms, or Frobenius norms. For these quantities, a core insight of Tensor Program is that in the large-width limit, the asymptotic behavior of these quantities is often very stable. The author, Greg Yang, said that when characterizing scaling laws, we actually want to characterize the behavior of the network in the limit state (width/depth/training time limits), so we naturally use the law of large numbers and the central limit theorem to analyze the limiting behavior of these quantities. However, I believe that finite-width networks inevitably introduce some systematic biases and random fluctuations, which are ignored in the large-width limit but may be very important in actual networks (for example, they may affect our muP scaling or optimizer design). This article takes the spectral norm as an example to analyze its behavior at finite width.
+> **Preface**: In the previous blog posts on muP, we often had to deal with quantities such as random matrices, spectral norms, or Frobenius norms. For these quantities, a core insight of Tensor Programs is that in the large-width limit, the asymptotic behavior of these quantities is often very stable. The author, Greg Yang, said that when characterizing scaling laws, we actually want to characterize the behavior of the network in the limit state (width/depth/training time limits), so we naturally use the law of large numbers and the central limit theorem to analyze the limiting behavior of these quantities. However, I believe that finite-width networks inevitably introduce some systematic biases and random fluctuations, which are ignored in the large-width limit but may be very important in actual networks (for example, they may affect our muP scaling or optimizer design). This article takes the spectral norm as an example to analyze its behavior at finite width.
 
-In many width-scaling theories, we are accustomed to treating the spectral norm of a random initialization matrix as a stable $\Theta(1)$ quantity; for example, when the matrix elements follow a Gaussian distribution with zero mean and variance $1/n$, intuitively its spectral norm should be "close to a constant." But if we truly care about finite-width networks, we cannot stop at the large-width limit, because for random matrices, the spectral norm itself is not a deterministic quantity without fluctuations. It not only has randomness, but this randomness does not follow the most common central limit theorem scaling, but rather has a finer edge fluctuation structure.
+In many width-scaling theories, we are accustomed to treating the spectral norm of a randomly initialized matrix as a stable $\Theta(1)$ quantity; for example, when the matrix elements follow a Gaussian distribution with zero mean and variance $1/n$, intuitively its spectral norm should be "close to a constant." But if we truly care about finite-width networks, we cannot stop at the large-width limit, because for random matrices, the spectral norm itself is not a deterministic quantity without fluctuations. Not only is it random, but that randomness does not follow the most common central limit theorem scaling; instead it has a finer edge-fluctuation structure.
 
 This article starts from the matrix form and discusses an $n\times n$ Gaussian random matrix
 
@@ -25,10 +26,10 @@ $$
 W=\frac{1}{\sqrt n}X,\qquad X_{ij}\overset{\text{i.i.d.}}{\sim}\mathcal N(0,1),
 $$
 
-that is, the case $W_{ij}\sim\mathcal N(0,1/n)$. Our goal is to estimate the behavior of its spectral norm $\|W\|_2$ at finite width and decompose it into three parts: macroscopic main limit, finite-width bias, and finite-width random fluctuation.
+that is, the case $W_{ij}\sim\mathcal N(0,1/n)$. Our goal is to estimate the behavior of its spectral norm $\|W\|_2$ at finite width and decompose it into three parts: the macroscopic leading limit, the finite-width bias, and the finite-width random fluctuation.
 
 
-## 1. From spectral norm to [Wishart matrix](https://zh.wikipedia.org/wiki/%E5%A8%81%E6%B2%99%E7%89%B9%E5%88%86%E4%BD%88)
+## 1. From the spectral norm to the [Wishart matrix](https://zh.wikipedia.org/wiki/%E5%A8%81%E6%B2%99%E7%89%B9%E5%88%86%E4%BD%88)
 
 The most natural entry point for the spectral norm is the covariance matrix:
 
@@ -42,9 +43,9 @@ $$
 \|W\|_2=\sqrt{\lambda_{\max}(S)}.
 $$
 
-This step is crucial. Because once we switch to $S$, the problem becomes a typical [Wishart matrix](https://zh.wikipedia.org/wiki/%E5%A8%81%E6%B2%99%E7%89%B9%E5%88%86%E4%BD%88) largest eigenvalue problem, which is one of the most mature objects in random matrix theory.
+This step is crucial. Once we switch to $S$, the problem becomes the classic largest-eigenvalue problem for a [Wishart matrix](https://zh.wikipedia.org/wiki/%E5%A8%81%E6%B2%99%E7%89%B9%E5%88%86%E4%BD%88), which is precisely one of the most thoroughly developed objects in random matrix theory.
 
-In the large-width limit $n\to\infty$, the empirical spectral distribution of $S$ follows the [Marchenko–Pastur law](https://en.wikipedia.org/wiki/Marchenko%E2%80%93Pastur_distribution#). For the square case here, the aspect ratio is $1$, and the spectral support is $[0,4]$. Furthermore, we have,
+In the large-width limit $n\to\infty$, the empirical spectral distribution of $S$ follows the [Marchenko–Pastur law](https://en.wikipedia.org/wiki/Marchenko%E2%80%93Pastur_distribution#). For the square case here, the aspect ratio is $1$, and the spectral support is $[0,4]$. Furthermore, we have
 
 $$
 \lambda_{\max}(S)\xrightarrow{\text{a.s.}}4,
@@ -56,7 +57,7 @@ $$
 \|W\|_2\xrightarrow{\text{a.s.}}2.
 $$
 
-This gives the most common zeroth-order conclusion: when the width is large enough, for a Gaussian matrix with element variance $1/n$, the main order of its spectral norm is stable around $2$. Many scaling analyses are built on this $\Theta(1)$ macroscopic scaling.
+This gives the most common zeroth-order conclusion: when the width is large enough, for a Gaussian matrix with element variance $1/n$, the leading order of its spectral norm is stable around $2$. Many scaling analyses are built on exactly this $\Theta(1)$ macroscopic scale.
 
 ## 2. Beyond the macroscopic limit: edge fluctuations of the largest eigenvalue
 
@@ -82,14 +83,14 @@ $$
 \mu_{nn}=4n+o(n^{1/3}),\qquad \sigma_{nn}=2^{4/3}n^{1/3}(1+o(1)),
 $$
 
-Therefore equivalently we can write
+Therefore, equivalently, we can write
 
 $$
 \frac{\lambda_{\max}(X^\top X)-4n}{2^{4/3}n^{1/3}}
 \xrightarrow{d}TW_1.
 $$
 
-where $TW_1$ denotes the first-order [Tracy–Widom distribution](https://en.wikipedia.org/wiki/Tracy%E2%80%93Widom_distribution).
+where $TW_1$ denotes the order-1 [Tracy–Widom distribution](https://en.wikipedia.org/wiki/Tracy%E2%80%93Widom_distribution).
 
 Since $S=\frac1n X^\top X$, rewriting the above formula for $S$ gives
 
@@ -147,7 +148,7 @@ This is the finite-width expansion we wanted. It is richer than the simple state
 2. The first-order correction is of order $n^{-2/3}$;
 3. This correction term is itself random and follows Tracy–Widom-type statistics.
 
-Furthermore, the mean and variance of the Tracy–Widom distribution](https://en.wikipedia.org/wiki/Tracy%E2%80%93Widom_distribution) for $\beta=1$ are
+Furthermore, the mean and variance of the [Tracy–Widom distribution for $\beta=1$](https://en.wikipedia.org/wiki/Tracy%E2%80%93Widom_distribution) are
 
 $$
 \mu_{TW}\approx -1.206,\qquad \sigma_{TW}^2\approx 1.608,
@@ -158,11 +159,11 @@ Then we immediately obtain
 > $$
 > \|W\|_2
 > =
-> \underbrace{2}_{\text{宏观极限}}
+> \underbrace{2}_{\text{macroscopic limit}}
 > +
-> \underbrace{2^{-2/3}\mu_{TW}n^{-2/3}}_{\text{有限宽度偏置}}
+> \underbrace{2^{-2/3}\mu_{TW}n^{-2/3}}_{\text{finite-width bias}}
 > +
-> \underbrace{2^{-2/3}n^{-2/3}(\xi_n-\mu_{TW})}_{\text{有限宽度随机涨落}}
+> \underbrace{2^{-2/3}n^{-2/3}(\xi_n-\mu_{TW})}_{\text{finite-width fluctuation}}
 > +
 > o_p(n^{-2/3}).
 > $$
@@ -234,9 +235,9 @@ The left, middle, and right panels of the figure below correspond to $\mathrm{Me
   caption="The left panel shows the sample mean $\mathrm{Mean}(n)$, the middle panel shows the bias $\mathrm{Bias}(n)=2-\mathrm{Mean}(n)$ relative to the limit value $2$, and the right panel shows the sample standard deviation $\mathrm{Std}(n)$."
 %}
 
-From these plots it is also more intuitive to see that the finite-width effect is not just "a bit more random noise". The mean curve itself has a stable downward bias.
+These plots also make it easier to see that the finite-width effect is not simply a matter of "a bit more random noise". The mean curve itself shows a stable downward bias.
 
-## 5. A Summary Formulation More Suitable for Subsequent Modeling
+## 5. A summary formulation better suited to subsequent modeling
 
 If this result is to be plugged into the network forward pass, normalization, or optimization dynamics, a convenient expression is:
 

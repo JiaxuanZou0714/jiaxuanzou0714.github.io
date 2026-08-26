@@ -1,8 +1,9 @@
 ---
+source_sha: 210259c66312e68d
 layout: post
-title: "How to align data scaling curves under different initialization magnitudes"
+title: "How to align data scaling curves under different initialization scales"
 date: 2026-02-01 10:00:00
-description: "We study the relationship between the empirical slope of data scaling and the initialization std, and propose a simple method to align data scaling curves under different initialization magnitudes."
+description: "We study the relationship between the empirical slope of data scaling and the initialization std, and propose a simple method to align data scaling curves under different initialization scales."
 tags: [scaling-law]
 categories: [deep-learning]
 featured: false
@@ -15,7 +16,7 @@ ref: data-scaling-and-std
 related_posts: false
 ---
 ## Phenomenon
-In our previous blog ([Can We Derive Scaling Law From First Principles]({% post_url 2025-12-30-scaling-law %})), we discussed how scaling laws arise. In the preprint, we added an experimental section with a series of figures showing data scaling curves under different $\alpha$. For example, one figure shows the relationship between loss and datasize in the data-limited regime.
+In our previous post ([Can We Derive Scaling Law From First Principles]({% post_url 2025-12-30-scaling-law %})), we discussed how scaling laws actually arise. We added an experimental section to its preprint, containing a series of figures that show data scaling curves under different $\alpha$; one of them, for example, shows the relationship between loss and data size in the data-limited regime.
 
 {% include figure.liquid
     path="assets/img/post-02-01/data-scaling-0p01.png"
@@ -69,21 +70,21 @@ As the initialization std increases, the empirical line gradually deviates from 
     </div>
 </div>
 
-This result is quite interesting. There could be many possible reasons, such as the std being too large causing the model to enter the lazy learning regime; or the increased std leading to optimization instability (this possibility is debatable, because I tested different numbers of epochs and the curve in [the above figure](#fig:std-slope)] is still stably reproduced). But we can set aside the cause for now and first consider how to align the data scaling curves under different initialization sizes.
+This result is quite interesting. There could be many possible reasons, such as the std being too large and pushing the model into the lazy learning regime, or the increased std making optimization unstable (this second possibility is open to question, because I tested different numbers of epochs and the curve in [the figure above](#fig:std-slope) was still reproduced reliably). But we can set the cause aside for now and first consider how to align the data scaling curves under different initialization scales.
 
 
 ## Preliminaries
-We consider a two-layer ReLU network whose forward computation is written as $g(W_1,W_2;x)=W_2\phi(W_1 x)$, where $\phi=\mathrm{ReLU}$, and it satisfies positive homogeneity: for any $c>0$,
+We consider a two-layer ReLU network whose forward computation is written as $g(W_1,W_2;x)=W_2\phi(W_1 x)$, where $\phi=\mathrm{ReLU}$ is positively homogeneous: for any $c>0$,
 
 $$
 \phi(cu)=c\,\phi(u).
 $$
 
-The input $x\in\mathbb R^K$ is set to be one-hot or a normalized vector satisfying $\lVert x\rVert^2=1$. The hidden layer first obtains the pre-activation $h=W_1 x$, then through ReLU obtains the activation $a=\phi(h)=\mathrm{ReLU}(h)$, and finally outputs $y=W_2 a\in\mathbb R^K$. The hidden layer width is denoted by $N$. The weight matrices $W_1,W_2$ are both initialized independently and identically distributed according to $\mathcal N(0,\sigma^2)$. For any matrix $A\in\mathbb R^{d_{\mathrm{out}}\times d_{\mathrm{in}}}$ with elements having mean $0$ and variance $\sigma^2$, the expectation of the squared Frobenius norm satisfies $\mathbb E[\lVert A\rVert_F^2]=d_{\mathrm{out}}\cdot d_{\mathrm{in}}\cdot\sigma^2$, so in magnitude $\lVert A\rVert_F \propto \sigma$.
+The input $x\in\mathbb R^K$ is set to be one-hot or a normalized vector satisfying $\lVert x\rVert^2=1$. The hidden layer first forms the pre-activation $h=W_1 x$, then passes it through ReLU to get the activation $a=\phi(h)=\mathrm{ReLU}(h)$, and the final output is $y=W_2 a\in\mathbb R^K$; the hidden layer width is denoted by $N$. Both weight matrices $W_1,W_2$ are initialized i.i.d. from $\mathcal N(0,\sigma^2)$. For any matrix $A\in\mathbb R^{d_{\mathrm{out}}\times d_{\mathrm{in}}}$ whose entries have mean $0$ and variance $\sigma^2$, the expected squared Frobenius norm satisfies $\mathbb E[\lVert A\rVert_F^2]=d_{\mathrm{out}}\cdot d_{\mathrm{in}}\cdot\sigma^2$, so in order of magnitude $\lVert A\rVert_F \propto \sigma$.
 
 ## Attempt 1 (Failed)
 
-With a fixed learning rate lr, increasing the initialization std means that although the absolute step size remains unchanged, the step size relative to $\lVert W\rVert_F$ becomes smaller, and too small weight updates can cause the model to fall into the lazy learning regime. From this perspective, we need to compute the relative update ratio R:
+With the learning rate lr fixed, increasing the initialization std leaves the absolute step size unchanged but shrinks the step size relative to $\lVert W\rVert_F$, and weight updates that are too small drive the model into the lazy learning regime. From this starting point, we need to compute the relative update ratio R:
 
 $$
 \mathcal{R} = \frac{\lVert\Delta W\rVert_F}{\lVert W\rVert_F} = \frac{\lVert\eta \cdot \nabla W\rVert_F}{\lVert W\rVert_F}
@@ -102,11 +103,11 @@ $$
 \lVert W_2\rVert_F \approx \sqrt{KN} \cdot \sigma \propto \sigma
 $$
 
-Next, we estimate $\lVert\nabla W_2\rVert_F$. Each element $h_j$ of the pre-activation $h$ follows $\mathcal{N}(0,\sigma^2)$. $\text{Var}(h_j) = \sigma^2$. For the activation layer output a: $a_j = \text{ReLU}(h_j)$. Since ReLU sets the negative half-axis to zero, the second moment is halved:
+Next, we estimate $\lVert\nabla W_2\rVert_F$. Each element $h_j$ of the pre-activation $h$ follows $\mathcal{N}(0,\sigma^2)$, so $\text{Var}(h_j) = \sigma^2$. For the activation output a: $a_j = \text{ReLU}(h_j)$. Since ReLU zeroes out the negative half-axis, the second moment is halved:
 
 $$\mathbb{E}[a_j^2] = \frac{1}{2} \mathbb{E}[h_j^2] = \frac{1}{2} \sigma^2$$
 
-Then the expectation of the squared norm of the activation vector $\lVert a\rVert^2 = \sum_{j=1}^N a_j^2$ is:
+Then the expected squared norm of the activation vector, $\lVert a\rVert^2 = \sum_{j=1}^N a_j^2$, is:
 
 $$\mathbb{E}[\lVert a\rVert^2] = N \cdot \frac{1}{2}\sigma^2 \implies \lVert a\rVert \propto \sqrt{N}\sigma$$
 
@@ -202,7 +203,7 @@ Let's put them in the same plot for comparison:
     id="fig:compare-fix-ada"
 %}
 
-We can see that the adaptive learning rate $\eta \propto \frac{1}{\sigma^2}$ does mitigate the effect of initialization std on the empirical slope of the scaling curve to some extent. But when the initialization std is small, it is still hard to mitigate. I think the reason might be that the approximation
+We can see that the adaptive learning rate $\eta \propto \frac{1}{\sigma^2}$ does mitigate the effect of initialization std on the empirical slope of the scaling curve to some extent. But when the initialization std is small, the effect is still hard to mitigate. I think the reason might be that the approximation
 $$
 \lVert\nabla W_2\rVert_F \approx  N \sigma^3
 $$ holds only when $\sigma$ is large (see the derivation above), so in the small initialization std regime, $\eta \propto \frac{1}{\sigma^2}$ may not be correct.
@@ -211,7 +212,7 @@ $$ holds only when $\sigma$ is large (see the derivation above), so in the small
 ## Why Attempt 1 Failed (probably)
 
 
-Besides the regime where the approximation holds, we can analyze it this way. Under the setting in our paper, writing the parameters as $W=\sigma U$, the risk corresponding to the model is
+Beyond the range in which the approximation holds, we can also analyze it as follows. Under the setting in our paper, writing the parameters as $W=\sigma U$, the risk corresponding to the model is
 
 
 $$
@@ -248,7 +249,7 @@ $$
 $$
 
 
-It depends on the current $U^t$ and the sample $k$, and is not a global constant. In general, it is impossible to achieve alignment with a scalar $\eta(\sigma)$. $\eta\propto 1/\sigma^2$ might be slightly better in some regimes (because it aligns with a dominant scale, such as the leading NTK term). But it cannot turn training for all $\sigma$ into the same problem; there will still be systematic drift and instability.
+It depends on the current $U^t$ and the sample $k$, and is not a global constant. Overall, no scalar $\eta(\sigma)$ can achieve alignment. $\eta\propto 1/\sigma^2$ does slightly better in some regimes (because it aligns one dominant scale, such as the leading NTK term). But it cannot turn training at every $\sigma$ into the same problem; systematic drift and instability remain.
 
 
 ## Attempt 2 (Successful)
@@ -282,7 +283,7 @@ The right-hand side contains no $\sigma$ at all.
 
 
 
-Let the objective function
+Define the objective function
 
 
 $$
@@ -294,7 +295,7 @@ $$
 Let $U=W/\sigma$. Then it is easy to obtain:
 
 
-1. The loss function itself does not contain $\sigma$:
+1. The objective function itself does not contain $\sigma$:
 
 
 $$
@@ -359,7 +360,7 @@ $$
 \eta_\sigma = \sigma^2 \eta_0.
 $$
 
-Only in this way can the loss-$D$ curves under different initialization std be aligned. The experimental results are shown below.
+Only in this way can the loss-$D$ curves for different initialization stds be aligned. The experimental results are shown below.
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
@@ -392,7 +393,7 @@ This result can be easily generalized to multi-layer ReLU networks. Suppose the 
 - $f(x;W)=W_K h_{K-1}$
 
 
-And at initialization, all layers $W_\ell\sim \mathcal N(0,\sigma^2)$. Define the normalized model output:
+All layers are initialized as $W_\ell\sim \mathcal N(0,\sigma^2)$. Define the normalized model output:
 
 
 $$
@@ -406,7 +407,7 @@ $$
 \eta_\sigma=\sigma^2 \eta_0
 $$
 
-we can align both the forward and backward processes.
+we can align the forward and backward passes at the same time.
 
 ## Citation
 

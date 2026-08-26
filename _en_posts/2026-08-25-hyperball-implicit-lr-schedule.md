@@ -1,8 +1,9 @@
 ---
+source_sha: fb4caee033d971c3
 layout: post
 title: "Hyperball, effective lr, and the shape of peak-then-decay"
 date: 2026-08-25 11:00:00
-description: "Two issues. Scheduling object: changes in weight norm superimpose an implicit schedule on top of the base lr schedule; Hyperball removes this layer, and the quantity that matters is the effective lr. Shape: peak-then-decay is the solution to the bias-variance trade-off, where the bias term dominates early and the variance term dominates late; shapes satisfying this balance form a set, not limited to a specific analytic form."
+description: "Two questions. What is scheduled: changes in the weight norm superimpose an implicit schedule on top of the base lr schedule; Hyperball removes this layer, and the quantity that matters is the effective lr. Shape: peak-then-decay is the solution to the bias–variance trade-off, with the bias term dominating early and the variance term dominating late; the shapes that satisfy this balance form a set and are not limited to a specific analytic form."
 tags: [deep-learning, lr-schedule, optimizer, spherical-dynamics, scaling-law]
 categories: [deep-learning]
 featured: false
@@ -17,9 +18,9 @@ related_posts: false
 
 ## TL;DR
 
-Two phenomena have appeared in several recent works. First, Hyperball fixes the Frobenius norm of the weight matrix and its update to a constant, achieving a 20–30% token equivalent speedup over the weight decay baseline [[8]](https://arxiv.org/abs/2606.16899). Second, a batch of methods with different settings all yield optimal learning rate curves that are peak-then-decay.
+Two phenomena have appeared in several recent works. First, Hyperball fixes the Frobenius norm of the weight matrix and its update to a constant, achieving a 20–30% token-equivalent speedup over the weight decay baseline [[8]](https://arxiv.org/abs/2606.16899). Second, methods whose settings differ from one another all yield optimal learning rate curves that are peak-then-decay.
 
-Peak-then-decay in this paper refers to the following shape: the learning rate rises to a peak $\eta_{\max}$ in the early phase of training, then monotonically decreases, ending close to zero. The functional form of the decay segment is unrestricted.
+Peak-then-decay in this article refers to the following shape: the learning rate rises to a peak $\eta_{\max}$ in the early phase of training, then monotonically decreases, ending close to zero. The functional form of the decay segment is unrestricted.
 
 {% include figure.liquid
   path='assets/img/post-08-25/peak_decay_shape.png'
@@ -30,47 +31,47 @@ Peak-then-decay in this paper refers to the following shape: the learning rate r
   alt='peak plus decay learning rate shape illustrated with three power-law exponents'
 %}
 
-The power law form in the figure is convenient for parameterization, and manual schedules often adopt this form. Among the four works listed in Section 4, the refined schedule is constructed pointwise from the gradient norm sequence, and the actual learning rate of Schedule-Free+ is produced by iteration averaging; both curves are peak-then-decay and do not correspond to a specific analytic form.
+The power-law form in the figure is convenient for parameterization, and manually specified schedules often adopt this form. Among the four works listed in Section 4, the refined schedule is constructed pointwise from the gradient norm sequence, and the actual learning rate of Schedule-Free+ is produced by iterate averaging; both curves are peak-then-decay and do not correspond to a specific analytic form.
 
 Several recent works attribute the source of the above two phenomena to the same quantity.
 
 > ##### Core Judgment
-> **The quantity that determines training progress is the effective learning rate $$\eta_t^\star=\eta_t\lVert U_t\rVert/\lVert W_t\rVert$$.**<br>The weight norm grows continuously during training, so the conversion factor from $$\eta_t$$ to $$\eta_t^\star$$ changes continuously, superimposing an implicit schedule on top of the set learning rate schedule. Hyperball fixes the weight norm, removing this layer, and its effect is therefore an implicit learning rate schedule.
+> **The quantity that determines training progress is the effective learning rate $$\eta_t^\star=\eta_t\lVert U_t\rVert/\lVert W_t\rVert$$.**<br>The weight norm grows continuously during training, so the conversion factor from $$\eta_t$$ to $$\eta_t^\star$$ changes continuously, superimposing an implicit schedule on top of the specified learning rate schedule. Hyperball fixes the weight norm, removing this layer, and its effect is therefore an implicit learning rate schedule.
 {: .block-tip}
 
 The reason $\eta^\star$ takes the peak-then-decay shape is independent of the optimizer:
 
 > ##### Shape Criterion
-> **Peak-then-decay is the solution to the bias-variance trade-off.**<br>The peak segment reduces bias with larger step sizes, and the end decays to zero to reduce variance. Shapes satisfying this balance form a set, and the performance of shapes within the set is comparable.
+> **Peak-then-decay is the solution to the bias–variance trade-off.**<br>The peak segment reduces bias with larger step sizes, and the end decays to zero to reduce variance. Shapes satisfying this balance form a set, and the performance of shapes within the set is comparable.
 {: .block-tip}
 
-The two judgments give the structure of the paper: $\eta^\star$ is the quantity that should be scheduled (Sections 1–3), and the bias-variance trade-off determines its shape (Section 4).
+The two judgments give the structure of this article: $\eta^\star$ is the quantity that should be scheduled (Sections 1–3), and the bias–variance trade-off determines its shape (Section 4).
 
 ## 1. The Quantity That Matters Is the Effective Learning Rate
 
-Parameters with normalization layers satisfy scale invariance $\mathcal{L}(\rho W) = \mathcal{L}(W)$. Pure radial scaling does not change the network function, so the quantity characterizing single-step progress is the angle through which the weight direction turns. Hunyuan ELR calls it the angular update size (AUS) [[1]](https://hy.tencent.com/research/elr):
+Parameters followed by normalization layers satisfy scale invariance $\mathcal{L}(\rho W) = \mathcal{L}(W)$. Pure radial scaling does not change the network function, so the quantity characterizing single-step progress is the angle through which the weight direction turns. Hunyuan ELR calls this quantity the angular update size (AUS) [[1]](https://hy.tencent.com/research/elr):
 
 $$
 \mathrm{AUS} := \left\lVert \frac{W_{t+1}}{\lVert W_{t+1}\rVert} - \frac{W_t}{\lVert W_t\rVert}\right\rVert \approx \frac{\eta_t \lVert U_t\rVert}{\lVert W_t \rVert} =: \eta_t^\star
 $$
 
-The right-hand side is the effective learning rate, originating from previous dynamical analyses of weight decay [[9]](https://arxiv.org/abs/2006.08419). It contains $\lVert W_t \rVert$, and the weight norm changes continuously during training, **so the conversion factor from $\eta_t$ to $\eta_t^\star$ changes continuously**. This conversion factor is the implicit schedule in TL;DR.
+The right-hand side is the effective learning rate, which originates from an earlier line of dynamical analyses of weight decay [[9]](https://arxiv.org/abs/2006.08419). It contains $\lVert W_t \rVert$, and the weight norm changes continuously during training, **so the conversion factor from $\eta_t$ to $\eta_t^\star$ changes continuously**. This conversion factor is the implicit schedule mentioned in the TL;DR.
 
-The magnitude of the conversion can be given by a comparison of three nominal schedules: WSD (peak $3.6\times10^{-3}$), cosine and linear (peak $8.8\times10^{-3}$), with peaks differing by about 2.4 times.
+The magnitude of the conversion can be given by a comparison of three nominal schedules: WSD (peak $3.6\times10^{-3}$), cosine and linear (peak $8.8\times10^{-3}$), with the peaks differing by a factor of about 2.4.
 
 {% include figure.liquid
   path='assets/img/post-08-25/wsd_cosine_linear_aus.png'
   class='img-fluid rounded z-depth-1 mx-auto d-block'
   width='100%'
-  caption='Bottom right: the learning rate schedules of WSD, cosine, and linear; top right: the corresponding weight norm; bottom left: the corresponding angular update magnitude. Image source: <a href="https://hy.tencent.com/research/elr">Hunyuan ELR</a>.'
+  caption='Bottom right: the learning rate schedules of WSD, cosine, and linear; top right: the corresponding weight norm; bottom left: the corresponding angular update size. Image source: <a href="https://hy.tencent.com/research/elr">Hunyuan ELR</a>.'
   zoomable=true
   alt='weight norm and angular update size under WSD, cosine and linear schedules'
 %}
 
-Comparing the lower right and lower left: the nominal schedule shapes differ significantly, but after 1000 steps the three angular update magnitude curves basically coincide, all being peak-then-decay. The upper right gives the corresponding weight norm, which grows from about 30 to 180–280 in the first 2000 steps.
+Comparing the bottom right and bottom left: the nominal schedule shapes differ significantly, but after 1000 steps the three angular update size curves nearly coincide, all being peak-then-decay. The top right gives the corresponding weight norm, which grows from about 30 to 180–280 in the first 2000 steps.
 
 > ##### Nominal Learning Rate and Effective Learning Rate
-> The adjustment object is the nominal learning rate schedule, and what acts on training is the AUS. Between the two there is a conversion factor that varies with the weight norm.
+> The quantity being tuned is the nominal learning rate schedule, while the quantity that acts on training is the AUS. Between the two there is a conversion factor that varies with the weight norm.
 {: .block-tip}
 
 Under a constant nominal learning rate, the form of this conversion is as follows [[2]](https://arxiv.org/abs/2607.22444).
@@ -84,11 +85,11 @@ Under a constant nominal learning rate, the form of this conversion is as follow
   alt='nominal and effective learning rate of MuonWD and MuonH under a constant schedule'
 %}
 
-The nominal learning rates are exactly the same, but the effective learning rates differ by about 5 times. The decay in MuonWD comes from weight norm growth. MuonH fixes the weight norm, and the effective learning rate remains constant after the initial transient.
+The nominal learning rates are exactly the same, but the effective learning rates differ by a factor of about 5. The decay in MuonWD comes from weight norm growth. MuonH fixes the weight norm, and the effective learning rate remains constant after the initial transient.
 
 ## 2. Correspondence Between the Effective Learning Rate Trajectory and the Loss Curve
 
-The previous section gave the difference between $\eta^\star$ and $\eta$. As an analysis object, $\eta^\star$ still needs one confirmation: when the $\eta^\star$ trajectory is the same, is the loss curve the same? Two works have examined this from opposite directions.
+The previous section gave the difference between $\eta^\star$ and $\eta$. For $\eta^\star$ to serve as the object of analysis, one further point needs to be confirmed: whether the loss curves are the same when the $\eta^\star$ trajectories are the same. Two works have tested this from opposite directions.
 
 AUS-replay in Hunyuan ELR: train GPT-2 (124M) with Adam or Muon and record the AUS step by step, then switch to the corresponding Hyperball variant (AdamH, MuonH) and set the recorded AUS trajectory as its learning rate curve.
 
@@ -101,9 +102,9 @@ AUS-replay in Hunyuan ELR: train GPT-2 (124M) with Adam or Muon and record the A
   alt='AUS replay experiment comparing Adam/Muon with their Hyperball variants'
 %}
 
-The AUS curves and loss curves of the two groups basically coincide, and on scale-invariant structures the loss difference is within $\pm0.005$ [[1]](https://hy.tencent.com/research/elr).
+The AUS curves and loss curves of the two groups nearly coincide, and on scale-invariant structures the loss difference is within $\pm0.005$ [[1]](https://hy.tencent.com/research/elr).
 
-The opposite approach is to fix the optimizer and gradually change its learning rate to match the target effective learning rate, aligning MuonWD to the trajectory of MuonH, and also aligning in the reverse direction [[2]](https://arxiv.org/abs/2607.22444).
+The opposite approach is to fix the optimizer and adjust its learning rate step by step to match the target effective learning rate, aligning MuonWD to the trajectory of MuonH, and also aligning in the reverse direction [[2]](https://arxiv.org/abs/2607.22444).
 
 {% include figure.liquid
   path='assets/img/post-08-25/muon_lr_alignment.png'
@@ -114,17 +115,17 @@ The opposite approach is to fix the optimizer and gradually change its learning 
   alt='mutual alignment of MuonWD and MuonH training loss by learning-rate alignment'
 %}
 
-The alignment results in both directions basically coincide with the target curve, and changing the learning rate suffices to reproduce the loss curve of the other optimizer. The paper concludes that the main role of Hyperball is an implicit state-dependent learning rate schedule, and its update direction shows no additional advantage [[2]](https://arxiv.org/abs/2607.22444).
+The alignment results in both directions nearly coincide with the target curve, and changing the learning rate suffices to reproduce the loss curve of the other optimizer. The paper concludes that the main role of Hyperball is an implicit state-dependent learning rate schedule, and its update direction shows no additional advantage [[2]](https://arxiv.org/abs/2607.22444).
 
 > ##### Verification results in both directions
-> **$$\eta^\star$$ When the trajectories are the same, the loss curves basically coincide, and the difference between Hyperball and non-Hyperball optimizers can be explained solely by the learning rate.**<br>This yields the opening judgment: Hyperball removes the implicit schedule that weight norm superimposes on top of the learning rate schedule.
+> **When the $$\eta^\star$$ trajectories are the same, the loss curves nearly coincide, and the difference between Hyperball and non-Hyperball optimizers can be explained by the learning rate alone.**<br>This yields the opening judgment: Hyperball removes the implicit schedule that the weight norm superimposes on top of the learning rate schedule.
 {: .block-tip}
 
-This judgment also corresponds to the staged phenomenon of MuonH: early convergence is slower, and later accuracy is higher than MuonWD [[2]](https://arxiv.org/abs/2607.22444). Under the Hyperball constraint, there is no decay from weight norm growth, and the early actual step size is larger than that of MuonWD.
+This judgment also matches the phase-dependent behavior of MuonH: convergence is slower early on, while accuracy later in training is higher than that of MuonWD [[2]](https://arxiv.org/abs/2607.22444). Under the Hyperball constraint, there is no decay from weight norm growth, and the early actual step size is larger than that of MuonWD.
 
-## 3. Fit accuracy of scaling laws with effective learning rate
+## 3. Fit accuracy of scaling laws with the effective learning rate
 
-If $\eta^\star$ is the quantity that actually takes effect, using it to fit the loss curve should yield higher accuracy than using $\eta$. In the multiplicative power law (MPL) loss model, replacing $\eta$ with $\eta^\star$ in Hunyuan ELR improves both in-sample fit and cross-schedule prediction accuracy, and the transfer reliability of the optimal $\eta^\star$ across model width and depth is also higher [[1]](https://hy.tencent.com/research/elr).
+If $\eta^\star$ is the quantity that actually takes effect, using it to fit the loss curve should yield higher accuracy than using $\eta$. After Hunyuan ELR replaces $\eta$ with $\eta^\star$ in the multi-power law (MPL) loss model, both the in-sample fit and the cross-schedule prediction become more accurate, and the optimal $\eta^\star$ also transfers more reliably across model width and depth [[1]](https://hy.tencent.com/research/elr).
 
 The reason is consistent with Section 1: between $\eta$ and the loss there is a conversion factor that varies with training and with width and depth, and $\eta^\star$ does not include this factor. **When fitting the scaling law with $\eta$ as the independent variable, the variation of this factor is included in the fit error.**
 
@@ -134,15 +135,15 @@ $$
 \sum_t \Delta\phi_t \approx \int_0^T \eta_t\,\mathrm{d}t
 $$
 
-That is, the integral of the learning rate equals the total angle rotated by the weight direction. A related phenomenon is that when the cumulative learning rate of two training runs is similar, the final losses are similar [[1]](https://hy.tencent.com/research/elr). Under the Hyperball constraint, this quantity has a corresponding geometric interpretation and can serve as an alignment object for cross-budget transfer.
+That is, the integral of the learning rate equals the total angle through which the weight direction turns. A related phenomenon is that when the cumulative learning rate of two training runs is similar, the final losses are similar [[1]](https://hy.tencent.com/research/elr). Under the Hyperball constraint, this quantity has a corresponding geometric interpretation and can serve as the quantity to align when transferring across budgets.
 
-Another related result: on the Frobenius sphere, weight decay has a first-order effect that vanishes, reducing the two-dimensional search over $(\eta,\lambda)$ to a one-dimensional search. Measurements give the optimal learning rate as a power law in the number of tokens, $\eta^*\propto T^{-0.32}$, consistent with the exponent reported for AdamW [[3]](https://arxiv.org/abs/2603.28743). The theoretical origin of this exponent remains unexplained.
+Another related result: on the Frobenius sphere, weight decay has no effect at first order, reducing the two-dimensional search over $(\eta,\lambda)$ to a one-dimensional search. Measurements give the optimal learning rate as a power law in the number of tokens, $\eta^*\propto T^{-0.32}$, consistent with the exponent reported for AdamW [[3]](https://arxiv.org/abs/2603.28743). The theoretical origin of this exponent has not been identified.
 
 ## 4. Source of the shape: bias–variance trade-off
 
 The first three sections identify the quantity being scheduled; this section discusses the shape of that quantity. The settings of the following four works differ, but the resulting learning rate curve shapes are consistent: rising to a peak in the early phase of training, then monotonically decreasing to near zero.
 
-**WSD cooldown shape comparison.** In the cooldown segment, comparing various manual shapes, `sqrt` ($1-\sqrt{x}$) and `lowered linear 0.7` perform comparably, and `lowered linear 0.7` has lower perplexity than `sqrt` [[4]](https://arxiv.org/abs/2508.01483).
+**WSD cooldown shape comparison.** Comparing manually specified shapes within the cooldown segment, `sqrt` ($1-\sqrt{x}$) and `lowered linear 0.7` perform comparably, with `lowered linear 0.7` reaching a lower perplexity than `sqrt` [[4]](https://arxiv.org/abs/2508.01483).
 
 **Schedule-Free+.** Without specifying the learning rate value or schedule shape, its actual learning rate curve rises to a peak under a constant nominal learning rate and then decays. This method outperforms the WSD baseline, reducing the time to reach the same loss by 31% in long-horizon settings [[5]](https://arxiv.org/abs/2605.19095).
 
@@ -168,11 +169,11 @@ The first three sections identify the quantity being scheduled; this section dis
 
 **minus-square-root.** Hunyuan ELR proposes this based on the observed variation of AUS, reaching the target loss of 3.28 in 3,175 steps on Modded-nanoGPT Track 3 [[1]](https://hy.tencent.com/research/elr). [[2]](https://arxiv.org/abs/2607.22444) uses a power-0.4 schedule on the same track and reaches the target in 3,150 steps. The two shapes are close, with a difference of 25 steps.
 
-The four works produce the shape in different ways, yet the results all fall within the description of peak-then-decay. This phenomenon involves two levels of causes.
+The four works produce the shape in different ways, yet the results all fall within the description of peak-then-decay. This phenomenon has causes at two levels.
 
 ### 4.1 Balance of bias and variance
 
-The effect of a single-step update on the final model has two parts. The distance of the parameter from the initial point increases, corresponding to a decrease in bias. Gradient noise accumulates in the parameter, corresponding to an increase in variance. The learning rate determines the ratio of the two parts.
+The effect of a single-step update on the final model has two parts. The distance between the parameters and the initialization increases, corresponding to a decrease in bias. Gradient noise accumulates in the parameters, corresponding to an increase in variance. The learning rate determines the ratio of the two parts.
 
 In the early phase of training, the bias term dominates, and a larger learning rate corresponds to faster bias reduction. In the late phase, the variance term dominates, and decaying the learning rate is equivalent to averaging over more updates, corresponding to a decrease in variance. The peak-then-decay shape is a combination of the requirements of these two phases.
 
@@ -182,12 +183,12 @@ The relative weight of bias and variance varies with task, model scale, and trai
   path='assets/img/post-08-25/bias_variance_shapes.png'
   class='img-fluid rounded z-depth-1 mx-auto d-block'
   width='100%'
-  caption='Bias–variance distribution for each cooldown shape, dashed line is the position where $Bias+Variance$ reaches its minimum. Left: only lowered linear shapes compared, as the parameter decreases variance drops and bias rises; right: all nonlinear shapes and some lowered linear shapes, where sqrt and 0.7 fall near the dashed line, while square, cosine, mirror cosine, and linear lie above the line. The horizontal axis ranges differ between the left and right panels. Image source: <a href="https://arxiv.org/abs/2508.01483">Dremov et al. (2025)</a>, Figure 6.'
+  caption='Bias–variance distribution for each cooldown shape; the dashed line marks the position where $Bias+Variance$ reaches its minimum. Left: only lowered linear shapes compared, as the parameter decreases variance drops and bias rises; right: all nonlinear shapes and some lowered linear shapes, where sqrt and 0.7 fall near the dashed line, while square, cosine, mirror cosine, and linear lie above the line. The horizontal axis ranges differ between the left and right panels. Image source: <a href="https://arxiv.org/abs/2508.01483">Dremov et al. (2025)</a>, Figure 6.'
   zoomable=true
   alt='bias-variance plot for different cooldown shapes'
 %}
 
-The left panel shows the inverse relationship between bias and variance: as `lowered linear` decreases, variance decreases and bias increases. The right panel shows the positions of each shape. `sqrt` and `lowered linear 0.7` fall near the minimum line, while `square`, `cosine`, `mirror cosine`, and `linear` lie above the line. There is more than one shape near the minimum line [[4]](https://arxiv.org/abs/2508.01483). The linear decay to zero reported in [[7]](https://arxiv.org/abs/2502.15938) also belongs to this category.
+The left panel shows the inverse relationship between bias and variance: as the parameter of `lowered linear` decreases, variance decreases and bias increases. The right panel shows the positions of each shape. `sqrt` and `lowered linear 0.7` fall near the minimum line, while `square`, `cosine`, `mirror cosine`, and `linear` lie above the line. There is more than one shape near the minimum line [[4]](https://arxiv.org/abs/2508.01483). The linear decay to zero reported in [[7]](https://arxiv.org/abs/2502.15938) also belongs to this category.
 
 {% include figure.liquid
   path='assets/img/post-08-25/sqrt_vs_lowered_linear.png'
@@ -198,30 +199,30 @@ The left panel shows the inverse relationship between bias and variance: as `low
   alt='comparison of sqrt cooldown shape and lowered linear 0.7'
 %}
 
-Two curves with different shapes perform comparably. One inference is that there is an upper bound on the tuning gain of the schedule shape: adjusting $\beta_2$ of AdamW yields differences comparable to shape selection [[4]](https://arxiv.org/abs/2508.01483).
+Two curves with different shapes perform comparably. One inference is that there is an upper bound on the tuning gain of the schedule shape: adjusting AdamW's $\beta_2$ produces differences comparable to those from shape selection [[4]](https://arxiv.org/abs/2508.01483).
 
 ### 4.2 Conversion Involving Weight Norm in the Observed Quantity
 
-Without the Hyperball constraint, part of the observed shape comes from the conversion in Section 1, and the rest comes from the schedule design. minus-square-root takes $\eta^\star$ as the design object and requires explicitly writing out that shape. The Hyperball constraint removes the conversion, so $\eta_t$ itself must satisfy the shape requirement.
+Without the Hyperball constraint, part of the observed shape comes from the conversion in Section 1, and the rest comes from the schedule design. minus-square-root takes $\eta^\star$ as its design target, so the shape has to be written out explicitly. The Hyperball constraint removes the conversion, so $\eta_t$ itself must satisfy the shape requirement.
 
 This conversion corresponds to an observation: the shape differences in the nominal learning rate are compressed after conversion, so the observed differences in the shape of $\eta^\star$ across settings are smaller than the shape differences in the nominal schedule. The AUS curves of the three nominal schedules in Section 1 nearly coincide after 1000 steps, which belongs to this category.
 
 ## 5. Summary
 
-The paper is divided into two questions. The first question is about the object of scheduling: the quantity being adjusted is $\eta_t$, and the quantity that takes effect is $\eta_t^\star$. The conversion factor between them is determined by the weight norm and changes during training. Hyperball fixes the weight norm, making the conversion factor constant, so its role is an implicit learning rate schedule. The second question is about shape: peak-then-decay is the solution to the bias-variance trade-off, where the bias term dominates early and the variance term dominates at the end.
+This article is organized around two questions. The first question is about the object of scheduling: the quantity being adjusted is $\eta_t$, and the quantity that takes effect is $\eta_t^\star$. The conversion factor between them is determined by the weight norm and changes during training. Hyperball fixes the weight norm, making the conversion factor constant, so its role is an implicit learning rate schedule. The second question is about shape: peak-then-decay is the solution to the bias–variance trade-off, where the bias term dominates early and the variance term dominates at the end.
 
-The structure of the trade-off yields two inferences. The shapes that satisfy the balance form a set, so there is an upper bound on the tuning gain of shape selection. The relative weight of the two ends is determined by the training budget, model scale, and noise level, so the optimal shape differs across conditions.
+The structure of the trade-off yields two inferences. The shapes that satisfy the balance form a set, so there is an upper bound on the tuning gain of shape selection. The relative weight of the two sides is determined by the training budget, model scale, and noise level, so the optimal shape differs across conditions.
 
 Operational conclusions:
 
 1. When comparing different schedules, record the effective learning rate. Three nominal schedules with peak values differing by a factor of 2.4 can correspond to nearly identical AUS curves.
-2. When fitting scaling laws and transferring hyperparameters, take $\eta^\star$ or the cumulative angular displacement $\int\eta_t\mathrm{d}t$ as the alignment object.
-3. Under the Hyperball constraint, the conversion has been removed, and the shape requirement must be satisfied by $\eta_t$, so a clear decay design is needed. There is an upper bound on the decay magnitude: if too large, the later performance is worse than MuonWD [[2]](https://arxiv.org/abs/2607.22444).
-4. The optimizable range of shape selection is limited; `sqrt`, `lowered linear 0.7`, and linear decay to zero perform comparably. Allocate the tuning budget preferentially to the peak learning rate and $\beta_2$.
+2. When fitting scaling laws and transferring hyperparameters, align on $\eta^\star$ or on the cumulative angular displacement $\int\eta_t\mathrm{d}t$.
+3. Under the Hyperball constraint, the conversion has been removed, and the shape requirement must be satisfied by $\eta_t$, so a clear decay design is needed. There is an upper bound on the decay magnitude: when it is too large, late-training performance falls below that of MuonWD [[2]](https://arxiv.org/abs/2607.22444).
+4. The optimizable range of shape selection is limited; `sqrt`, `lowered linear 0.7`, and linear decay to zero perform comparably. Allocate the tuning budget first to the peak learning rate and $\beta_2$.
 
 Two remaining issues. The quantitative correspondence between the shapes produced by adaptive methods and manually specified shapes has not been verified. The theoretical origin of the exponent in $\eta^*\propto T^{-0.32}$ has not been identified.
 
-Related work: the derivation in the width direction is in ["On the Sphere: μP Scaling of Optimizers with the Hyperball Mechanism"](/en/blog/2026/spherical-hyperball/), the estimation of the update matrix norm is in ["Estimation of the Frobenius Norm of Update Matrices for Adam and Muon Optimizers"](/en/blog/2026/optimizer-update-matrix-norm/), and the schedule in the batch size direction is in ["DASF: A Closed-Loop Batch Size Schedule-Free Method"](/en/blog/2026/schedule-free-effective-batch-size/).
+Related reading: the derivation in the width direction is in ["On the Sphere: μP Scaling of Optimizers with the Hyperball Mechanism"](/en/blog/2026/spherical-hyperball/), the estimation of the update matrix norm is in ["Estimation of the Frobenius Norm of Update Matrices for Adam and Muon Optimizers"](/en/blog/2026/optimizer-update-matrix-norm/), and the schedule in the batch size direction is in ["DASF: A Closed-Loop Batch Size Schedule-Free Method"](/en/blog/2026/schedule-free-effective-batch-size/).
 
 ## References
 
