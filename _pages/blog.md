@@ -97,7 +97,7 @@ pagination:
                         <i class="fa-solid fa-calendar fa-sm"></i> {{ year }} </a>
                       {% if site.enable_goatcounter_analytics and post.redirect == blank %}
                         &nbsp; &middot; &nbsp;
-                        <span class="post-views" data-goatcounter-path="{{ post.url | relative_url | replace:'index.html','' }}">
+                        <span class="post-views" {% include goatcounter-paths.liquid document=post %}>
                           <i class="fa-regular fa-eye"></i>
                           <span class="goatcounter-count">--</span> views
                         </span>
@@ -163,7 +163,7 @@ pagination:
         {% endif %}
         {% if site.enable_goatcounter_analytics and post.redirect == blank %}
         &nbsp; &middot; &nbsp;
-        <span class="post-views" data-goatcounter-path="{{ post.url | relative_url | replace:'index.html','' }}">
+        <span class="post-views" {% include goatcounter-paths.liquid document=post %}>
           <i class="fa-regular fa-eye"></i>
           <span class="goatcounter-count">--</span> views
         </span>
