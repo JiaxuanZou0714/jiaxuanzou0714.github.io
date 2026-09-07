@@ -1,0 +1,9 @@
+{%- assign counter_document = include.document -%}
+{%- assign counter_alternate = nil -%}
+{%- if counter_document.collection == 'en_posts' -%}
+  {%- assign counter_alternate = site.posts | where: 'slug', counter_document.ref | first -%}
+{%- elsif counter_document.slug -%}
+  {%- assign counter_alternate = site.en_posts | where: 'ref', counter_document.slug | first -%}
+{%- endif -%}
+data-goatcounter-path="{{ counter_document.url | relative_url | replace: 'index.html', '' | escape }}"
+{%- if counter_alternate %} data-goatcounter-alternate-path="{{ counter_alternate.url | relative_url | replace: 'index.html', '' | escape }}"{% endif -%}

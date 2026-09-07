@@ -23,7 +23,7 @@ layout: default
       {% if last_date %}, last updated on {{ last_date | date: '%B %d, %Y' }}{% endif %}
       {% if page.meta %}• {{ page.meta }}{% endif %}
       {% if site.enable_goatcounter_analytics %}
-        <span class="post-views" data-goatcounter-path="{{ page.url | relative_url | replace:'index.html','' }}">
+        <span class="post-views" {% include goatcounter-paths.liquid document=page %}>
           &nbsp; &middot; &nbsp;<i class="fa-regular fa-eye"></i>
           <span class="goatcounter-count">--</span> views
         </span>

@@ -1,54 +1,77 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const counters = Array.from(document.querySelectorAll('[data-goatcounter-path]'));
-
-  // The count.js script element is injected lazily after window load, so the
-  // endpoint is shared via window.goatcounterEndpoint instead of being read
-  // from the script tag (which does not exist yet at DOMContentLoaded).
+document.addEventListener("DOMContentLoaded", () => {
+  const counters = Array.from(
+    document.querySelectorAll("[data-goatcounter-path]"),
+  );
   const endpoint = window.goatcounterEndpoint;
   if (!endpoint || counters.length === 0) {
     return;
   }
 
-  const siteRoot = endpoint.replace(/\/count\/?$/, '/');
+  const siteRoot = endpoint.replace(/\/count\/?$/, "/");
+  const requests = new Map();
   const groupedCounters = new Map();
 
+  // Keep language-specific analytics and include both historical counters.
   counters.forEach((element) => {
-    const path = element.getAttribute('data-goatcounter-path');
-    if (!path) {
-      return;
-    }
-
-    const existingGroup = groupedCounters.get(path) || [];
-    existingGroup.push(element);
-    groupedCounters.set(path, existingGroup);
+    const paths = [
+      ...new Set(
+        [
+          element.getAttribute("data-goatcounter-path"),
+          element.getAttribute("data-goatcounter-alternate-path"),
+        ].filter(Boolean),
+      ),
+    ].sort();
+    if (paths.length === 0) return;
+    const key = JSON.stringify(paths);
+    const group = groupedCounters.get(key) || { paths, elements: [] };
+    group.elements.push(element);
+    groupedCounters.set(key, group);
   });
 
-  groupedCounters.forEach((elements, path) => {
-    const counterUrl = `${siteRoot}counter/${encodeURIComponent(path)}.json`;
+  function loadCount(path) {
+    if (!requests.has(path)) {
+      requests.set(
+        path,
+        fetch(`${siteRoot}counter/${encodeURIComponent(path)}.json`)
+          .then((response) => {
+            // GoatCounter returns 404 for a path without recorded visits.
+            if (response.status === 404) return { count: "0" };
+            if (!response.ok)
+              throw new Error(`Failed to load counter for ${path}`);
+            return response.json();
+          })
+          .then((data) => {
+            // The API formats counts with thousands separators.
+            const raw = String(data?.count ?? "").replace(
+              /[,\s\u00a0\u202f]/g,
+              "",
+            );
+            const count = Number(raw);
+            if (!/^\d+$/.test(raw) || !Number.isSafeInteger(count)) {
+              throw new Error(`Invalid counter for ${path}`);
+            }
+            return count;
+          }),
+      );
+    }
+    return requests.get(path);
+  }
 
-    fetch(counterUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to load counter for ${path}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        const count = data && typeof data.count === 'string' ? data.count : '0';
-        elements.forEach((element) => {
-          const valueNode = element.querySelector('.goatcounter-count');
-          if (valueNode) {
-            valueNode.textContent = count;
-          }
-        });
-      })
-      .catch(() => {
-        elements.forEach((element) => {
-          const valueNode = element.querySelector('.goatcounter-count');
-          if (valueNode) {
-            valueNode.textContent = '--';
-          }
-        });
+  groupedCounters.forEach(({ paths, elements }) => {
+    const display = (value) =>
+      elements.forEach((element) => {
+        const node = element.querySelector(".goatcounter-count");
+        if (node) node.textContent = value;
       });
+    Promise.all(paths.map(loadCount))
+      .then((counts) =>
+        display(
+          counts
+            .reduce((total, count) => total + count, 0)
+            .toLocaleString("en-US"),
+        ),
+      )
+      // Do not display an incomplete total when one language fails to load.
+      .catch(() => display("--"));
   });
 });
