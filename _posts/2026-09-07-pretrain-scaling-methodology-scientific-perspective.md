@@ -32,7 +32,7 @@ published: true
 
 ## 1. 通用框架与可扩展性
 
-杨植麟与张小珺的对谈中，我记住了两个条件：[[2]](https://www.xiaoyuzhoufm.com/episode/65e16b5b6144a933b1d968b5)
+这种方法需要什么条件？杨植麟与张小珺的对谈中，我记住了两点：[[2]](https://www.xiaoyuzhoufm.com/episode/65e16b5b6144a933b1d968b5)
 
 - 足够通用的框架，能够利用广泛经验。
 - 可扩展的学习过程，能够持续利用更多数据和计算。
@@ -52,28 +52,25 @@ Dyna-2 将人类视频预训练扩展到一百万小时，在未见过的机器�
   loading='lazy'
 %}
 
-这里同时存在研究方法的跨领域适用性和学到的能力的迁移。**预训练的改善能够迁移到目标任务，规模扩展才具有实际价值。** 各领域可以采用不同架构、指标与 scaling 曲线。
+Dyna-2 的结果让我关注到，预训练的改善如何迁移到实际任务。各领域可以采用不同架构、指标与 scaling 曲线，但都需要研究哪些学习条件能够支持这种迁移和持续改善。
 
 ## 2. 设计学习条件
 
-初学 deep learning 时，我曾根据长期记忆、短期记忆和临时记忆的划分，设想新的 attention 机制，希望超过 standard attention。
+初学 deep learning 时，我曾根据长期记忆、短期记忆和临时记忆的划分，设想新的 attention 机制，希望超过 standard attention。那时，我习惯先从人类认知中寻找解释，再据此设计模型。
 
-现在，我认为认知类比可以启发假设，却不足以说明算法有效。新增机制需要通过学习效果、效率或可扩展性说明其必要性。“如无必要，勿增实体”也适用于模型设计。
+研究 pretraining 与 scaling 之后，我更关注另一个问题：**怎样的架构、数据和训练目标，能够让能力通过学习形成，并随规模扩大而改善？** 认知类比可以启发假设，但新增机制仍需通过学习效果、效率和可扩展性说明其必要性。“如无必要，勿增实体”也适用于模型设计。
 
-Sutton 的 The Bitter Lesson 支持优先研究能持续利用更多计算的通用方法。Feature engineering 向 feature learning 的变化，以及大规模预训练，都体现了这种取向。[[4]](https://www.cs.utexas.edu/~eunsol/courses/data/bitter_lesson.pdf)
+这也是我理解 Sutton 的 The Bitter Lesson 的方式：优先研究能够持续利用更多计算的通用方法。Feature engineering 向 feature learning 的转变，就是将特征的具体形式交由训练确定。Pretraining 将这一思路用于更广泛的数据和任务。[[4]](https://www.cs.utexas.edu/~eunsol/courses/data/bitter_lesson.pdf)
 
-Karpathy 的 Software 2.0 则说明实现方式的变化：研究者提供架构、数据和目标，通过优化确定具体行为。**人类能够判断结果，却未必能写出完整的实现程序。** 学习方法扩大了这类问题的可处理范围。[[5]](https://karpathy.medium.com/software-2-0-a64152b37c35)
+Karpathy 的 Software 2.0 进一步说明了研究者可以怎样参与这个过程：提供架构、数据和目标，通过优化得到具体的实现。对于能够评价结果、却难以手写完整程序的任务，这种方法尤其有价值。[[5]](https://karpathy.medium.com/software-2-0-a64152b37c35)
 
-由此，我形成了两个判断：
-
-- 构建能力，可以先于完整解释其内部机制。
-- 简单的训练目标，可以对应复杂的表示与能力。
+因此，我把研究重点放在学习条件上。简单的训练目标也可能产生复杂的表示与能力；我们对学习过程的理解，可以足以支持能力增长，而对模型内部机制的解释仍不完整。**构建一种能力，可以先于完整解释这种能力。**
 
 ## 3. Pretraining 与 scaling
 
-**在我看来，pretraining 形成可复用能力，scaling 研究如何持续有效地增加资源。**
+围绕这些学习条件，我关心两个问题：如何形成可复用的能力，以及如何让能力随资源投入持续改善。Pretraining 和 scaling 分别对应这两个问题。Pretraining 通过大规模数据学习，将可迁移的结构编码到权重中，使同一个模型能够适应多种任务。Scaling 则研究如何通过增加数据和计算，持续改善能力。
 
-预训练的价值包括改善后续学习效率。GEN-1.5 展示了单次示范的 ICL，以及少量梯度更新的任务适应。大规模预训练之后，新任务所需的数据和计算可以减少。[[1]](https://generalistai.com/blog/gen-1.5)
+**我看重预训练的一点，是它能够降低后续学习的成本。** 预训练得到的模型，可以通过 SFT 适应新任务，也可以通过 ICL 利用上下文中的示范。GEN-1.5 展示了单次示范的 ICL，以及少量梯度更新的任务适应，让这种价值有了直观的体现。[[1]](https://generalistai.com/blog/gen-1.5)
 
 <figure>
   <video controls playsinline preload="metadata" width="100%" class="img-fluid rounded z-depth-1" aria-label="GEN-1.5 根据上下文中的示范执行两个任务的官方演示">
@@ -83,15 +80,13 @@ Karpathy 的 Software 2.0 则说明实现方式的变化：研究者提供架构
   <figcaption class="caption">视频 1. 将示范放入上下文后，GEN-1.5 分别执行打开笔袋拉链、从笔袋取钱两个任务，无须梯度更新。<a href="https://generalistai.com/blog/gen-1.5#one-shot-in-context">来源：Generalist 官方演示</a>。</figcaption>
 </figure>
 
-SFT 通过示范更新参数，ICL 利用上下文中的示例。两者都说明，压缩到权重中的结构需要通过泛化和新任务适应来评价。
+因此，我评价预训练模型时，也关注它利用新经验的效率：学习一个新任务需要多少示范、多少参数更新，以及多少计算。一次预训练的投入，可以降低多个后续任务的学习成本。
 
-Scaling 的范围包括预训练、RL，以及推理阶段的 CoT、搜索和环境交互。增加输出长度或运行时间能否改善结果，取决于模型利用额外计算的能力。
-
-因此，我评价模型时，也关注后续改善速度和成本。初始得分接近的两个模型，在获得更多示范、反馈或计算之后，可能表现出不同的学习效率。
+Scaling 的适用范围则更广。预训练和 RL 可以通过增加训练计算改善模型；推理阶段也可以通过 CoT、搜索和环境交互利用额外计算。因此，增加计算的收益需要分别在训练和推理阶段考察。
 
 ## 4. 训练与推理的两个里程碑
 
-我认为，这条研究路线有两个重要的里程碑。
+我认为，2020 年 OpenAI 的 scaling laws 研究与 2024 年的 o1，分别体现了训练和推理两个阶段的重要进展。
 
 2020 年，OpenAI 系统研究语言模型的 scaling laws，使参数量、数据量、计算量与 loss 之间的关系能够用于预测和资源分配。这是 training-time scaling 的重要进展；更早已有相关经验研究。[[6]](https://openai.com/index/scaling-laws-for-neural-language-models/)[[7]](https://arxiv.org/abs/1712.00409)
 
@@ -140,7 +135,7 @@ CoT prompting 在 2022 年已由 Wei 等人系统提出，o1 发布前也已有 
 
 ## 5. 效率与训练稳定性
 
-**效率决定相同预算能够达到的能力水平，稳定性决定这些收益能否在完整训练中实现。**
+明确了计算可以在哪些阶段改善结果，还需要研究获得这些改善的成本。回到我从事的预训练研究，**效率决定相同预算能够达到的能力水平，训练稳定性决定这些收益能否在完整训练中实现。**
 
 我把效率改善理解为 scaling 曲线向左移动：达到相同 loss，所需资源更少。横轴是 token 数时，对应 token efficiency；横轴是 FLOPs 时，对应 compute efficiency。两者与实际能耗还受单 token 计算成本和硬件效率影响。
 
@@ -174,7 +169,7 @@ Kimi K2 团队在扩展时遇到 attention logits 异常增大，通过 MuonClip
 
 ## 6. 可预测性与精细研究
 
-**既然依赖 scaling 获得收益，我就需要在扩大投入之前建立可预测性。**
+效率与稳定性也需要在扩大规模之前评估。**我需要知道，小规模实验中的收益和训练动态，能否在更大规模下延续。** 这使可预测性成为 scaling 研究的另一项要求。
 
 Scaling laws 使资源分配有据可依。预测需要明确变量、指标和适用范围：loss 的幂律、对数数据轴上的任务得分、长期交互的 log-sigmoid 曲线，具有不同含义。[[13]](https://lilianweng.github.io/posts/2026-06-24-scaling-laws/)
 
@@ -216,7 +211,7 @@ Greg Yang 等人的 Tensor Programs V 则将参数化理论用于规模扩展：
 
 ## 7. 总结
 
-从 GEN-1.5 的预训练曲线，到 o1 的推理计算，再到 EdgeBench 的长期环境交互，我关注的是同一个问题：如何通过通用的学习框架，持续利用经验和计算改善能力。
+GEN-1.5、o1 和 EdgeBench 使我看到，通用学习框架可以在不同领域、不同阶段利用更多经验和计算。Marin 的实验则说明，要持续获得这些收益，还需要验证预测、分析偏差并修正训练方案。
 
 Pretraining 将广泛经验编码为可复用的能力，也改善后续学习效率。Scaling 则贯穿训练与推理：training-time scaling 改善模型能力，test-time scaling 将更多计算用于具体任务。它们在不同领域的实现和曲线可以不同，研究方法仍有共通之处。
 

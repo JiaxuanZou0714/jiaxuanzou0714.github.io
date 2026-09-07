@@ -14,7 +14,7 @@ published: true
 permalink: /en/blog/2026/pretrain-scaling-methodology-scientific-perspective/
 ref: pretrain-scaling-methodology-scientific-perspective
 related_posts: false
-source_sha: c9cca5d0df9258ba
+source_sha: 26541c62ceeee52d
 ---
 
 I research LLM pretraining and scaling. When I saw the GEN-1.5 loss curve spanning more than eight months of pretraining, my first reaction was:
@@ -36,7 +36,7 @@ I research LLM pretraining and scaling. When I saw the GEN-1.5 loss curve spanni
 
 ## 1. General framework and scalability
 
-In the conversation between Yang Zhilin and Zhang Xiaojun, two conditions stood out to me: [[2]](https://www.xiaoyuzhoufm.com/episode/65e16b5b6144a933b1d968b5)
+What conditions does this approach require? Two points from the conversation between Yang Zhilin and Zhang Xiaojun stayed with me: [[2]](https://www.xiaoyuzhoufm.com/episode/65e16b5b6144a933b1d968b5)
 
 - A sufficiently general framework that can learn from a broad range of experience.
 - A scalable learning process that can continue to make use of more data and compute.
@@ -56,28 +56,25 @@ Dyna-2 scales human video pretraining to one million hours and achieves improved
   loading='lazy'
 %}
 
-Here there is both cross-domain applicability of the research method and transfer of learned capabilities. **Only if pretraining improvements transfer to the target task does scale-up have practical value.** Different domains can adopt different architectures, metrics, and scaling curves.
+The Dyna-2 results draw my attention to how pretraining improvements transfer to practical tasks. Different domains can use different architectures, metrics, and scaling curves, but each requires research into the learning conditions that support this transfer and continued improvement.
 
 ## 2. Designing learning conditions
 
-When I first studied deep learning, I envisioned new attention mechanisms based on the division of long-term, short-term, and temporary memory, hoping to surpass standard attention.
+When I first studied deep learning, I imagined new attention mechanisms based on long-term, short-term, and temporary memory, hoping to outperform standard attention. I would look for an explanation in human cognition, then use it to design a model.
 
-Now, I think cognitive analogies can inspire hypotheses but are insufficient to demonstrate algorithmic effectiveness. New mechanisms need to justify their necessity through learning outcomes, efficiency, or scalability. "Entities should not be multiplied without necessity" also applies to model design.
+Studying pretraining and scaling shifted my attention to another question: **What architectures, data, and training objectives allow capabilities to develop through learning and improve with scale?** Cognitive analogies can inspire hypotheses, but new mechanisms still need to justify their inclusion through learning outcomes, efficiency, and scalability. "Entities should not be multiplied without necessity" also applies to model design.
 
-Sutton's The Bitter Lesson supports prioritizing general methods that can continue to make use of more compute. The shift from feature engineering to feature learning, as well as large-scale pretraining, reflects this orientation. [[4]](https://www.cs.utexas.edu/~eunsol/courses/data/bitter_lesson.pdf)
+This is how I read Sutton's The Bitter Lesson: prioritize general methods that can continue to benefit from more compute. The shift from feature engineering to feature learning leaves the specific form of features to training. Pretraining applies this approach to a broader range of data and tasks. [[4]](https://www.cs.utexas.edu/~eunsol/courses/data/bitter_lesson.pdf)
 
-Karpathy's Software 2.0 illustrates the change in implementation approach: researchers provide the architecture, data, and objective, and determine specific behaviors through optimization. **Humans can judge the results but may not be able to write the complete implementation program.** Learning methods make more of these problems tractable. [[5]](https://karpathy.medium.com/software-2-0-a64152b37c35)
+Karpathy's Software 2.0 further explains the researcher's role: provide the architecture, data, and objective, then obtain a concrete implementation through optimization. This approach is especially valuable for tasks whose results we can evaluate but for which a complete program is difficult to write by hand. [[5]](https://karpathy.medium.com/software-2-0-a64152b37c35)
 
-From this, I have formed two judgments:
-
-- Building capabilities can precede a full explanation of their internal mechanisms.
-- Simple training objectives can correspond to complex representations and capabilities.
+I therefore focus my research on the conditions for learning. Simple training objectives can produce complex representations and capabilities. Our understanding of the learning process may be sufficient to support capability improvements while our explanation of the model's internal mechanisms remains incomplete. **Building a capability can precede fully explaining it.**
 
 ## 3. Pretraining and scaling
 
-**In my view, pretraining forms reusable capabilities, and scaling studies how to continuously and effectively increase resources.**
+When studying these learning conditions, I focus on two questions: how to develop reusable capabilities, and how to keep improving them with more resources. Pretraining and scaling address these two questions, respectively. Pretraining learns from large datasets, encoding transferable structure into weights so that one model can adapt to many tasks. Scaling studies how increasing data and compute can continue to improve capabilities.
 
-The value of pretraining includes improving subsequent learning efficiency. GEN-1.5 demonstrates in-context learning from a single demonstration, as well as task adaptation with a few gradient updates. After large-scale pretraining, the data and compute required for new tasks can be reduced. [[1]](https://generalistai.com/blog/gen-1.5)
+**One aspect of pretraining I value is its ability to reduce the cost of subsequent learning.** A pretrained model can adapt to new tasks through SFT or use demonstrations in context through ICL. GEN-1.5 makes this value tangible by demonstrating ICL from a single demonstration and task adaptation with a few gradient updates. [[1]](https://generalistai.com/blog/gen-1.5)
 
 <figure>
   <video controls playsinline preload="metadata" width="100%" class="img-fluid rounded z-depth-1" aria-label="Official demonstration of GEN-1.5 performing two tasks using examples in context">
@@ -87,15 +84,13 @@ The value of pretraining includes improving subsequent learning efficiency. GEN-
   <figcaption class="caption">Video 1. After placing demonstrations in the context, GEN-1.5 performs two tasks without gradient updates: unzipping a pencil case and taking money from it. <a href="https://generalistai.com/blog/gen-1.5#one-shot-in-context">Source: Generalist official demo</a>.</figcaption>
 </figure>
 
-SFT updates parameters using demonstrations, while ICL uses examples in context. Both illustrate that the structure compressed into weights needs to be evaluated through generalization and new task adaptation.
+When evaluating a pretrained model, I therefore also consider how efficiently it uses new experience: how many demonstrations, parameter updates, and how much compute it needs to learn a new task. An investment in pretraining can reduce learning costs across many subsequent tasks.
 
-The scope of scaling includes pretraining, RL, and also CoT, search, and environment interaction during inference. Whether increasing output length or inference time improves results depends on the model's ability to use additional compute.
-
-Therefore, when evaluating models, I also focus on the speed and cost of subsequent improvement. Two models with similar initial scores may exhibit different learning efficiencies after receiving more demonstrations, feedback, or compute.
+Scaling applies more broadly. Pretraining and RL can improve models with more training compute. At inference time, CoT, search, and environment interaction can also make use of additional compute. The gains from additional compute therefore need to be examined separately during training and inference.
 
 ## 4. Two milestones in training and inference
 
-I see two important milestones in this line of research.
+I see OpenAI's 2020 scaling laws research and o1 in 2024 as important advances in training and inference, respectively.
 
 In 2020, OpenAI systematically studied scaling laws for language models, enabling the relationship between parameter count, data size, compute, and loss to be used for prediction and resource allocation. This was a significant advance in training-time scaling; earlier empirical research already existed. [[6]](https://openai.com/index/scaling-laws-for-neural-language-models/)[[7]](https://arxiv.org/abs/1712.00409)
 
@@ -144,7 +139,7 @@ In my view, these two milestones clarify two directions of scaling: **training-t
 
 ## 5. Efficiency and training stability
 
-**Efficiency determines the capability level achievable with the same budget, and stability determines whether these gains can be realized in full training.**
+Once we establish where additional compute can improve results, we also need to study the cost of those improvements. In my own field of pretraining, **efficiency determines the capability level achievable with a given budget, and training stability determines whether those gains can be realized over a complete training run.**
 
 I understand efficiency improvement as a leftward shift of the scaling curve: achieving the same loss requires fewer resources. When the horizontal axis is token count, it corresponds to token efficiency; when the horizontal axis is FLOPs, it corresponds to compute efficiency. Relating either measure to actual energy consumption also requires accounting for per-token compute cost and hardware efficiency.
 
@@ -178,7 +173,7 @@ Stable training allows normal numerical growth and fluctuation. Decisions about 
 
 ## 6. Predictability and detailed research
 
-**Since I rely on scaling for gains, I need to establish predictability before expanding investment.**
+Efficiency and stability also need to be assessed before scaling up. **I need to know whether the gains and training dynamics observed in small-scale experiments will hold at larger scales.** This makes predictability another requirement for scaling research.
 
 Scaling laws provide a basis for resource allocation. Prediction requires clarifying variables, metrics, and applicability: the power law of loss, task scores on logarithmic data axes, and log-sigmoid curves for long-horizon interaction have different meanings. [[13]](https://lilianweng.github.io/posts/2026-06-24-scaling-laws/)
 
@@ -220,7 +215,7 @@ Greg Yang et al.'s Tensor Programs V applies parameterization theory to scale-up
 
 ## 7. Summary
 
-From GEN-1.5's pretraining curve, to o1's inference-time compute, to EdgeBench's long-horizon environment interaction, I focus on the same question: how to continuously improve capabilities through a general learning framework that uses experience and compute.
+GEN-1.5, o1, and EdgeBench show me how general learning frameworks can use more experience and compute across domains and stages. The Marin experiments show that sustaining these gains also requires testing predictions, analyzing deviations, and revising training recipes.
 
 Pretraining encodes broad experience into reusable capabilities and also improves subsequent learning efficiency. Scaling runs through both training and inference: training-time scaling improves model capabilities, while test-time scaling allocates more compute to specific tasks. Their implementations and curves may differ across domains, but the research methodology shares commonalities.
 
