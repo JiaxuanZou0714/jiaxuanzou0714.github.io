@@ -1,0 +1,196 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{XCharter}[
+  Extension      = .otf,
+  UprightFont    = *-Roman,
+  BoldFont       = *-Bold,
+  ItalicFont     = *-Italic,
+  BoldItalicFont = *-BoldItalic,
+  Ligatures      = TeX
+]
+\newfontfamily\cjk{Songti SC}
+\linespread{0.98}
+\usepackage[
+  top=0.45in,
+  bottom=0.4in,
+  left=0.55in,
+  right=0.55in,
+  footskip=0.15in
+]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{accent}{HTML}{1F3864}
+\definecolor{rulegray}{HTML}{9A9A9A}
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=accent,
+  linkcolor=accent,
+  pdftitle={Jiaxuan Zou --- Curriculum Vitae},
+  pdfauthor={Jiaxuan Zou}
+}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{0pt}
+
+% ---------- Section headings ----------
+\titleformat{\section}
+  {\normalfont\large\bfseries\color{accent}}
+  {}{0em}{}
+  [\vspace{-0.64em}{\color{rulegray}\rule{\textwidth}{0.6pt}}]
+\titlespacing*{\section}{0pt}{0.45em}{0.3em}
+
+% ---------- Entry helpers ----------
+% \entry{left bold}{right}{left italic}{right italic}
+\newcommand{\entry}[4]{%
+  \begin{tabular*}{\textwidth}{@{}p{0.735\textwidth}@{\extracolsep{\fill}}r@{}}
+    \textbf{#1} & #2 \\
+    \textit{#3} & \textit{#4} \\
+  \end{tabular*}%
+  \vspace{0.18em}%
+}
+
+% \entryone{left bold}{right}
+\newcommand{\entryone}[2]{%
+  \begin{tabular*}{\textwidth}{@{}p{0.735\textwidth}@{\extracolsep{\fill}}r@{}}
+    \textbf{#1} & #2 \\
+  \end{tabular*}%
+  \vspace{0.15em}%
+}
+
+\newenvironment{details}
+  {\begin{itemize}[leftmargin=1.1em,topsep=0.05em,itemsep=0.02em,parsep=0pt,label=\textendash]}
+  {\end{itemize}\vspace{0.16em}}
+
+\newenvironment{pubs}
+  {\begin{enumerate}[leftmargin=1.55em,topsep=0.05em,itemsep=0.16em,parsep=0pt,label={[\arabic*]}]}
+  {\end{enumerate}}
+
+\newcommand{\me}{\textbf{Jiaxuan Zou}}
+\newcommand{\venue}[1]{\textcolor{accent}{#1}}
+
+\begin{document}
+
+% ==================== HEADER ====================
+\begin{center}
+  {\huge\bfseries Jiaxuan Zou}\;{\large ({\cjk 邹嘉轩})}\\[0.25em]
+  {\small
+    B.S.\ student, School of Mathematics and Statistics, Xi'an Jiaotong University\\[0.15em]
+    Research Intern, Seed Pre-training Team, ByteDance
+  }\\[0.3em]
+  {\small
+    \href{mailto:3140143497@qq.com}{3140143497@qq.com}
+    \;\textbf{$\cdot$}\;
+    \href{https://jiaxuanzou0714.github.io}{jiaxuanzou0714.github.io}
+    \;\textbf{$\cdot$}\;
+    \href{https://scholar.google.com/citations?user=YE6iiwUAAAAJ}{Google Scholar}
+    \;\textbf{$\cdot$}\;
+    \href{https://x.com/SmartPig_Joe}{X: @SmartPig\_Joe}\\[0.12em]
+    \href{https://www.linkedin.com/in/\%E5\%98\%89\%E8\%BD\%A9-\%E9\%82\%B9-bb3439341}{LinkedIn}
+    \;\textbf{$\cdot$}\;
+    \href{https://www.xiaohongshu.com/user/profile/65fc3374000000000b00d833}{Xiaohongshu}
+    \;\textbf{$\cdot$}\;
+    WeChat: Jiaxuan\_Zou
+  }
+\end{center}
+\vspace{-0.4em}
+
+% ==================== RESEARCH INTERESTS ====================
+\section*{Research Interests}
+\vspace{-0.15em}
+Turning empirical training phenomena into first-principles mechanisms: mechanistic interpretability of LLMs,
+training dynamics of finite-width networks, optimizer design for LLM pre-training, scaling laws and their
+failure modes, deep learning theory and optimization.
+
+% ==================== EDUCATION ====================
+\section*{Education}
+\entry{Xi'an Jiaotong University}{Xi'an, China}
+      {B.S.\ in Mathematics and Statistics, School of Mathematics and Statistics}{Sep.\ 2024 -- Present}
+
+% ==================== EXPERIENCE ====================
+\section*{Research Experience}
+\entry{ByteDance, Seed Pre-training Team}{Beijing, China}
+      {Research Intern}{Jul.\ 2026 -- Present}
+
+\entry{Gaoling School of Artificial Intelligence, Renmin University of China}{Beijing, China}
+      {Research Intern, advised by Prof.\ Yong Liu}{Jun.\ 2025 -- Jun.\ 2026}
+\vspace{-0.35em}
+\begin{details}
+  \item Mechanistic interpretability, deep learning theory, optimizer design, and scaling laws.
+  \item First-authored work on linear attention, neural scaling laws, and latent chain-of-thought.
+\end{details}
+
+\entry{ScalingOpt}{Remote}
+      {Co-maintainer}{Apr.\ 2026 -- Present}
+\vspace{-0.35em}
+\begin{details}
+  \item Benchmark and discussion platform for optimizer design in LLM training; maintain the optimizer
+        library, including the Nora entry.
+\end{details}
+
+\entry{Tsinghua-affiliated AI Startup}{Beijing, China}
+      {AI Technical Consultant}{}
+\vspace{-0.35em}
+\begin{details}
+  \item Advise on ``AI + K-12 Education'' products developed with the Beijing Dongcheng District Education Commission.
+\end{details}
+
+% ==================== PUBLICATIONS ====================
+\section*{Publications and Preprints}
+\begin{pubs}
+  \item \me, Ruifeng Ren, Yong Liu. \textbf{Kaczmarz Linear Attention.}
+        \venue{Under review}, 2026. \href{https://arxiv.org/abs/2605.08587}{arXiv:2605.08587}.
+
+  \item Jinghui Yuan, \me, Shuo Wang, Yong Liu, Feiping Nie. \textbf{Nora: Normalized Orthogonal Row
+        Alignment for Scalable Matrix Optimizer.} \venue{Under review}, 2026.
+        \href{https://arxiv.org/abs/2605.03769}{arXiv:2605.03769}.
+
+  \item \me, Zixuan Gong, Ye Su, Huayi Tang, Yong Liu. \textbf{Effective Frontiers: A Unification of
+        Neural Scaling Laws.} \venue{Under review}, 2026.
+        \href{https://arxiv.org/abs/2602.02593}{arXiv:2602.02593}.
+
+  \item \me, Yaozhong Xiong, Yong Liu. \textbf{Capabilities and Fundamental Limits of Latent
+        Chain-of-Thought.} \venue{EMNLP}, 2026. \href{https://arxiv.org/abs/2602.01148}{arXiv:2602.01148}.
+
+  \item Jialong Sun, Zeming Wei, \me, Jiacheng Gong, Guanheng Wang, Chengyang Dong, Jialong Li, Bo Liu.
+        \textbf{Statistical MIA: Rethinking Membership Inference Attack for Reliable Unlearning Auditing.}
+        \venue{Under review}, 2026. \href{https://arxiv.org/abs/2602.01150}{arXiv:2602.01150}.
+
+  \item Jialong Sun, Xinpeng Ling, \me, Jiawen Kang, Kejia Zhang. \textbf{FreIE: Low-Frequency Spectral
+        Bias in Neural Networks for Time-Series Tasks.} \venue{IEEE ICDM}, 2025.
+        \href{https://arxiv.org/abs/2510.25800}{arXiv:2510.25800}.
+
+  \item Tian Zhang, Jiaju He, Naihao Liu, \me, Yongxiang Jiang. \textbf{Mamba-Driven and Feature-Fused
+        U-Net for Automatic Seismic Horizon Interpretation.}
+        \venue{IEEE Transactions on Geoscience and Remote Sensing}, 2026.
+        \href{https://doi.org/10.1109/TGRS.2026.3660880}{doi:10.1109/TGRS.2026.3660880}.
+
+  \item \me, Naihao Liu, Tian Zhang, Jiaju He, Tao Li, Jinghuai Gao. \textbf{Seismic Horizon Picking Using
+        Channel-Independent Multi-Scale UNet.} \venue{Under review}, 2024.
+\end{pubs}
+
+% ==================== SERVICE ====================
+\section*{Service and Outreach}
+\entry{Xi'an Jiaotong University Deep Learning Seminar}{Xi'an, China}
+      {Founder and Organizer}{Sep.\ 2024 -- Present}
+\vspace{-0.35em}
+\begin{details}
+  \item Founded an undergraduate deep learning seminar that grew to over one thousand participants
+        nationwide and led to several research collaborations.
+\end{details}
+
+% ==================== SKILLS ====================
+\section*{Skills and Languages}
+\begin{tabular}{@{}p{0.19\textwidth}@{}p{0.81\textwidth}@{}}
+  \textbf{Mathematical tools} & Optimization, statistics, dynamical systems, mathematical modeling \\
+  \textbf{Applied AI}         & LLM pre-training, matrix optimizers, linear attention \\
+  \textbf{Languages}          & Chinese (native), English (working proficiency) \\
+\end{tabular}
+
+\end{document}
