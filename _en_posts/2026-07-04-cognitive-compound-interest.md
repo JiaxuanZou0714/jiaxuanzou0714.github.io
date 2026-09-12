@@ -1,9 +1,9 @@
 ---
-source_sha: 88e47206616cd7cb
+source_sha: efd1fb445cdba055
 layout: post
-title: "My deepest insight after two years of undergraduate study: cognitive compound interest"
+title: "Two years of undergraduate studies: cognitive compounding"
 date: 2026-07-04 12:00:00
-description: "Many people are used to making long-term linear plans with their current low-order cognition, falling into anxiety about not seeing returns from short-term efforts. This article, based on my real growth experience over two years of undergraduate study, deconstructs the underlying logic and practical path of \"cognitive compound interest,\" explaining that only continuous output, heavy investment in high-density environments, and high-frequency iteration of cognition can achieve the snowball effect of growth."
+description: "Reflecting on two years of undergraduate experience, from the initial direct PhD plan to organizing a seminar, publishing technical thoughts publicly, and joining Gaoling and ByteDance Seed Lab. Summarizing observations on dynamically adjusting career plans, the long-term compounding of public technical output, and how high-density environments accelerate cognitive iteration."
 tags: [Cognitive Compounding, Undergraduate Growth, Career Planning, AI Industry]
 categories: [Growth Reflections]
 featured: false
@@ -16,95 +16,77 @@ ref: cognitive-compound-interest
 related_posts: false
 ---
 
+Looking back at two years of undergraduate experience at the end of my sophomore year, my current trajectory differs significantly from my initial assumptions upon entering college.
 
-Looking back at the end of my sophomore year, the plans I had for the future when I entered college are almost completely different from the path before me today.
+When I first enrolled, I planned to follow a traditional academic path, aiming for a direct doctoral program abroad after graduation. That judgment was based on the limited information available to me right after high school. Two years later, I am preparing to join ByteDance Seed Lab to conduct pretraining research, while also engaging with various opportunities across academia, industry, and early-stage startups.
 
-When I first started college, I was determined to pursue a purely academic path—direct PhD in North America, climbing up the ivory tower step by step. That was the most reasonable judgment I could make based on all the information I had at the time. Now, I am about to join ByteDance Seed Lab to do pretraining-related research, while holding multiple possibilities in academia, industry, and even early-stage entrepreneurship.
+These options did not appear in my initial roadmap. Cognitive understanding accumulates over time. Previously acquired knowledge, practical experience, and external connections continuously reshape one's assessment of subsequent opportunities. As substantive information increases, long-term trajectories often extend beyond initial assumptions. One's current decision space depends on the cumulative input and practical feedback gained along the way.
 
-This was not something I planned from the start, nor did it come from sudden luck. I have always believed in one sentence: greatness cannot be planned. I am not saying I will achieve something great, but cognitive compound interest itself has this characteristic—once the compound interest effect truly kicks in, the final magnitude of returns is completely unpredictable from the starting point. You cannot reverse-engineer every step from a preconceived result, because you have no way of knowing how far the exponential growth will ultimately go.
+## Path assumptions and dynamic adjustments
 
-This is my deepest insight from these two years: you do not need to meticulously plan every step; just identify long-term and correct things and persist in doing them, leaving the rest to compound interest. Where you stand today and the choices you can make are never the result of a single point of effort, but the end state that all your past cognition, experiences, and connections have snowballed into.
+Under limited information, people tend to extrapolate a linear long-term trajectory from localized experience. While such projections seem clear and straightforward, external developments and personal skill expansion inevitably diverge from baseline assumptions over time in a complex environment.
 
-I like to use the Taylor expansion as an analogy. Your judgment about the future at any point in time is equivalent to expanding the function of life at that point. The higher the cognitive dimension you command and the more complete your information, the higher the order of derivatives you have, and the more accurately you can reconstruct the global curve. If you only have low-order information, you can at best make a linear prediction, which looks straight and clear, but once you go even a little further out, it deviates more and more from the real world.
+As an incoming freshman, I viewed a direct PhD program as the only viable path. This assessment reflected my limited perspective at the time, representing the natural outcome of localized information. Cognitive growth is endogenous. Newly acquired domain knowledge, peer connections, and empirical lessons systematically update one's baseline criteria. Broadening information dimensions fundamentally improves the quality of evaluating technical trends and personal positioning.
 
-When I first entered college, I only had that low-order information, so I could only see the direct PhD path. This was not shortsightedness on my part; anyone standing at that cognitive starting point could only make such a judgment. The true meaning of cognitive compound interest is that your principal is never fixed. Every new piece of knowledge you learn, every new person you meet, every experience that refreshes your cognition—they do not just bring you incremental returns, but directly merge into your cognitive principal, becoming the basis for your next judgment. With each additional order of information, the precision of your prediction about the future leaps up a level.
+## Seminars and public technical output
 
-The starting point of all this was, frankly, a spur-of-the-moment decision at the beginning of freshman year.
+Upon entering university in September 2024, supported by my residential college's encouragement of student-led academic initiatives, I organized the campus's first deep learning seminar. At that point, the initiative was driven solely by academic interest, without anticipating downstream benefits.
 
-In September 2024, right after I enrolled, my residential college was supporting student-initiated seminars, and without much thought I took the lead in setting up the school's first deep learning seminar. At that time, I could not imagine how many things this would lead to. I just felt it was worth doing, so I did it.
+While running the seminar, I met two junior faculty members, which led to an on-campus research internship and subsequent remote research collaborations. The seminar also fostered exchanges with several peers and alumni, including an alumnus who founded an AI healthcare company during his doctoral studies at Peking University.
 
-During the process of running the seminar, I met two junior faculty members. One brought me into a research internship at our school, and the other opened up my later remote research collaboration. Also because the seminar gained some attention on campus, I got to know many seniors and peers from Xi'an Jiaotong University. Among them was a very impressive senior—he did his bachelor's at our school, later went to Peking University for a PhD, and before finishing it he left to found an AI healthcare company. That is a story for later.
+Around the same time, I built a routine of regular public output. Recordings of my seminar presentations were uploaded to Bilibili, and I gradually expanded this effort into writing technical blog posts that systematized my thoughts on algorithmic principles, training dynamics, and technical directions. Although not written as formal academic papers, these analyses offered concrete technical value.
 
-During that period, I developed a habit of regular output. At first it was the seminar, where I gave the talks myself, and I uploaded the recording of every session to Bilibili. Later it gradually turned into writing blog posts—writing up ideas I found interesting or insightful, along with new algorithms and new technical thinking, and publishing them. Many ideas did not warrant the effort of a formal paper but were genuinely worth sharing, and the blog became the best medium for them.
+In the short term, these technical writings did not translate into immediate academic credits or awards, and they required substantial extracurricular time. However, persistent public documentation established durable professional credentials, sparked peer discussions, and laid the groundwork for subsequent external collaborations.
 
-These outputs had no immediate returns at the time—no extra points, no awards, and they even took up a lot of time outside coursework. But I gradually found that as long as you keep writing seriously, these pieces become cognitive touchpoints you leave on the internet. Many blog posts sparked considerable discussion and helped many people in the industry get to know me. They were the first principal I invested in cognitive compound interest, quietly taking root.
+## High-density environments and cognitive updates
 
-From there, things started happening one link after another.
+In July 2025, at the end of my freshman year, I traveled to Hangzhou for a machine learning conference, met my research collaborator in person, and connected with researchers from Tsinghua University and Shanghai University of Finance and Economics, establishing direct academic dialogues. Around that time, based on my Bilibili recordings and technical articles on my website, a faculty member from the Gaoling School of Artificial Intelligence at Renmin University reached out regarding conference collaboration. I subsequently joined the Gaoling research group to investigate foundation model mechanisms.
 
-At the end of my freshman year, in July 2025, I went to Hangzhou to attend an academic conference on machine learning. For the first time I met in person the professor I had been collaborating with, and I also got in touch with researchers from Tsinghua and Shanghai University of Finance and Economics. It was then that I truly stepped into the AI academic circle. Almost simultaneously, because of the Bilibili recordings and continuous output on my personal website, a professor from Renmin University's Gaoling School of Artificial Intelligence reached out to me, inviting me to collaborate on submitting to a top conference. Without much difficulty, I joined the Gaoling team and began doing real mechanistic research on large models.
+Sustained public technical documentation directly attracts collaborative research opportunities.
 
-By this time, I had a vague feeling that many opportunities are not something you beg for; they are the feedback from everything you have done before, suddenly coming back to you at some point.
+During the winter break of 2025, I spent a month in Beijing conducting in-person research at Gaoling. Beijing concentrated exceptional densities of research talent, industry information, and engineering experience. In a standard university setting, cycles for acquiring frontier information and feedback remain comparatively long. In an environment with concentrated industry and academic activity, interacting daily with researchers across diverse institutions significantly compressed the cycle of information exchange and cognitive iteration.
 
-What truly caused a qualitative change in my cognition was the month I spent on site at Gaoling over the 2025 winter break.
+Before heading to Beijing, I wrote a blog post analyzing scaling laws from a mathematical angle and shared it on social platforms. The technical lead of the Pre-Train group at ByteDance Seed Lab noticed it and extended an internship invitation. Having already committed to Gaoling for the winter, I deferred the internship to the summer of 2026.
 
-The most special thing about Beijing is its density. Information density, talent density, and experience density are all incredibly high. Even with the same active effort to absorb, on campus you might run into a conversation that refreshes your cognition only once a month, but in Beijing you meet people from different backgrounds and different positions in the industry every day. It is as if the same cognitive principal earns an interest rate several times higher here, so the compounding immediately picks up speed.
+During my stay in Beijing, peer introductions connected me with researchers from Fudan University and institutions like Ubiquant. In discussions with an Ubiquant colleague, they suggested that if competitive compensation and top-tier engineering resources were available upon graduation, spending several years in industry before deciding on graduate school could be a productive path.
 
-Before going, I wrote a blog post explaining scaling laws from a mathematical perspective and posted it on Xiaohongshu. It was seen by the technical lead of ByteDance Seed Lab's Pre-Train group, who directly contacted me and invited me to join. At that time, I had already decided to go to Gaoling, so I scheduled the internship for this summer.
+This conversation challenged my assumption that a direct PhD was the only rational path. Today, a significant portion of core exploration in artificial intelligence takes place directly within industry. Gaining frontline experience with large-scale cluster training and system implementations before returning to academic research provides a grounded empirical foundation. In a fast-moving field, clinging to a year-old mental model rarely keeps pace with frontier developments.
 
-During the month at Gaoling, I met senior students in the group and, through networking, got to know friends from Fudan and the quant fund Ubiquant. When I was chatting with the friend from Ubiquant, he said that if I could land total compensation on the order of a million yuan after graduation, there would be nothing wrong with spending two years in industry first, and it would not be too late to go back for a PhD later if I wanted.
+## Empirical observations on the industry frontline
 
-That remark made everything click. Before that, I had assumed that the path of life was a one-way street, and that only studying straight through to a PhD counted as the right choice. But that day, I suddenly realized that is not the case at all. The path is never unique. A lot of the most cutting-edge AI research now happens in industry itself. Entering the industry first to accumulate frontline experience, and then returning to academia, might actually give you a clearer view.
+In April 2026, Dong Kehan's team reached out via social media to discuss potential early-stage collaboration. After further discussions, I recognized an opportunity to observe the decision-making rationale of an early technical team up close and decided to take part.
 
-This is what I call higher-order derivative cognitive information. When you see one more dimension, the shape of the entire life function changes completely in your eyes.
+The primary value of participating lay in observing how frontier practitioners evaluate technology stacks and determine research directions. This collaborative setting proved far more efficient for learning than isolated study. Throughout this process, I interacted with core engineers from teams such as MiniMax, DeepSeek, Moonshot AI, and Tencent Hunyuan, and spoke with researchers from DeepMind and Anthropic, acquiring firsthand perspectives on model bottlenecks and architectural directions.
 
-After that, I became even more certain of one thing: don't cling to a fixed plan; update your cognition frequently and adjust your judgment in real time. Especially in the AI industry, the landscape shifts roughly every three months. If you still use last year's cognition to make today's decisions, you are making decisions about a world that no longer exists.
+While in Beijing in April, I met again with the alumnus I had connected with during freshman year. His AI healthcare startup had raised hundreds of millions of yuan, aiming to connect the life sciences pipeline from fundamental biology to protein synthesis and drug discovery using artificial intelligence.
 
-From then on, things rolled faster and faster.
+During our meeting, I asked him about the viability of pursuing a doctorate in the current climate. I had previously assumed that working with an outstanding advisor would mitigate most structural frictions in academic training. He noted that even under strong advisors, academic institutions and research cycles impose unavoidable structural constraints.
 
-In April this year, Dong Kehan's team reached out to me through Xiaohongshu to talk about early-stage support. I declined the first time because I wasn't ready. But ten days later, they came back, and I realized this was an opportunity to access a higher-density circle, so I agreed to have a deeper conversation.
+This conversation prompted me to re-evaluate my earlier premises. Leading industry teams hold clear advantages in compute, infrastructure, and large-scale engineering support. Synthesizing multiple recent observations, I confirmed the rationale of joining ByteDance Seed Lab first to gain rigorous engineering and empirical experience. Professional connections formed early continued to yield durable influence.
 
-After meeting them in person, I decided to join. For no other reason than this: I knew clearly that working alongside a group of people at the very frontier of the industry, absorbing their insights, judgments, and betting logic face to face, gives you a rate of growth that going it alone cannot match. Inwardly it means an extremely fast rise in personal cognition; outwardly it means getting within reach of genuinely changing the world. There's no reason to miss such a chance.
+## Public records and external connections
 
-Through that connection, I got in touch with the youngest and most central practitioners at companies like MiniMax, DeepSeek, Moonshot AI, and Tencent Hunyuan, and even had the opportunity to talk face to face with senior people who had DeepMind and Anthropic backgrounds. Every exchange adds to my cognitive principal, making my judgment of the industry a bit more accurate.
+In early June 2026, while finalizing my summer internship details with ByteDance Seed Lab, the team hosted a closed-door technical exchange in Beijing. I traveled from Xi'an to Beijing to attend.
 
-In April, I also met in Beijing the senior from Xi'an Jiaotong University whom I had met when I organized a seminar in my freshman year. The AI healthcare company he founded has now raised over 100 million yuan at a valuation far above 1 billion, aiming to use AI to connect the entire chain of life sciences, from upstream basic research to downstream protein synthesis and drug development.
+The visit provided direct exposure to recent pretraining developments and allowed me to engage in technical discussions with Ziming Liu and core research members. Afterward, I completed the standard interview and onboarding procedures.
 
-We talked for over an hour, and I asked him whether, at this point in time, doing a PhD is still a sensible choice. My assumption at the time was that a PhD is fine as long as you find the right advisor, and that the pitfalls come mainly from bad advisors. But he turned the question back on me: even if you find a good advisor, won't there still be pitfalls?
+Actively participating in research communities and engaging with frontline technical discussions substantially increases the likelihood of securing valuable opportunities.
 
-This question stumped me and refreshed my cognition again. I suddenly realized my previous judgment was too simple and black-and-white. When I actually heard this answer from a frontline entrepreneur, combined with all the industry information I had been exposed to, I became even more determined to go into industry first and intern at Seed this summer. Many things have no absolute right or wrong, only what suits the current self, and this judgment must be based on as much and as new cognition as possible.
+After my internship offer became public, it caught peer interest. Shortly afterward, a recruiter from Moonshot AI contacted me after reading my previous article, "Re-listening to Yang Zhilin: Bet on Scaling, First Principles, and Long-Termism."
 
-You see, coming full circle, my connection to this senior who influenced me so deeply traces back to that seminar I started on a whim when I entered as a freshman. This is the most magical part of compound interest: every seed you plant now may bloom in unexpected ways much later.
+While originally written as quick notes from a podcast, public technical writing retains enduring utility. Detailed analytical notes communicate an author's technical judgment and research interests over time, creating unexpected external connections at critical junctures.
 
-In early June, I confirmed my summer internship with ByteDance Seed. They told me there happened to be a closed-door talk in the next couple of days and asked whether I was in Beijing. I was still in Xi'an then, and without a second thought I booked a flight and a hotel.
+Even though my internship was settled, I proceeded with the conversation with the Moonshot AI team. The primary value of such discussions lies in gaining varied industry perspectives, testing one's technical assumptions, and broadening one's grasp of frontier developments.
 
-I calculated clearly in my mind that being able to hear the most cutting-edge theories in the industry on site and connect with core team members would bring returns many times the cost of the flight and hotel.
+## Cognitive accumulation and decision-making
 
-That trip to Beijing far exceeded my expectations. I heard about research progress first-hand, talked with Ziming Liu for a long time, and met the core team of Seed. Then we had dinner together, and the internship was basically settled. (I still went through the standard interview and onboarding process.)
+Reflecting on these two years, the precise progression was never fully mapped out at the start. The core strategy has been to maintain a firm macro direction while keeping execution paths adaptable.
 
-This is the most tangible form of cognitive compound interest: if you actively move toward high-density places and heavily invest in high-value information and connections, opportunities will gradually turn from probabilistic events into certainties.
+In a domain characterized by rapid technical turnover, industry paradigms four or five years out cannot be projected with certainty. Effective long-term planning relies on establishing a clear technical focus while remaining agile in execution. Decisions must be dynamically calibrated against empirical experience and fresh data.
 
-I posted a tweet about joining ByteDance, which quickly got over 20,000 views, and more than a hundred senior people in the industry followed me, many of whom I had been following one-way for a long time. More interestingly, a few days after signing the offer, a recruiter from Moonshot AI reached out, saying they had seen my blog post "Re-listening to Yang Zhilin: Bet on Scaling, First Principles, and Long-termism" and thought it was insightful, and wanted to chat.
+Aligning public output with substantive technical competence is essential. The value of technical writing, open-source work, and academic publications rests on rigorous understanding and genuine problem-solving. Superficial self-promotion does not build lasting professional trust. High-quality public documentation serves as verifiable evidence of structured thinking, reflecting technical capability and depth of analysis.
 
-That blog post was just my casual notes from listening to a podcast; when I wrote it, I never imagined it would be read by people at the company in question. But this is the characteristic of cognitive assets: once you write it down and publish it, it stays there, continuously transmitting your signal outward. It doesn't expire or become invalid; it will always bring matching opportunities to you at some unexpected moment.
-
-Even though I had confirmed my offer, I still scheduled a coffee chat with them. Many people think that once something is settled, there's no need to explore other opportunities. But I don't see it that way. Every exchange with top practitioners is not to immediately get an offer, but to absorb new information and expand cognitive boundaries. These things eventually become your principal and pay off at some future point.
-
-By this point it should be clear that none of the paths I am on today were planned back in my freshman year. I simply became convinced that AGI is the direction most worth investing in over the next decade, and along that direction, I do what's worth doing, meet people worth knowing, and seize opportunities that enhance cognition. I never locked down a specific path.
-
-There's always this phrase online: what will you do in four or five years if you do this now?
-
-Every time I see such a question, I find it strange. What the industry will look like in four or five years, what opportunities and risks will exist, cannot be accurately predicted by us today. Using your current limited cognition to lock in the whole path for the person you will be four or five years from now is the most irresponsible thing you can do about the future. The world is dynamic, and your cognition should be dynamic too. A truly reliable plan is never about calculating every step, but about being extremely firm on the big direction, keeping the specific path flexible, always using the highest-order cognition you currently have to make the most up-to-date judgment, and adjusting at any time.
-
-Many people understand compound interest as saving enough principal and then lying back to collect interest. But cognitive compound interest is not like that. It requires you to stay open, actively extract experience from the environment, absorb quickly, evaluate quickly, and iterate quickly. Hesitate for a month and you lose one round of compounding. When you're young, the last thing to fear is trial and error; the cost of trial and error is always lower than the cost of missing out. If you want to do something, just do it; don't hesitate.
-
-Of course, all of this has a premise: what you show to the outside world (blog, pub, insight, bet) must match your true level. Socializing and output are not about bragging or packaging, not about trading false information for connections. Only when what you say, what you do, and what you output are aligned with your actual ability can these connections be solid and truly start to roll. Connections gained only through packaging are ultimately castles in the air and cannot participate in the real compound interest cycle.
-
-
-The curve of cognitive compound interest is always flat and long in the early stage. You may do many things and not see any obvious change for a long time, even feeling like you are standing still. But as long as you keep investing principal, keep absorbing, outputting, and connecting, one day you will reach that inflection point, and then everything will start to accelerate toward you.
-
-Two years is just a beginning. Fortunately, now that I understand this curve, I no longer rush for answers.
-
-Take it slow; cognition will do the math for you.
+Early cognitive accumulation often appears gradual, and external feedback is characteristically delayed. As public records accumulate, professional connections strengthen, and frontier comprehension deepens, collaboration opportunities and research resources begin to emerge nonlinearly. Sustained focus and consistent output provide a reliable foundation for critical decisions.
 
 ## Citation
 
@@ -119,4 +101,3 @@ If you need to cite this article, please refer to:
   url={https://jiaxuanzou0714.github.io/blog/2026/cognitive-compound-interest/}
 }
 ```
-
