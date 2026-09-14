@@ -26,7 +26,8 @@ window.MathJax = {
             if (item.display) root.setAttribute("data-tex-display", "true");
             root.setAttribute("title", "点击复制 LaTeX");
           }
-        });
+        })
+        .then(() => document.dispatchEvent(new Event("mathjax:typeset")));
     },
   },
   tex: {

@@ -41,11 +41,10 @@ $(document).ready(function () {
 
     // Refresh scrollspy after MathJax finishes rendering,
     // since equations change page height and heading positions.
-    if (typeof MathJax !== "undefined" && MathJax.startup) {
-      MathJax.startup.promise.then(function () {
-        $("body").scrollspy("refresh");
-      });
-    }
+    // The MathJax configuration can exist before startup.promise is created.
+    document.addEventListener("mathjax:typeset", function () {
+      $("body").scrollspy("refresh");
+    });
   }
 
   // add css to jupyter notebooks

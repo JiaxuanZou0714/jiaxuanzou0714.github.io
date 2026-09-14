@@ -1,4 +1,5 @@
-// Has to be in the head tag, otherwise a flicker effect will occur.
+// The small inline head script sets the initial theme before the first paint.
+// This file is deferred and handles theme interactions after HTML parsing.
 
 // Toggle through light, dark, and system theme settings.
 let toggleThemeSetting = () => {
@@ -14,7 +15,11 @@ let toggleThemeSetting = () => {
 
 // Change the theme setting and apply the theme.
 let setThemeSetting = (themeSetting) => {
-  localStorage.setItem("theme", themeSetting);
+  try {
+    localStorage.setItem("theme", themeSetting);
+  } catch (_) {
+    // Theme changes still work when browser storage is unavailable.
+  }
 
   document.documentElement.setAttribute("data-theme-setting", themeSetting);
 
@@ -255,7 +260,7 @@ let transTheme = () => {
 // Determine the expected state of the theme toggle, which can be "dark", "light", or
 // "system". Default is "system".
 let determineThemeSetting = () => {
-  let themeSetting = localStorage.getItem("theme");
+  let themeSetting = document.documentElement.getAttribute("data-theme-setting");
   if (themeSetting != "dark" && themeSetting != "light" && themeSetting != "system") {
     themeSetting = "system";
   }
@@ -279,24 +284,17 @@ let determineComputedTheme = () => {
 };
 
 let initTheme = () => {
-  let themeSetting = determineThemeSetting();
-
-  setThemeSetting(themeSetting);
-
-  // Add event listener to the theme toggle button.
-  document.addEventListener("DOMContentLoaded", function () {
-    const mode_toggle = document.getElementById("light-toggle");
-
-    mode_toggle.addEventListener("click", function () {
-      toggleThemeSetting();
-    });
-  });
+  setHighlight(determineComputedTheme());
+  const modeToggle = document.getElementById("light-toggle");
+  if (modeToggle) modeToggle.addEventListener("click", toggleThemeSetting);
 
   // Add event listener to the system theme preference change.
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ({ matches }) => {
     applyTheme();
   });
 };
+
+initTheme();
 
 // Get the appropriate background color for Google Calendar based on current theme
 let getCalendarBgColor = () => {

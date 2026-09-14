@@ -10,6 +10,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const siteRoot = endpoint.replace(/\/count\/?$/, "/");
   const requests = new Map();
   const groupedCounters = new Map();
+  const cacheLifetime = 5 * 60 * 1000;
+
+  function readCachedCount(path) {
+    try {
+      const entry = JSON.parse(
+        sessionStorage.getItem(`goatcounter:${siteRoot}${path}`),
+      );
+      const age = Date.now() - entry?.savedAt;
+      if (
+        age >= 0 &&
+        age < cacheLifetime &&
+        Number.isSafeInteger(entry.count) &&
+        entry.count >= 0
+      ) {
+        return entry.count;
+      }
+    } catch (_) {
+      // Storage may be blocked or contain an obsolete entry.
+    }
+    return null;
+  }
 
   // Keep language-specific analytics and include both historical counters.
   counters.forEach((element) => {
@@ -29,6 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function loadCount(path) {
+    const cached = readCachedCount(path);
+    if (cached !== null) return Promise.resolve(cached);
     if (!requests.has(path)) {
       requests.set(
         path,
@@ -49,6 +72,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const count = Number(raw);
             if (!/^\d+$/.test(raw) || !Number.isSafeInteger(count)) {
               throw new Error(`Invalid counter for ${path}`);
+            }
+            try {
+              sessionStorage.setItem(
+                `goatcounter:${siteRoot}${path}`,
+                JSON.stringify({ count, savedAt: Date.now() }),
+              );
+            } catch (_) {
+              // The counter remains usable without storage.
             }
             return count;
           }),

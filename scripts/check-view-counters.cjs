@@ -5,7 +5,7 @@ const code = fs.readFileSync(
   "assets/js/goatcounter-analytics-setup.js",
   "utf8",
 );
-async function run(pairs, responses) {
+async function run(pairs, responses, storage = new Map()) {
   const calls = [];
   const elements = pairs.map(([path, alternate]) => ({
     value: { textContent: "--" },
@@ -20,6 +20,14 @@ async function run(pairs, responses) {
     document: {
       addEventListener: (_, f) => f(),
       querySelectorAll: () => elements,
+    },
+    sessionStorage: {
+      getItem(key) {
+        return storage.get(key) ?? null;
+      },
+      setItem(key, value) {
+        storage.set(key, value);
+      },
     },
     fetch: async (url) => {
       const path = decodeURIComponent(url.split("/counter/")[1].slice(0, -5));
@@ -74,5 +82,57 @@ async function run(pairs, responses) {
     (await run([["/zh/", "/en/"]], { "/zh/": "26", "/en/": "bad" })).values,
     ["--"],
   );
-  console.log("View counters: 7 scenarios passed.");
+  const storage = new Map();
+  const pairs = [["/zh/", "/en/"]];
+  await run(pairs, { "/zh/": "26", "/en/": "74" }, storage);
+  const cached = await run(pairs, {}, storage);
+  assert.deepEqual(cached.values, ["100"]);
+  assert.equal(
+    cached.calls.length,
+    0,
+    "Fresh counts should be reused across pages",
+  );
+
+  for (const [key, value] of storage) {
+    const entry = JSON.parse(value);
+    entry.savedAt -= 6 * 60 * 1000;
+    storage.set(key, JSON.stringify(entry));
+  }
+  const expired = await run(pairs, { "/zh/": "27", "/en/": "75" }, storage);
+  assert.deepEqual(expired.values, ["102"]);
+  assert.equal(expired.calls.length, 2);
+
+  storage.clear();
+  await run(pairs, { "/zh/": "26", "/en/": 500 }, storage);
+  const retry = await run(pairs, { "/en/": "74" }, storage);
+  assert.deepEqual(retry.values, ["100"]);
+  assert.deepEqual(retry.calls, ["/en/"], "Failed requests must not be cached");
+
+  for (const invalid of [
+    "broken JSON",
+    '{"count":-1,"savedAt":0}',
+    JSON.stringify({ count: 42, savedAt: Date.now() + 60000 }),
+  ]) {
+    const badStorage = new Map([
+      ["goatcounter:https://example.goatcounter.com//zh/", invalid],
+    ]);
+    assert.deepEqual(
+      (await run([["/zh/", null]], { "/zh/": "26" }, badStorage)).values,
+      ["26"],
+    );
+  }
+
+  const blockedStorage = {
+    get() {
+      throw new Error("Storage blocked");
+    },
+    set() {
+      throw new Error("Storage blocked");
+    },
+  };
+  assert.deepEqual(
+    (await run(pairs, { "/zh/": "26", "/en/": "74" }, blockedStorage)).values,
+    ["100"],
+  );
+  console.log("View counters: 14 scenarios passed.");
 })();

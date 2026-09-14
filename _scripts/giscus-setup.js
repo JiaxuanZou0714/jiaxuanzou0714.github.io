@@ -4,10 +4,7 @@ permalink: /assets/js/giscus-setup.js
 
 function determineGiscusTheme() {
   {% if site.enable_darkmode %}
-    let theme =
-      localStorage.getItem("theme") ||
-      document.documentElement.getAttribute("data-theme") ||
-      "system";
+    let theme = document.documentElement.getAttribute("data-theme") || "system";
 
     if (theme === "dark") return "{{ site.giscus.dark_theme }}";
     if (theme === "light") return "{{ site.giscus.light_theme }}";
@@ -20,29 +17,61 @@ function determineGiscusTheme() {
 }
 
 (function setupGiscus() {
-  let giscusTheme = determineGiscusTheme();
+  const container = document.getElementById("giscus_thread");
+  if (!container) return;
+  let loaded = false;
 
-  let giscusAttributes = {
-    src: "https://giscus.app/client.js",
-    "data-repo": "{{ site.giscus.repo }}",
-    "data-repo-id": "{{ site.giscus.repo_id }}",
-    "data-category": "{{ site.giscus.category }}",
-    "data-category-id": "{{ site.giscus.category_id }}",
-    "data-mapping": "{{ site.giscus.mapping }}",
-    "data-strict": "{{ site.giscus.strict }}",
-    "data-reactions-enabled": "{{ site.giscus.reactions_enabled }}",
-    "data-emit-metadata": "{{ site.giscus.emit_metadata }}",
-    "data-input-position": "{{ site.giscus.input_position }}",
-    "data-theme": giscusTheme,
-    "data-lang": "{{ site.giscus.lang }}",
-    crossorigin: "anonymous",
-    async: true,
-  };
+  function loadComments() {
+    if (loaded) return;
+    loaded = true;
+    // Read the theme when comments load, including changes made while reading.
+    let giscusTheme = determineGiscusTheme();
 
-  let giscusScript = document.createElement("script");
-  Object.entries(giscusAttributes).forEach(([key, value]) =>
-    giscusScript.setAttribute(key, value)
-  );
-  document.getElementById("giscus_thread").appendChild(giscusScript);
+    let giscusAttributes = {
+      src: "https://giscus.app/client.js",
+      "data-repo": "{{ site.giscus.repo }}",
+      "data-repo-id": "{{ site.giscus.repo_id }}",
+      "data-category": "{{ site.giscus.category }}",
+      "data-category-id": "{{ site.giscus.category_id }}",
+      "data-mapping": "{{ site.giscus.mapping }}",
+      "data-strict": "{{ site.giscus.strict }}",
+      "data-reactions-enabled": "{{ site.giscus.reactions_enabled }}",
+      "data-emit-metadata": "{{ site.giscus.emit_metadata }}",
+      "data-input-position": "{{ site.giscus.input_position }}",
+      "data-theme": giscusTheme,
+      "data-lang": "{{ site.giscus.lang }}",
+      crossorigin: "anonymous",
+      async: true,
+    };
+
+    let giscusScript = document.createElement("script");
+    Object.entries(giscusAttributes).forEach(([key, value]) =>
+      giscusScript.setAttribute(key, value)
+    );
+    giscusScript.addEventListener("error", () => {
+      loaded = false;
+      giscusScript.remove();
+      const retry = document.createElement("button");
+      retry.className = "btn btn-sm btn-outline-secondary";
+      retry.textContent = "{{ site.giscus.lang }}".startsWith("zh") ? "重新加载评论" : "Retry loading comments";
+      retry.addEventListener("click", () => {
+        retry.remove();
+        loadComments();
+      }, { once: true });
+      container.appendChild(retry);
+    }, { once: true });
+    container.appendChild(giscusScript);
+  }
+
+  if (!("IntersectionObserver" in window)) {
+    loadComments();
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    if (entries.some((entry) => entry.isIntersecting)) {
+      observer.disconnect();
+      loadComments();
+    }
+  }, { rootMargin: "600px" });
+  observer.observe(container);
 })();
-

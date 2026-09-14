@@ -35,6 +35,13 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install font tooling
+        run: python -m pip install -r scripts/requirements-assets.txt
+
       - name: Build site
         env:
           JEKYLL_ENV: production
@@ -42,6 +49,9 @@ jobs:
 
       - name: Purge CSS
         run: npx purgecss -c purgecss.config.js
+
+      - name: Subset icon fonts
+        run: python scripts/subset-icon-fonts.py
 
       - name: Add Pages files
         run: |

@@ -1,6 +1,23 @@
 <!-- Metadata, OpenGraph and Schema.org -->
 {% include metadata.liquid %}
 
+{% if site.enable_darkmode %}
+  <!-- Set the initial theme before styles load; interactions are deferred. -->
+  <script>
+    (function () {
+      var setting = 'system';
+      try {
+        setting = localStorage.getItem('theme') || 'system';
+      } catch (_) {}
+      if (setting !== 'light' && setting !== 'dark') setting = 'system';
+      var theme =
+        setting === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : setting;
+      document.documentElement.setAttribute('data-theme-setting', setting);
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+{% endif %}
+
 <!-- Security: Content Security Policy -->
 <!-- Permissive CSP suitable for academic websites. Allows external images, videos, and common embed services. -->
 <!-- To customize for your needs, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
@@ -82,7 +99,7 @@
 
 {% if site.enable_darkmode %}
   <!-- Dark Mode -->
-  <script src="{{ '/assets/js/theme.js' | relative_url | bust_file_cache }}"></script>
+  <script defer src="{{ '/assets/js/theme.js' | relative_url | bust_file_cache }}"></script>
   <link
     defer
     rel="stylesheet"
@@ -91,7 +108,10 @@
     id="highlight_theme_dark"
   >
   <script>
-    initTheme();
+    if (document.documentElement.getAttribute('data-theme') === 'dark') {
+      document.getElementById('highlight_theme_light').media = 'none';
+      document.getElementById('highlight_theme_dark').media = '';
+    }
   </script>
 {% endif %}
 
@@ -196,5 +216,10 @@
 {% endif %}
 
 {% if page.tikzjax %}
-  <link defer rel="stylesheet" type="text/css" href="{{ '/assets/css/tikzjax.min.css' | relative_url | bust_file_cache }}">
+  <link
+    defer
+    rel="stylesheet"
+    type="text/css"
+    href="{{ '/assets/css/tikzjax.min.css' | relative_url | bust_file_cache }}"
+  >
 {% endif %}
