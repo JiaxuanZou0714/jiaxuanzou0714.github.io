@@ -12,6 +12,7 @@ giscus_comments: true
 toc:
   sidebar: left
 lang: zh-CN
+---
 
 我有时会感觉包括我在内的知识群体中感受到一种普遍的静默。大家守在各自的专业领域内，对公共事务表现出一种近乎默契的疏离。这种疏离并非出于无知，而更像是一种自觉的退避。前段时间，我写过一篇[探讨技术领袖公共责任的随笔](https://jiaxuanzou0714.github.io/blog/2026/civilizational-centralism-and-young-technical-leaders/)，但在那篇文章之后，一个更深、更具元层面的问题始终在我心头盘桓：我们，尤其是知识分子，究竟为什么要去思考并介入公共治理？我所感受到的那份不安，究竟来源于某种过时的道德执念，还是某种尚未被完全抹杀的真实责任？
 
