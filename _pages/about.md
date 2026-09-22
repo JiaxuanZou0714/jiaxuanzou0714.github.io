@@ -40,7 +40,7 @@ My research focuses on mechanistic interpretability, deep learning theory, optim
 
 I also work as an AI Technical Consultant for a Tsinghua-affiliated AI startup.
 
-I write research notes on my blog and welcome conversations on these topics. I am interested in future research opportunities in LLM pre-training and AI theory, as well as PhD positions for Fall 2028. More background: [English]({{ '/autobiography/' | relative_url }}) / [中文]({{ '/autobiography/zh/' | relative_url }}).
+I write research notes on my blog and welcome conversations on these topics. I am interested in future research opportunities in LLM pre-training and AI theory. More background: [English]({{ '/autobiography/' | relative_url }}) / [中文]({{ '/autobiography/zh/' | relative_url }}).
 
 ## Research Interests
 
