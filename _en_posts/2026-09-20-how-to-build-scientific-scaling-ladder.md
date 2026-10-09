@@ -2,7 +2,7 @@
 layout: post
 title: "How to Build a Scientific Scaling Ladder"
 date: 2026-09-20 10:00:00
-description: "A guide to designing and building a Scaling Ladder, in execution order: decision objectives and acceptance, measurement protocol, scaling rules for dense and MoE, experiment matrix and budget, hyperparameter search, data mixture and data-constrained training, Loss Scaling Law fitting, downstream prediction, extrapolation validation, and the delivery process, synthesizing public literature and engineering practice from Chinchilla, DeepSeek, StepFun, Cerebras, Llama 3, Delphi, and others."
+description: "A practical engineering guide to designing and running a Scaling Ladder: covering evaluation protocols, measurement conventions, Dense and MoE scaling rules, experimental grids, hyperparameter transfer, data mixing and multi-epoch repetition, Loss Scaling Law fitting, downstream task prediction, and extrapolation validation, synthesizing public literature from Chinchilla, DeepSeek, StepFun, Cerebras, Llama 3, Delphi, and others."
 tags: [scaling-laws, pretraining, hyperparameter, optimization, llm, empirical-methodology]
 categories: [research]
 featured: false
@@ -13,11 +13,10 @@ lang: en
 permalink: /en/blog/2026/how-to-build-scientific-scaling-ladder/
 ref: how-to-build-scientific-scaling-ladder
 related_posts: false
-source_sha: 9031e4252c5b4640
+source_sha: ea1aee25b5f1d9ff
 ---
 
-This article is compiled from **<u>public literature and technical reports and contains no confidential content</u>**. It covers how to build a Scaling Ladder: fit a Scaling Law through small-scale experiments, extrapolate the training configuration and performance of the target model, and use this to decide whether to launch the target training run.
-
+This article is compiled strictly from **<u>public literature and technical reports, containing no confidential material</u>**. It lays out how to build a Scaling Ladder—using a structured matrix of small-scale training runs to fit scaling laws and extrapolate model architecture, hyperparameters, final loss, and downstream performance at target scale, de-risking flagship training runs before they launch.
 
 ---
 
@@ -25,7 +24,7 @@ This article is compiled from **<u>public literature and technical reports and c
 
 ### 1.1 Definition of Scaling Ladder
 
-A Scaling Ladder is a set of training runs spanning different parameter counts $N$, training volumes $D$, and any other variables under study. It is used to fit scaling laws and to extrapolate the training configuration, loss, and downstream performance at the target scale. The results give a quantitative basis for choosing model size, training volume, hyperparameters, and candidate designs, and reduce the configuration risk of large-scale training.
+A Scaling Ladder is a structured grid of small-scale training runs spanning parameter counts $N$, token horizons $D$, and other controlled variables. Its purpose is to fit empirical scaling laws within a manageable compute budget and quantitatively extrapolate optimal model size, training duration, hyperparameters, and expected performance at target scale—replacing trial-and-error at flagship scale with predictive engineering.
 
 {% include figure.liquid
   path='assets/img/pretrain-scaling/marin-delphi-first-ladder.svg'
@@ -38,69 +37,71 @@ A Scaling Ladder is a set of training runs spanning different parameter counts $
   loading='lazy'
 %}
 
-The recipe in Figure 1 shows no anomaly within the fitting range; at the target scale its loss is higher than predicted and the run diverges. A Ladder must verify extrapolation accuracy before delivery ([§10](#10-extrapolation-validation-and-launch-decisions)).
+A clean fit at small scale does not guarantee reliable extrapolation at large scale. As shown in Figure 1, Delphi's initial recipe tracked power-law predictions smoothly across the fitting regime, yet drifted 2.5% above predicted loss at $10^{22}$ FLOPs and diverged outright at $10^{23}$ FLOPs. A scientific Ladder therefore requires not only fitting points, but also out-of-sample holdouts and stability stress tests before signing off on a target run ([§10](#10-extrapolation-validation-and-launch-decisions)).
 
 ### 1.2 Typical Scenarios
 
-This article covers three scenarios. Chapters 2–10 describe the common workflow; material specific to MoE and to data-constrained training is given separately within each chapter.
+We focus on three pretraining regimes. Chapters 2–10 cover the shared workflow, while considerations specific to MoE and data-constrained training are addressed in dedicated subsections within each chapter.
 
-| Scenario | Main Constraints | Dedicated Sections |
+| Scenario | Core Challenges | Dedicated Sections |
 |---|---|---|
-| Dense | Structural scaling rules and width-depth configuration; used for dense delivery models and as a control for MoE | [§4.3](#43-width-depth-configuration) |
-| MoE | Separation of total parameter count and active parameter count; sparsity, expert granularity, routing, and load balancing; actual throughput of expert parallelism | [§3.1](#31-parameter-count-definition), [§4.4](#44-moe-structural-scaling-rules), [§5.6](#56-moe-experimental-axes), [§6.6](#66-moe-training-hyperparameters), [§8.5](#85-moe-fitting), [§10.3](#103-stability-stress-testing) |
-| Data-constrained | Available unique tokens fewer than the target training volume; repetition count, data quality, and data mixture jointly determine the achievable loss | [§5.3](#53-training-volume-tiers), [§7.3](#73-data-constrained-training-and-repetition) |
+| Dense | Aspect-ratio scaling rules and compute allocation; used both for dense models and as a controlled baseline for MoE | [§4.3](#43-width-depth-configuration) |
+| MoE | Decoupled total vs. active parameters; sparsity, expert granularity, routing, and load balancing; realized throughput under expert parallelism | [§3.1](#31-parameter-count-definition), [§4.4](#44-moe-structural-scaling-rules), [§5.6](#56-moe-experimental-axes), [§6.6](#66-moe-training-hyperparameters), [§8.5](#85-moe-fitting), [§10.3](#103-stability-stress-testing) |
+| Data-constrained | Available unique tokens fewer than target training tokens; epoch repetition, data quality, and domain mixture jointly bound achievable loss | [§5.3](#53-training-volume-tiers), [§7.3](#73-data-constrained-training-and-repetition) |
 
-MoE and data-constrained conditions can hold simultaneously. The target TPP can be lower or higher than the compute-optimal ratio; the training volume axis is designed according to the target TPP ([§5.3](#53-training-volume-tiers)).
+In practice, MoE and data constraints frequently overlap. Driven by inference budgets or finite high-quality corpora, the target TPP (tokens per parameter) often sits well above or below the Chinchilla compute-optimal ratio, so the token horizon axis must be centered around the target TPP ([§5.3](#53-training-volume-tiers)).
 
-The following are outside the scope of this article: scaling laws for post-training (SFT/RL) itself, native multimodality, and dedicated protocols for distillation and synthetic data. Post-training appears only as an acceptance condition for pretraining candidates ([§2.2](#22-evaluation-protocol)).
+Scaling laws for post-training (SFT/RL) itself, native multimodality, and distillation or synthetic data generation pipelines are outside our scope; post-training enters only as a downstream plasticity check on pretraining candidates ([§2.2](#22-evaluation-protocol)).
 
 ### 1.3 Outputs of the Ladder
 
-| Output | Predicted Target | Section |
+| Output | Extrapolated Target | Section |
 |---|---|---|
-| Hyperparameter scaling law (LR, BSZ, WD) | Training hyperparameters at the target scale | [§6](#6-hyperparameter-search-and-training-configuration) |
-| Loss scaling law | Final training/eval loss | [§8.1](#81-functional-form) |
-| Loss curve scaling law | Full training curve and annealing effect | [§8.2](#82-loss-curves-and-annealing-scaling-law) |
-| Annealing ratio | Proportion of LR decay in the total training volume | [§6.5](#65-lr-schedule); this article gives only an initial reference value, not a fitting method |
-| Data mixture and data repetition scaling law | Optimal mixture; equivalent data volume for multi-epoch training | [§7](#7-data-ladder) |
-| MoE sparsity scaling law | Expert configuration at fixed active scale | [§5.6](#56-moe-experimental-axes), [§8.5](#85-moe-fitting) |
-| Downstream task scaling law | Benchmark metrics | [§9](#9-downstream-task-prediction) |
+| Hyperparameter scaling law (LR, BSZ, WD) | Optimal training hyperparameters at target scale | [§6](#6-hyperparameter-search-and-training-configuration) |
+| Loss scaling law | Final training / validation loss after annealing | [§8.1](#81-functional-form) |
+| Loss curve scaling law | Full training trajectory and annealing gain | [§8.2](#82-loss-curves-and-annealing-scaling-law) |
+| Annealing ratio | Fraction of total tokens allocated to LR decay | [§6.5](#65-lr-schedule) (empirical starting range only) |
+| Data mixture and data repetition scaling law | Optimal domain weights; effective token count under multi-epoch training | [§7](#7-data-ladder) |
+| MoE sparsity scaling law | Total expert count and granularity at fixed active parameters | [§5.6](#56-moe-experimental-axes), [§8.5](#85-moe-fitting) |
+| Downstream task scaling law | Benchmark performance at target scale | [§9](#9-downstream-task-prediction) |
 
 ### 1.4 Terminology and Notation
 
 | Term | Definition |
 |---|---|
-| $N_{\text{body}}$ | Transformer backbone parameter count, excluding input embedding and output head ([§3.1](#31-parameter-count-definition)) |
-| $N_{total}$, $N_{active}$ | MoE total parameter count (including all experts); parameter count involved in computation per token |
-| $D$ | Cumulative training tokens, counted as tokens participating in loss computation ([§3.3](#33-loss-and-token-conventions)) |
-| $U$ | Unique tokens |
-| $C$ | Training FLOPs, counted according to the actual architecture ([§3.2](#32-compute)) |
-| TPP | Tokens per parameter, i.e., $D/N$; when citing external results, note their $N$ convention |
-| LR ($\eta$), BSZ ($B$), WD ($\lambda$) | Learning rate, batch size, weight decay. BSZ is counted in tokens; when citing results counted in sequences, note this |
-| Holdout | Experimental points excluded from fitting and candidate selection, used only for acceptance |
-| Fully-Tuned Frontier | The loss reached by each experimental point when hyperparameters are fully tuned; for the operational definition under limited budget see [§6.1](#61-hyperparameter-search-objective-and-near-optimal-region) |
-| Equivalent compute multiplier | The ratio of compute required to reach the same loss, used to convert loss differences into compute differences ([§2.3](#23-acceptance-thresholds-and-decision-rules)) |
+| $N_{\text{body}}$ | Transformer trunk parameter count, excluding input embedding and output head ([§3.1](#31-parameter-count-definition)) |
+| $N_{total}$, $N_{active}$ | MoE trunk total parameters (across all experts) and active parameters per token |
+| $D$ | Cumulative training tokens contributing to the loss ([§3.3](#33-loss-and-token-conventions)) |
+| $U$ | Deduplicated unique tokens available |
+| $C$ | Total training FLOPs, counted by actual architecture and kernel execution ([§3.2](#32-compute)) |
+| TPP | Tokens per parameter ($D/N$); always align the convention of $N$ when comparing across papers |
+| LR ($\eta$), BSZ ($B$), WD ($\lambda$) | Learning rate, batch size (measured in tokens), and weight decay |
+| Holdout | Out-of-sample large-scale runs excluded from curve fitting and candidate selection, reserved strictly for extrapolation checks |
+| Fully-Tuned Frontier | The lower-envelope loss achieved when hyperparameters are thoroughly tuned at each grid point ([§6.1](#61-hyperparameter-search-objective-and-near-optimal-region)) |
+| Equivalent compute multiplier | Ratio of compute required to reach the same loss, providing a scale-invariant measure of performance gaps ([§2.3](#23-acceptance-thresholds-and-decision-rules)) |
 
 ## 2. Decision Objectives and Acceptance Criteria
 
 ### 2.1 Decision Objectives
 
-A Scaling Ladder can support four types of decisions:
+Different engineering goals demand very different sampling grids and tuning depths, so the objective must be locked down before running experiments:
 
-1. Prediction for a fixed recipe: predict the performance of a fixed recipe at the target scale. A valid scaling law does not require exhaustive tuning of every experimental point.
-2. Optimal resource allocation: choose the allocation of $N$ and $D$ under budget constraints.
-3. Candidate comparison: compare different architectures, optimizers, or data recipes.
-4. Hyperparameter prediction: predict hyperparameters across scales or training volumes.
+1. Fixed-recipe extrapolation: predicting how a prescribed hyperparameter scaling rule performs at target scale, without exhaustive per-point grid search.
+2. Optimal compute allocation: solving for the loss-minimizing $(N, D)$ split under a fixed compute budget $C$.
+3. Candidate comparison: testing whether a new architecture, optimizer, or data mixture beats the baseline at target scale.
+4. Cross-scale hyperparameter prediction: fitting how $(\eta, B, \lambda)$ scale with $N$ and $D$.
 
-Before building the Ladder, fix the objective type and specify the target model, training stage, budget constraints, deployment conditions for inference, and the size of prediction error that would change the final decision. [Delphi (Marin, 2026)](https://openathena.ai/blog/delphi/) examines performance competitiveness and predictability separately, and the two must be verified separately. Objectives 2–4 require each fitting point to reach the Fully-Tuned Frontier ([§6.1](#61-hyperparameter-search-objective-and-near-optimal-region)); objective 1 runs under the recipe scaling rules.
+[Delphi (Marin, 2026)](https://openathena.ai/blog/delphi/) highlights an essential distinction: a recipe's competitiveness (achieving low loss) and its predictability (extrapolating accurately from small to large scale) are orthogonal properties. Objectives 2–4 require every fitting point to be tuned onto the Fully-Tuned Frontier ([§6.1](#61-hyperparameter-search-objective-and-near-optimal-region)); if small models are under-tuned, their inflated losses tilt the fitted power-law slope. Objective 1 simply executes the recipe's pre-specified scaling formulas.
 
 ### 2.2 Evaluation Protocol
 
-- Proxy metrics and final metrics: Proxy metrics (training loss, answer BPB) and final acceptance metrics (downstream benchmark accuracy) should be specified separately. Improvements in loss on small models do not guarantee improvements in downstream metrics at the target scale ([Qwen3.8-Next, 2026](https://arxiv.org/abs/2608.30320) §1).
-- Signal discriminability: Each metric must have a discriminable signal at the fitting scale. Small models may be near random level on tasks such as math and code, and some metrics saturate at large scales; neither case can support decisions. For tasks where accuracy cannot discriminate, use continuous proxy metrics such as answer BPB ([OLMo 3, 2025](https://arxiv.org/abs/2512.13961)).
-- Cross-scale rank correlation: When proxy metrics are used for candidate selection, they must establish rank correlation with the capability metric at the target scale ([OLMo 3, 2025](https://arxiv.org/abs/2512.13961) §3.3, Appendix A.4). When transfer evidence is insufficient, the applicable scope of the proxy conclusion and what remains to be verified should be stated.
-- Representativeness of target capabilities: State which delivery capabilities the evaluation tasks cover, the aggregation method, and the tolerance conditions for degradation in key individual items. High-noise tasks can be sampled more or reported separately ([Phi-4, 2024](https://arxiv.org/abs/2412.08905) §5; [OLMo 3, 2025](https://arxiv.org/abs/2512.13961) §3.3.3–3.3.4).
-- Evaluation version control: Record prompt templates, generation settings, scoring methods, and versions, and check for overlap between training and evaluation data.
+Multiple non-linear transformations separate pretraining cross-entropy from final model capabilities, creating several evaluation traps:
+
+- Decoupling between proxy loss and downstream accuracy: small-scale training loss improvements do not automatically translate into target-scale benchmark gains ([Qwen3.8-Next, 2026](https://arxiv.org/abs/2608.30320) §1).
+- Poor signal-to-noise at small scales: on reasoning-heavy tasks like math and code, small models score near random guessing on discrete accuracy, whereas easy tasks saturate at large scales. Where accuracy is flat at small scale, substitute continuous proxies such as answer bits-per-byte (BPB) ([OLMo 3, 2025](https://arxiv.org/abs/2512.13961)).
+- Cross-scale rank inversions: high small-scale discriminability only proves low noise; using a proxy to select candidates requires verifying rank correlation between small-scale proxy scores and target-scale capability metrics ([OLMo 3, 2025](https://arxiv.org/abs/2512.13961) §3.3, Appendix A.4).
+- High-variance benchmark noise: evaluation suites should cover core target capabilities while multi-sampling or isolating noisy benchmarks so their variance does not mask genuine trends ([Phi-4, 2024](https://arxiv.org/abs/2412.08905) §5; [OLMo 3, 2025](https://arxiv.org/abs/2512.13961) §3.3.3–3.3.4).
+- Evaluation version lock: freeze prompt templates, decoding parameters, and scoring scripts, and run strict decontamination checks between training corpora and evaluation sets.
 
 {% include figure.liquid
   path='assets/img/pretrain-scaling/olmo3-evaluation.png'
@@ -114,148 +115,142 @@ Before building the Ladder, fix the objective type and specify the target model,
   loading='lazy'
 %}
 
-If a post-training model (SFT/RL) is delivered, representative candidates should undergo post-training validation under comparable conditions. [Qwen3.8-Next, 2026](https://arxiv.org/abs/2608.30320) reports that two changes each had little impact during pretraining: NoPE exhibited non-terminating generation after post-training, and the sparse-read residual branch degraded in quality after post-training. [OLMo 3, 2025](https://arxiv.org/abs/2512.13961) §3.5.1 performs rapid instruction tuning acceptance after fully annealing candidate mixtures. Post-training acceptance should check delivery metrics such as termination behavior and output length in addition to capability scores.
+When the final deliverable is a post-trained model (SFT/RL), evaluating pretraining checkpoints alone can miss latent defects that surface only during post-training. [Qwen3.8-Next, 2026](https://arxiv.org/abs/2608.30320) documents two striking examples: removing positional embeddings (NoPE) and adding a sparse-read residual branch each had negligible impact on pretraining loss, yet NoPE caused runaway non-terminating generation after post-training and the sparse-read branch degraded post-training quality. Consequently, [OLMo 3, 2025](https://arxiv.org/abs/2512.13961) §3.5.1 subjects fully annealed candidate mixtures to fast instruction tuning, checking both capability scores and generation termination and length.
 
 ### 2.3 Acceptance Thresholds and Decision Rules
 
-Acceptance covers four categories, each requiring its own experiments and thresholds (our recommendation):
+Validation of a Ladder centers on four questions:
 
-1. Prediction error of the final metric for a fixed recipe under target conditions;
-2. Difference and ranking of candidates at the target scale;
-3. Expected loss of a resource allocation relative to feasible alternatives;
-4. Stability and key capability constraints.
+1. Point prediction error of a fixed recipe at target compute;
+2. Predicted margin and ranking confidence between competing candidates at target scale;
+3. Expected loss regret of the chosen $(N, D)$ allocation relative to neighboring ratios;
+4. Numerical stability and capability floors at scale.
 
-Acceptance thresholds are determined by the smallest difference that must be resolved between candidates and by the random seed variance, and must be set before observing holdout results. [Choshen et al., 2025](https://arxiv.org/abs/2410.11840) reports that the minimum relative difference driving modeling changes in the literature is about 4%, and random restart fluctuations can reach about 3.5%; Delphi's 0.2%–0.5% is an experimental result for a specific setting and cannot serve as a general acceptance line.
+Acceptance thresholds must be fixed before inspecting holdout runs, calibrated against random seed noise and the minimum meaningful effect size. [Choshen et al., 2025](https://arxiv.org/abs/2410.11840) report that modeling changes adopted in the literature typically require ~4% relative improvement, while random seed restarts alone fluctuate by ~3.5%; Delphi's 0.2%–0.5% prediction error reflects a specific low-noise regime rather than a universal pass/fail bar.
 
-The same relative loss error threshold should not be used across scales. Let the fit be $L(C)=E+A\,C^{-\gamma}$; the equivalent compute multiplier corresponding to a loss difference $\Delta L$ is approximately
+Relative loss error is also a poor cross-scale metric. Under a power law $L(C)=E+A\,C^{-\gamma}$, a small loss delta $\Delta L$ translates into an equivalent compute multiplier of:
 
 $$\ln\frac{C_2}{C_1}\approx\frac{\Delta L}{\gamma\,(L-E)}$$
 
-The closer $L$ is to $E$, the larger the compute multiplier corresponding to the same $\Delta L$. We recommend expressing thresholds as equivalent compute multipliers and also reporting the absolute loss difference.
+As scale increases and $L$ approaches the irreducible entropy $E$, the same $\Delta L$ represents a dramatically larger compute ratio. Defining acceptance bars in terms of equivalent compute multipliers (e.g., a 15% compute savings) alongside absolute $\Delta L$ avoids scale distortion.
 
-When comparing two candidates, estimate the uncertainty of their difference under target conditions. Error sources shared by the two candidates partially cancel, so two independent error bars cannot simply be added. For example, if the predicted losses of two candidates differ by 0.2% and the absolute relative error of the existing holdout is 1%, these two numbers are insufficient to judge whether the ranking is reliable.
-
-The uncertainty of the fit should be propagated to the candidate difference, optimal parameter count, and training volume at the target scale; when necessary, report a set of near-optimal feasible configurations and their differences in quality, cost, and stability. When some coefficients are imprecisely estimated, the target decision may still be stable; when the average loss error is small, the optimal resource allocation may also be unstable. [Gemstones, 2025](https://arxiv.org/abs/2502.06857) §4.2 shows that the choice of experimental points can change resource allocation recommendations.
-
-Decisions fall into three categories: select, run additional experiments, or defer because the evidence is insufficient. "Insufficient evidence" is a formal outcome. The decision table should include: candidate configurations, target conditions, expected gains, difference intervals, key constraints, conditions to be verified, and pre-agreed handling rules.
+When comparing two candidates across the same ladder, shared sampling and evaluation noise partially cancels—so confidence intervals should be estimated directly on the paired difference $\Delta L$ rather than by adding independent error bars. Conversely, a low average loss error does not guarantee a stable $(N_{opt}, D_{opt})$ optimum: [Gemstones, 2025](https://arxiv.org/abs/2502.06857) §4.2 demonstrates that varying which grid points are included in the fit can noticeably shift compute-allocation recommendations. Fit uncertainty must therefore be propagated all the way to the target decision variable (candidate gap or optimal $N$).
 
 ## 3. Measurement Specification
 
 ### 3.1 Parameter Count Definition
 
-The parameter count definitions required for fitting $L(N,D)$ and for computing $C$ differ and must be recorded separately.
+The parameter count $N$ used to fit $L(N,D)$ and the parameter count used to tally FLOPs $C$ serve different roles and should be tracked separately.
 
-For fitting $L(N,D)$, this article uses the Transformer backbone parameter count $N_{\text{body}}$, excluding the input embedding and output head. Embedding/head is $O(Vd)$, while the backbone is $O(d^2 n)$; the ratio between the two varies with model size. [Farseer (Li et al., 2025)](https://arxiv.org/abs/2506.10972v3) Appendix G's ablation shows that the definition including embedding has higher error when extrapolated to 25.1B; [Kaplan et al., 2020](https://arxiv.org/abs/2001.08361) also excludes embedding.
+When fitting $L(N,D)$, use the Transformer trunk parameter count $N_{\text{body}}$, excluding input embeddings and the output head. Embedding and head parameters scale as $O(Vd)$ whereas the trunk scales as $O(d^2 n)$; at small scales, vocabulary parameters represent a large fraction of the total and distort power-law exponents if included. [Farseer (Li et al., 2025)](https://arxiv.org/abs/2506.10972v3) Appendix G confirms that including embeddings degrades extrapolation accuracy at 25.1B, consistent with [Kaplan et al., 2020](https://arxiv.org/abs/2001.08361).
 
-When computing $C$, the output head must be included (one $d\times V$ matrix multiplication per token). The input embedding is a table lookup by token ID, and its parameters and memory access cost are recorded separately. Weight tying reduces storage, but the output-head computation must still be counted.
+When computing training FLOPs $C$, however, the output head executes a dense $d\times V$ matrix multiplication on every token. Even when weights are tied with the input embedding, those output projection FLOPs are physically executed and must be counted in $C$, whereas the input embedding lookup is a memory-bandwidth operation logged separately.
 
-External studies use different definitions, which must be noted when citing: Porian's $N$ includes the output head and excludes the input embedding ([Porian et al., 2024](https://arxiv.org/abs/2406.19146) Table 2); Chinchilla's 20 TPP is based on the total parameter count including embedding ([Hoffmann et al., 2022](https://arxiv.org/abs/2203.15556) Appendix F).
+Always check parameter conventions when citing external numbers: [Porian et al., 2024](https://arxiv.org/abs/2406.19146) Table 2 includes the output head in $N$ while excluding the input embedding, whereas Chinchilla's well-known 20 TPP ratio counts total parameters including all embeddings ([Hoffmann et al., 2022](https://arxiv.org/abs/2203.15556) Appendix F).
 
-For MoE, each experimental point must record simultaneously:
+For MoE models, each grid point should simultaneously record:
 
-- $N_{total}$ and $N_{active}$, both under the backbone definition, with embedding and head recorded separately;
-- Total number of routed experts $E_{total}$, number of routed experts activated per token $E_{active}$, sparsity $S=E_{total}/E_{active}$;
-- Number and size of shared experts, size of a single expert (expert granularity);
-- Router and load balancing configuration ([§4.4](#44-moe-structural-scaling-rules)).
+- Trunk total parameters $N_{total}$ and per-token active parameters $N_{active}$ (with embedding and head logged separately);
+- Total routed experts $E_{total}$, active routed experts per token $E_{active}$, and sparsity $S=E_{total}/E_{active}$;
+- Count and size of shared experts, plus individual routed expert size (expert granularity);
+- Router architecture and load-balancing configuration ([§4.4](#44-moe-structural-scaling-rules)).
 
 ### 3.2 Compute
 
-The commonly used $C\approx6ND$ does not count attention matrix operations. Taking standard MHA and a $4d$ FFN as an example, counting by the full $L\times L$ attention matrix:
+The textbook approximation $C\approx6ND$ omits quadratic attention and vocabulary projection FLOPs. For standard MHA and a $4d$ FFN evaluated over the full $L\times L$ attention matrix, forward-plus-backward compute is:
 
 $$C \approx \left(6 + \frac{L}{d}\right) N_{\text{body}}D + 6VdD$$
 
-$L$ is the sequence length, $d$ is the hidden dimension, and $V$ is the vocabulary size. The $L/d$ term comes from attention, and the last term is the output head. Under the above architecture, $N_{\text{body}}\approx12d^2n$ ($n$ is the number of layers). If the causal attention kernel skips the masked part, the attention term is roughly halved; SwiGLU, GQA, MoE, etc. also change the coefficients. Compute should be counted according to the actual architecture and the actual kernel.
+where $L$ is sequence length, $d$ is hidden dimension, $V$ is vocabulary size, and $N_{\text{body}}\approx12d^2n$ across $n$ layers. The $L/d$ term captures context attention and the final term captures the output head. If the causal FlashAttention kernel skips masked upper-triangle tiles, the attention term is roughly halved; SwiGLU, GQA, and MoE further modify the constants, so $C$ should always be tallied from the actual architecture and kernel execution.
 
-For MoE, the matmul compute is counted by $N_{active}$, with router compute counted separately. The all-to-all communication of expert parallelism is not counted in FLOPs, but it is counted in actual training time ([§10.5](#105-realized-efficiency-and-deployment-constraints)).
+For MoE models, matrix-multiplication FLOPs scale with $N_{active}$ plus router overhead; expert-parallel (EP) all-to-all communication adds zero FLOPs but directly impacts wall-clock training time and must be accounted for in realized efficiency ([§10.5](#105-realized-efficiency-and-deployment-constraints)).
 
 ### 3.3 Loss and Token Conventions
 
-The following conventions must be fixed within a Ladder and written as checkable definitions (our recommendation):
+To keep runs comparable across scales and batches, lock down the following measurement conventions across the entire Ladder:
 
-| Item | What must be specified |
+| Dimension | Convention Requirement |
 |---|---|
-| Primary loss | Main-task cross-entropy; MoE auxiliary loss, z-loss, MTP, and other additional objectives are recorded separately |
-| Evaluation distribution | All candidates share a fixed evaluation corpus and domain weights, with metrics for important domains reported separately |
-| Aggregation | Aggregate by effective prediction tokens, documents, or tasks; specify the distributed reduction method and the denominator |
-| Sequence handling | BOS/EOS, document boundaries, packing, attention mask, position ID, truncation |
-| Data volume | Processed tokens, tokens participating in the loss, unique tokens, repeated exposure |
-| Randomness | Seeds for parameter initialization, data sampling, and data order are recorded separately; conditions for paired comparisons |
-| Tokenizer comparison | Report byte-normalized metrics (e.g., BPB) and actual compute cost on common raw text |
+| Primary loss | Pure next-token cross-entropy; log MoE auxiliary losses, z-loss, and MTP heads separately without mixing them into the fitted loss |
+| Evaluation distribution | Evaluate all candidates on an identical held-out corpus and domain weighting, reporting key domains separately |
+| Loss aggregation | Specify per-token vs. per-document averaging and standardize the distributed reduction denominator |
+| Sequence packing & masks | Standardize BOS/EOS insertion, document boundary masks, packing, position IDs, and truncation |
+| Token accounting | Distinguish total processed tokens, loss-bearing tokens, deduplicated unique tokens, and epoch exposures |
+| Random seeds | Log initialization, data sampling, and shuffle order seeds separately, using paired seeds for candidate ablations |
+| Cross-tokenizer comparison | Convert losses to byte-normalized metrics (such as BPB) and compare wall-clock compute on identical raw text |
 
-When candidates change the training data mixture, the training loss each computes on its own training distribution also reflects the change in distribution difficulty, so it cannot by itself support a quality ranking; a fixed evaluation distribution must be used.
+When experiments vary the training data mixture, training loss on each run's own distribution reflects shifts in corpus entropy (e.g., higher code fractions naturally yield lower cross-entropy) and cannot rank model quality; candidates must be compared on a fixed validation distribution.
 
-Evaluation frequency should be set as a fixed fraction of the total number of steps $T$. A fixed step interval gives different numbers of effective eval points for different training lengths, and longer trajectories receive greater weight in fitting; when fitting, the sampling and weighting of eval points must be made explicit ([§8.3](#83-fitting-protocol)).
-
-Deliverables: definitions of the evaluation function and the token counting function, plus a checkable example from a single batch to the global aggregate.
+Similarly, trigger validation evaluations at a fixed fraction of total steps $T$ (e.g., every 2% of training progress) rather than at a fixed step interval (e.g., every 1,000 steps). Fixed step intervals cause longer runs to generate far more evaluation points, over-weighting long trajectories in curve fits ([§8.3](#83-fitting-protocol)).
 
 ## 4. Baseline Recipe and Scaling Rules
 
 ### 4.1 Variable Classification
 
-Variables in a Ladder fall into three categories:
+Every configuration knob in a Ladder should be assigned to one of three roles to prevent confounding variables:
 
-| Variable category | Meaning | Example |
+| Variable Category | Role | Typical Examples |
 |---|---|---|
-| Fixed quantity | All Ladder points take the same value | Architecture, data version, optimizer type, seq_len |
-| Scaling rule | Varies with $N$ or $D$ according to a predetermined rule | LR (power law or $\mu$P), BSZ ($D^{0.4}$ as a prior to be verified), warmup |
-| Experimental independent variable | Quantity to be fitted or searched | $N$, $D$, the final optimal LR and BSZ |
+| Fixed invariants | Held constant across the entire Ladder | Model family, dataset version, optimizer type, sequence length |
+| Prescribed scaling rules | Co-varied with $N$ or $D$ by a deterministic formula | LR (power law or $\mu$P), BSZ ($D^{0.4}$ prior), warmup fraction |
+| Independent variables | Swept on the grid or solved via fitting | $N$, $D$, and optimal tuned LR and BSZ |
 
-Warmup must have an explicit scaling rule, and the fraction of total training volume devoted to warmup must be recorded for each experimental point. A fixed number of warmup steps makes its share too large in small-budget experiments, affecting estimates of the compute-optimal exponent ([Porian et al., 2024](https://arxiv.org/abs/2406.19146)). Delphi uses 10% of total training volume as warmup ([Appendix A.3](#a3-delphi-ladder)).
+A classic pitfall is fixing the warmup step count across scales. A constant warmup step count consumes a disproportionately large fraction of short, small-budget runs, systematically biasing fitted compute-optimal exponents ([Porian et al., 2024](https://arxiv.org/abs/2406.19146)). Warmup should instead scale as a fixed fraction of total training tokens—for instance, Delphi uses 10% of total training volume ([Appendix A.3](#a3-delphi-ladder)).
 
-After a change to the architecture, optimizer, data, precision, or tokenizer, the transferability of the original conclusions should first be verified at small scale, and only then should local calibration or a full refit be decided ([§12.3](#123-ladder-maintenance)).
+Whenever the base architecture, optimizer, dataset version, numerical precision, or tokenizer changes, existing scaling exponents can shift; test small-scale transferability first before choosing between local recalibration and a full Ladder rerun ([§12.3](#123-ladder-maintenance)).
 
 ### 4.2 Architecture and Training Configuration Consistency
 
-Within the same model family, apart from the architecture variables explicitly under study, the following properties or scaling rules must be consistent across experimental points:
+Within a model family, all architectural primitives other than the explicit experimental variable must remain invariant across scales:
 
-| Property | Requirement |
+| Architectural Property | Consistency Requirement |
 |---|---|
-| Architecture type | Consistent, e.g., all decoder-only Transformer |
-| Normalization | Consistent, e.g., all RMSNorm |
-| Positional encoding | Consistent, e.g., all RoPE |
-| Activation function | Consistent, e.g., all SwiGLU |
-| Embedding sharing | tied / untied kept consistent within the Ladder |
-| Attention type | Consistent, e.g., all GQA |
-| Width-depth configuration | Scaled according to a predetermined rule ([§4.3](#43-width-depth-configuration)) |
-| MoE routing | Routing method, load balancing method, and shared expert ratio consistent or scaled according to a predetermined rule ([§4.4](#44-moe-structural-scaling-rules)) |
+| Backbone topology | Uniform architecture (e.g., decoder-only Transformer across all sizes) |
+| Normalization | Identical placement and type (e.g., Pre-RMSNorm) |
+| Positional encoding | Identical scheme and base frequency (e.g., RoPE) |
+| Activation function | Identical activation and FFN expansion ratio (e.g., SwiGLU) |
+| Embedding tying | Consistently tied or consistently untied across all sizes |
+| Attention mechanism | Uniform attention type and grouping rule (e.g., GQA) |
+| Aspect-ratio progression | Scale width and depth along a single prescribed rule ([§4.3](#43-width-depth-configuration)) |
+| MoE routing setup | Keep routing algorithm, load balancing, and shared-expert ratio consistent ([§4.4](#44-moe-structural-scaling-rules)) |
 
-Within the same recipe, apart from the variables explicitly under study, the following training configurations are kept consistent:
+Training environment and outer-loop settings must likewise be locked:
 
-| Configuration item | Example |
+| Training Configuration | Typical Setting |
 |---|---|
 | Sequence length | 4,096 |
-| Training data version | Same version |
+| Training data version | Locked dataset snapshot and mixture version |
 | Optimizer | AdamW |
-| Evaluation set | Same eval set ([§3.3](#33-loss-and-token-conventions)) |
-| Evaluation frequency | Set proportionally to training progress |
-| Tokenizer, initialization, parameterization, loss statistics conventions | Same version |
+| Validation set | Identical evaluation corpus ([§3.3](#33-loss-and-token-conventions)) |
+| Evaluation frequency | Triggered at fixed percentages of total training steps |
+| Infrastructure conventions | Identical tokenizer, initialization scheme, parameterization, and loss reduction |
 
-The model family and structural scaling rule should have proxy validity for the target model; GQA grouping, head_dim, width-depth configuration, etc. should align with the design direction of the target model.
+Small proxy models should mirror the target model's structural design—such as GQA group ratios, `head_dim`, and width-to-depth progression—so their memory-bandwidth bottlenecks and representational dynamics remain valid proxies for the target run.
 
 ### 4.3 Width-Depth Configuration
 
-Given a parameter count, the width-depth configuration affects actual compute ([§3.2](#32-compute)). The Ladder should record the structural scaling rule and use the actual $C$. [Kaplan et al., 2020](https://arxiv.org/abs/2001.08361) report that given a parameter count, the width-depth ratio has little effect on loss over a fairly wide range; subsequent experiments show that different configurations can produce differences on benchmarks ([Gemstones, 2025](https://arxiv.org/abs/2502.06857) §4.4) and reasoning ability ([GLM-4.5, 2025](https://arxiv.org/abs/2508.06471)). A consistent width-depth scaling rule should be used within the Ladder; when structural choices are involved, add representative controls.
+At fixed trunk parameter count $N_{\text{body}}$, varying the ratio of hidden width $d$ to layer count $n$ alters the attention FLOP share $L/d$ ([§3.2](#32-compute)). While [Kaplan et al., 2020](https://arxiv.org/abs/2001.08361) observed that pretraining loss is relatively flat across a broad range of aspect ratios at fixed $N$, recent controlled studies show that width-to-depth ratios meaningfully affect downstream benchmark performance ([Gemstones, 2025](https://arxiv.org/abs/2502.06857) §4.4) and complex reasoning capabilities ([GLM-4.5, 2025](https://arxiv.org/abs/2508.06471)). Enforce a consistent width-depth scaling rule across the Ladder, and add targeted structural controls whenever depth or head dimensions are under evaluation.
 
 ### 4.4 MoE Structural Scaling Rules
 
-In addition to [§4.2](#42-architecture-and-training-configuration-consistency), the MoE Ladder also needs to specify scaling rules for the following configurations:
+Beyond the general invariants of [§4.2](#42-architecture-and-training-configuration-consistency), an MoE Ladder must standardize five structural dimensions:
 
-- Expert granularity: [Krajewski et al., 2024](https://arxiv.org/abs/2402.07871) treat expert granularity as an independent scaling variable. Within the range tested, the common setting where expert size equals dense FFN size is non-optimal under almost all compute budgets, and the advantage of MoE over dense grows with scale.
-- Shared experts: their number and size are set at a fixed ratio within the Ladder.
-- Load balancing: the auxiliary loss coefficient, or the bias update rate in auxiliary-loss-free methods, is set by a fixed rule within the Ladder. [DeepSeek-V3, 2024](https://arxiv.org/abs/2412.19437) §2.1.2 adjusts the routing bias according to expert load, with a bias update rate of 0.001 for the first 14.3T tokens and 0 for the last 500B tokens. Load balancing strength affects both loss and expert parallelism throughput; changing it is treated as a recipe change.
-- Capacity factor and token dropping: the settings for training and inference should be consistent; the proportion of dropped tokens is recorded as a diagnostic quantity. DeepSeek-V3 drops no tokens in either training or inference (§2.1.2).
-- Sparsity: [Abnar et al., 2025](https://arxiv.org/abs/2501.12370) found, ignoring memory and communication overhead, that at fixed training compute, increasing sparsity and correspondingly increasing the total parameter count can reduce pretraining loss; at fixed total parameter count, loss varies parabolically with sparsity, and the optimal sparsity increases with model size and training compute. On most downstream tasks, models with similar pretraining loss perform similarly downstream, independent of sparsity; on reading comprehension tasks (e.g., CoQA, SQuAD), denser models perform better. [Ludziejewski et al., 2025](https://arxiv.org/abs/2502.05172) jointly model expert count with active parameter count and training volume, and incorporate memory constraints, with experiments up to 2.7B active parameters and 5B total parameters.
+- Expert granularity: [Krajewski et al., 2024](https://arxiv.org/abs/2402.07871) treat expert size as an independent scaling dimension, demonstrating that the conventional choice of setting expert size equal to a standard dense FFN is suboptimal across nearly all compute budgets; finer-grained experts widen MoE's advantage over dense models as scale grows.
+- Shared experts: fix the count of dedicated shared experts and their capacity ratio relative to routed experts.
+- Load-balancing strategy: lock the auxiliary loss coefficient or the bias update rate in auxiliary-loss-free routing. [DeepSeek-V3, 2024](https://arxiv.org/abs/2412.19437) §2.1.2 updates routing biases dynamically by expert load, setting the bias update speed to 0.001 for the first 14.3T tokens and 0 for the final 500B tokens. Because balancing strength directly trades modeling loss against EP communication throughput, altering it constitutes a recipe change.
+- Capacity factor and token dropping: keep capacity factors consistent between training and inference and log token drop rates as a primary health metric; DeepSeek-V3 drops zero tokens in both training and inference (§2.1.2).
+- Sparsity: ignoring memory and communication overhead, [Abnar et al., 2025](https://arxiv.org/abs/2501.12370) show that at fixed training FLOPs, raising sparsity (and thus $N_{total}$) steadily lowers pretraining loss; at fixed $N_{total}$, loss follows a U-shaped parabola in sparsity whose optimum shifts higher with compute budget. On most downstream tasks, performance tracks pretraining loss regardless of sparsity, except on reading comprehension benchmarks (such as CoQA and SQuAD) where denser models retain an edge. [Ludziejewski et al., 2025](https://arxiv.org/abs/2502.05172) jointly model expert count, $N_{active}$, and $D$ under explicit memory constraints (tested up to 2.7B active / 5B total parameters).
 
 ### 4.5 Vocabulary and Numerical Precision
 
-- Vocabulary size: [Tao et al., 2024](https://arxiv.org/abs/2407.13623) found on 33M–3B models that the optimal vocabulary size increases with compute, and most public models have vocabularies that are too small. Changing the vocabulary changes the parameter count and compute of the embedding and head, and also changes the length of text covered by each token; when comparing different vocabularies, loss must be converted to a byte-normalized metric ([§3.3](#33-loss-and-token-conventions)).
-- Training precision: [Kumar et al., 2024](https://arxiv.org/abs/2411.04330) incorporate precision into the scaling law: low-precision training reduces the effective parameter count; the larger the training data volume, the greater the loss degradation caused by post-training quantization. The validation range of that paper is within 1.7B parameters and 26B tokens. The Ladder should use the target training precision scheme; a change in the precision scheme is treated as a recipe change and requires re-validation ([§10.4](#104-implementation-consistency-validation)).
+- Vocabulary size: [Tao et al., 2024](https://arxiv.org/abs/2407.13623) show across 33M–3B models that optimal vocabulary size grows as a power law of compute, and that most open-weight models use undersized vocabularies. Because changing vocabulary size simultaneously alters $O(Vd)$ head FLOPs and characters-per-token compression, cross-vocabulary comparisons must use byte-normalized loss ([§3.3](#33-loss-and-token-conventions)).
+- Numerical precision: [Kumar et al., 2024](https://arxiv.org/abs/2411.04330) (validated up to 1.7B parameters and 26B tokens) fold numerical precision into scaling laws: low-precision training reduces effective parameter capacity, while heavier over-training (higher TPP) amplifies loss degradation from post-training quantization. Run the Ladder under the exact target precision scheme, and re-verify implementation parity whenever precision settings change ([§10.4](#104-implementation-consistency-validation)).
 
 ## 5. Experimental Design and Budget
 
 ### 5.1 Experimental Matrix Structure
 
-Example layout:
+A typical $(N, D)$ experimental grid takes the form:
 
 ```text
 Training budget D →  0.5×    1×     2×     4×
@@ -266,30 +261,30 @@ N       8B            ○      ○      ○      ○  ← holdout (excluded from
 ↓
 ```
 
-- Fitting points: smaller sizes used to fit the Scaling Law.
-- Holdout point: the largest size does not participate in fitting and is used only to validate extrapolation accuracy.
+- Fitting points (`●`): smaller and medium sizes swept across token horizons to estimate Scaling Law parameters.
+- Holdout points (`○`): largest sizes or higher-compute budgets excluded from fitting and reserved strictly to test extrapolation accuracy.
 
-The above sizes, training volumes, and full grid layout are all examples. The experimental point layout and the fitting form must be designed jointly:
+The geometry of the sampling grid must be co-designed with the functional form:
 
-- Clarify the fitting range and target range of $N$, $D$, and data repetition, and distinguish extrapolation along $N$, along $D$, and joint extrapolation;
-- Choose among a full grid, IsoFLOP, or a sparse layout such as L-shape according to the objective in [§2.1](#21-decision-objectives) ([§8.1](#81-functional-form));
-- Reserve validation points in advance, and agree on which results trigger supplementary experiments ([§5.5](#55-budget-allocation-and-follow-up-experiments)).
+- Clarify whether the target decision requires extrapolating along $N$, along $D$, or jointly across $(N, D)$, and annotate epoch repetition counts whenever data is constrained;
+- Choose between a full Cartesian grid, IsoFLOP slices, or a compute-saving L-shape layout based on the decision objective in [§2.1](#21-decision-objectives) ([§8.1](#81-functional-form));
+- Reserve validation points and contingency budget upfront to resolve functional-form divergence or high seed noise ([§5.5](#55-budget-allocation-and-follow-up-experiments)).
 
-The layout must also be checked for parameter identifiability. Sampling only along a fixed TPP cannot separate the effects of $N$ and $D$. Fitting sensitivity analysis, holding out an entire size, and targeted additional points show whether conclusions depend on where the points were sampled.
+Pay special attention to parameter identifiability: if every run in the Ladder is sampled along a single fixed TPP ray (e.g., $D=20N$ everywhere), $N$ and $D$ are perfectly collinear and regression cannot disentangle their individual exponents. Holding out an entire size tier for cross-validation or inspecting the parameter covariance matrix catches degenerate grids before compute is wasted.
 
 ### 5.2 Number of Sizes, Span, and Extrapolation Multiplier
 
-| Dimension | Recommendation | Source |
+| Design Dimension | Practical Guideline | Source |
 |---|---|---|
-| Number of model sizes | Cover the target extrapolation direction, plus a holdout; adding sizes can test fitting stability | [Choshen et al., 2025](https://arxiv.org/abs/2410.11840v2) |
-| Size span | Cover the target extrapolation interval; on some model families a 34× span is still usable | [Choshen et al., 2025](https://arxiv.org/abs/2410.11840) |
-| Ratio of adjacent sizes | Can increase geometrically, with spacing chosen according to budget | Our recommendation |
+| Number of model sizes | At least 3–4 fitting sizes plus dedicated holdouts; additional sizes stabilize slope estimates | [Choshen et al., 2025](https://arxiv.org/abs/2410.11840v2) |
+| Size span | Span a wide range toward the target; power-law linearity holds across a 34× span on several model families | [Choshen et al., 2025](https://arxiv.org/abs/2410.11840) |
+| Adjacent size ratio | Geometric progression (typically $2\times$–$4\times$), balancing log-space coverage against compute budget | Engineering practice |
 
-The extrapolation multiplier is defined as the ratio of the target compute to the compute of the largest fitting point. Among public examples, [Delphi](https://openathena.ai/blog/delphi/) fits on 3e18–3e20 FLOPs, with holdout covering 3×–333× extrapolation; [Llama 3, 2024](https://arxiv.org/abs/2407.21783) §3.2.1 fits on 6e18–1e22 FLOPs (40M–16B) and extrapolates to 3.8e25 FLOPs, about 3,800×. The larger the extrapolation multiplier, the higher the share of the total error accounted for by functional-form error and recipe stability issues. When the target scale far exceeds the largest holdout, a medium-scale trial run should be arranged ([§10.6](#106-medium-scale-trial-run)).
+The extrapolation multiplier is the ratio of target training FLOPs to the largest fitting point's FLOPs. Among public examples, [Delphi](https://openathena.ai/blog/delphi/) fits on $3\times 10^{18}$–$3\times 10^{20}$ FLOPs and validates across $3\times$–$333\times$ holdouts; [Llama 3, 2024](https://arxiv.org/abs/2407.21783) §3.2.1 fits on $6\times 10^{18}$–$10^{22}$ FLOPs (40M–16B) and extrapolates ~3,800× to $3.8\times 10^{25}$ FLOPs. As the extrapolation multiplier grows, second-order functional-form misspecification and late-training numerical instabilities dominate total error; when target compute sits orders of magnitude beyond the largest holdout, insert an intermediate-scale dress rehearsal before launching the full run ([§10.6](#106-medium-scale-trial-run)).
 
 ### 5.3 Training Volume Tiers
 
-Training volume tiers are designed according to the target TPP, with the compute-optimal ratio as a common reference. The IsoFLOP method of Chinchilla ([Hoffmann et al., 2022](https://arxiv.org/abs/2203.15556)): for each fixed compute budget $C$, train models of different sizes and take the minimum of the loss curve, which gives the optimal $(N, D)$ at that compute.
+Token horizon tiers should bracket the target model's intended TPP. The classic reference is Chinchilla's IsoFLOP method ([Hoffmann et al., 2022](https://arxiv.org/abs/2203.15556)): across several fixed compute budgets $C$, train models of varying size $N$, fit a smooth curve to loss versus $\log N$, and read off the minimum $(N_{opt}, D_{opt})$ at each compute level.
 
 {% include figure.liquid
   path='assets/img/pretrain-scaling/chinchilla-isoflop.png'
@@ -302,90 +297,80 @@ Training volume tiers are designed according to the target TPP, with the compute
   loading='lazy'
 %}
 
-Across 400+ models (70M–16B, 5B–500B tokens), Chinchilla obtains:
+Across 400+ models (70M–16B parameters, 5B–500B tokens), Chinchilla established:
 
 $$N_{opt}\propto C^a,\qquad D_{opt}\propto C^b,\qquad a\approx b\approx0.5$$
 
-That is, within this range models and data grow approximately proportionally, and the exponents from different fitting methods differ slightly. Chinchilla's $D/N\approx20$ is computed using the total parameter count including embeddings; when converted to $N_{\text{body}}$ the ratio is larger, and the optimal ratio must be verified on one's own recipe. Llama 3 used the same kind of IsoFLOP experiments to obtain an optimal size of about 402B at 3.8e25 FLOPs, and ultimately chose 405B ([Llama 3](https://arxiv.org/abs/2407.21783) §3.2.1).
+Along the compute-optimal frontier, model size and training tokens scale in roughly equal proportion. Note that Chinchilla's $D/N\approx20$ rule-of-thumb counts total parameters including embeddings; expressed in terms of trunk parameters $N_{\text{body}}$, the optimal TPP is higher and shifts with corpus quality and recipe. Using IsoFLOP curves at $3.8\times 10^{25}$ FLOPs, the Llama 3 team estimated an optimal size of ~402B and selected 405B ([Llama 3](https://arxiv.org/abs/2407.21783) §3.2.1).
 
-The training volume tiers must cover the target TPP:
+Adapt the token horizon tiers to the deployment and data regime:
 
-- Example tiers: 0.5×–4× Chinchilla ratio covers the range from under-trained to mildly over-trained, suitable for projects whose target is close to compute-optimal; [Fantastic Optimizers](https://arxiv.org/abs/2509.02046v2) uses four tiers: 1×, 2×, 4×, and 8× Chinchilla ratio.
-- Over-training: [Gadre et al., 2024](https://arxiv.org/abs/2403.08540v2) found across 104 models that the power-law exponent of loss with respect to $C$ is similar under different $D/N$, providing empirical evidence for extrapolation up to a 32× Chinchilla ratio. Among the 47 models trained by [Sardana et al., 2024](https://arxiv.org/abs/2401.00448), quality was still improving when TPP increased to 10,000; fitting Chinchilla coefficients using only data at conventional TPP will overestimate the effect of additional tokens at extreme TPP. When the target TPP exceeds the validated range, extrapolation must be confirmed on a holdout close to the target TPP.
-- Inference cost: after accounting for inference demand, the optimal size is smaller than the compute-optimal size, and the training volume increases accordingly ([Sardana et al., 2024](https://arxiv.org/abs/2401.00448)). Llama 3's 405B is an approximately compute-optimal size, while the smaller models are trained far beyond compute-optimal in exchange for better performance under the same inference budget ([Llama 3](https://arxiv.org/abs/2407.21783) §1). For handling deployment constraints see [§10.5](#105-realized-efficiency-and-deployment-constraints).
-- Data-constrained: when the target $D$ exceeds the available $U$, the training volume axis must also annotate the repetition count, and the fitting form must include a repetition term ([§7.3](#73-data-constrained-training-and-repetition)).
+- Near compute-optimal: 0.5×–4× Chinchilla brackets both sides of the 1× optimum; [Fantastic Optimizers](https://arxiv.org/abs/2509.02046v2) uses 1×, 2×, 4×, and 8× Chinchilla tiers to cover mild over-training.
+- Heavy over-training: [Gadre et al., 2024](https://arxiv.org/abs/2403.08540v2) validate across 104 models that power-law loss scaling holds reliably up to 32× Chinchilla. Pushing further to 10,000 TPP across 47 models, [Sardana et al., 2024](https://arxiv.org/abs/2401.00448) find that while loss continues to improve, Chinchilla coefficients fitted solely on low-TPP runs overestimate the marginal return of extra tokens at extreme TPP. Projects targeting high TPP must therefore include high-TPP fitting and holdout points.
+- Inference-amortized sizing: folding lifetime inference compute into the total cost objective systematically shifts the optimum toward smaller models trained for far more tokens ([Sardana et al., 2024](https://arxiv.org/abs/2401.00448)). Thus Llama 3 405B is near compute-optimal for training, whereas the 8B and 70B models are heavily over-trained beyond 15T tokens to minimize serving latency and memory footprint ([Llama 3](https://arxiv.org/abs/2407.21783) §1; see [§10.5](#105-realized-efficiency-and-deployment-constraints)).
+- Data-constrained regime: when target tokens $D$ exceed available unique tokens $U$, annotate epoch counts along the horizon axis and include a repetition decay term in the fitted law ([§7.3](#73-data-constrained-training-and-repetition)).
 
 ### 5.4 Intermediate Checkpoints, Random Seeds, and Shared Trajectories
 
-Intermediate checkpoints can be included in fitting, but the influence of early-training points must be checked. [Choshen et al., 2025](https://arxiv.org/abs/2410.11840v2) found that excluding early checkpoints reduces prediction error; their truncation setting of the first 10% or first 10B tokens should not be applied directly to all training budgets. The truncation rule must be determined in advance, or the model sizes must be split into fitting, validation, and test segments, with selection performed on the validation segment ([Lourie et al., 2026](https://arxiv.org/abs/2608.11859)). The truncation rule and the warmup rule are determined separately.
+Including intermediate checkpoints from a single run (especially under WSD schedules) multiplies the number of data points at zero extra training cost, but introduces two statistical pitfalls:
 
-Multiple checkpoints along the same trajectory are serially correlated and cannot substitute for independent experiments in the target extrapolation direction ([§8.3](#83-fitting-protocol)). Random seed variance must be incorporated into the experimental design.
+First is contamination from early transient dynamics. Early in training, loss drops steeply and deviates from the asymptotic power law; [Choshen et al., 2025](https://arxiv.org/abs/2410.11840v2) show across hundreds of models that discarding the first 10% of checkpoints or the first 10B tokens substantially reduces extrapolation error. Lock this truncation rule before fitting, or split model sizes into fit, validation, and test tiers and tune the cutoff on the validation tier ([Lourie et al., 2026](https://arxiv.org/abs/2608.11859))—never tune truncation cutoffs on the final holdout.
 
-WSD branches sharing a stable trajectory should be recorded separately: actual cumulative cost, effective training budget of each branch, and shared starting point. Costs are not double-counted, and branches sharing a prefix cannot be counted as independent runs.
+Second is serial autocorrelation and shared prefixes. Checkpoints along a single trajectory are strongly autocorrelated and carry far fewer effective degrees of freedom than independent runs ([§8.3](#83-fitting-protocol)). Likewise, when multiple WSD decay branches fork off a shared stable trunk, they inherit identical prefix noise: do not double-count trunk FLOPs in budget tables, and treat shared-trunk branches as a correlated cluster during bootstrap resampling.
 
 ### 5.5 Budget Allocation and Follow-Up Experiments
 
-Search, seeds, evaluation, validation, follow-up experiments, and failed reruns all count toward the total budget. Recommended allocation procedure:
+Total Ladder compute must cover pilot runs, hyperparameter grids, multi-seed replications, annealing branches, and failed-run retries. A disciplined budget allocation proceeds in stages:
 
-1. First run a small number of trials to estimate seed noise, throughput, and differences among candidates;
-2. Based on the trial results, allocate budget for search, fitting, independent replication, final holdout, evaluation, and contingency;
-3. State which decision uncertainty each group of experiments is meant to resolve.
+1. Run small pilot trials to measure random seed variance, hardware throughput, and rough effect sizes across candidates;
+2. Partition the main budget across hyperparameter tuning, grid fitting, and holdout validation while holding back 15%–20% as a reserve;
+3. Deploy reserve compute based on mid-course diagnostics: add random seeds at small scales if seed noise dominates; add grid points in the divergence zone if competing functional forms (e.g., Chinchilla vs. Skaling) split at high TPP or large $N$; or extend training horizons if candidate loss curves cross late in training.
 
-Examples of decisions for follow-up experiments:
-
-- When seed fluctuation is the main source of error, add repeated runs;
-- When candidate functional forms diverge substantially in predictions in the target region, add experimental points in the corresponding direction;
-- When the ranking of candidates changes at longer training budgets, extend representative runs.
-
-Whether it is more valuable to add larger models or to add random seeds for small models depends on the specific conditions ([Choshen et al., 2025](https://arxiv.org/abs/2410.11840)). There is no budget ratio in the public literature that generalizes across projects.
+Whether marginal budget is better spent adding a larger model size or running extra random seeds at small scale depends on the ratio of seed noise to extrapolation span ([Choshen et al., 2025](https://arxiv.org/abs/2410.11840)).
 
 ### 5.6 MoE Experimental Axes
 
-The MoE Ladder selects experimental axes according to decision needs, with each axis designed separately:
+MoE architectures introduce too many degrees of freedom to sweep in a full Cartesian product across active parameters, total parameters, and expert granularity. Instead, factor the MoE Ladder into three orthogonal axes:
 
-1. Scale Ladder: fix sparsity and expert granularity, vary $N_{active}$ and $D$;
-2. Sparsity Ladder: fix $N_{active}$, $D$, and $E_{active}$, vary only $E_{total}$;
-3. Granularity Ladder: fix $N_{active}$ and $N_{total}$, vary individual expert size and number of experts ([Krajewski et al., 2024](https://arxiv.org/abs/2402.07871)).
+1. Scale Ladder: lock sparsity $S$ and expert granularity, scaling $N_{active}$ and $D$ together;
+2. Sparsity Ladder: lock $N_{active}$, $D$, and active expert count $E_{active}$, sweeping total experts $E_{total}$ alone;
+3. Granularity Ladder: lock $N_{active}$ and $N_{total}$, inversely varying individual expert size and active expert count ([Krajewski et al., 2024](https://arxiv.org/abs/2402.07871)).
 
-[Kimi K2, 2025](https://arxiv.org/abs/2507.20534) varied $E_{total}$ under fixed $N_{active}$ and FLOPs to fit a sparsity scaling law: as sparsity increased from 8 to 48, the FLOPs required to reach the same target loss continued to decrease, while communication and inference complexity increased accordingly.
+For example, [Kimi K2, 2025](https://arxiv.org/abs/2507.20534) swept $E_{total}$ at fixed $N_{active}$ and FLOPs to fit a sparsity scaling law, showing that raising sparsity from 8 to 48 steadily reduces the compute needed to hit a target loss—leaving cross-node communication and inference memory bandwidth as the binding constraints.
 
-The fitting variables of different axes cannot be mixed. A full cross search is not needed. The Scale Ladder should include dense control points with the same $N_{active}$ or the same $C$, to determine how the gain of MoE over dense changes with scale (our recommendation).
+Keep data from the three axes separate unless the fitted equation explicitly models those variables, and include iso-$N_{active}$ or iso-FLOP dense baselines alongside the Scale Ladder to track how MoE's effective compute multiplier evolves with scale.
 
 ## 6. Hyperparameter Search and Training Configuration
 
-This chapter calibrates fully tuned $(\eta,B,\lambda)$ and expresses them as functions of $N$ and $D$ (or $C$) that can be extrapolated. Fixed-recipe prediction (Objective 1 in [§2.1](#21-decision-objectives)) runs under the recipe scaling rules. §6.1 explains the hyperparameter search objective; §6.2–§6.4 give priors for how each hyperparameter shifts with scale; §6.5–§6.6 cover the LR schedule and MoE hyperparameter settings; §6.7 gives the search procedure; §6.8 the method for comparing recipes; §6.9 the training wrap-up.
+Except when evaluating a fixed-rule recipe (Objective 1 in [§2.1](#21-decision-objectives)), compute allocation, candidate comparison, and hyperparameter extrapolation all require calibrating how optimal hyperparameters $(\eta_{opt}, B_{opt}, \lambda_{opt})$ shift with $(N, D)$.
 
 ### 6.1 Hyperparameter Search Objective and Near-Optimal Region
 
-[Lourie et al., 2026](https://arxiv.org/abs/2608.11859) and [Step Law (Li et al., 2025)](https://arxiv.org/abs/2503.04715) show that small models degrade noticeably under suboptimal hyperparameters, and that the Scaling Law only emerges on the Fully-Tuned Frontier; insufficient hyperparameter search changes the shape of the power-law curve, causing bias in predictions at the target scale.
+Why spend heavy compute grid-searching small models while only checking a few local points at large scale? [Lourie et al., 2026](https://arxiv.org/abs/2608.11859) and [Step Law (Li et al., 2025)](https://arxiv.org/abs/2503.04715) establish a fundamental asymmetry: small models are sharply sensitive to suboptimal hyperparameters, whereas large models exhibit a wide, flat optimal basin. On small models, off-optimal hyperparameters noticeably inflate loss and warp the fitted power-law exponent—clean scaling laws emerge only along the Fully-Tuned Frontier. At large scale, by contrast, [Qwen3.8-Next, 2026](https://arxiv.org/abs/2608.30320v1) multiplied and divided LR by $\sqrt{2}$ and raised BSZ by 25% on a 156B-A7B model, observing final training loss variations of at most $7\times10^{-4}$.
 
-The near-optimal region observed in large-model experiments is wide. [Qwen3.8-Next, 2026](https://arxiv.org/abs/2608.30320v1) tested multiplying and dividing the LR by $\sqrt{2}$ and increasing BSZ by 25% on 156B-A7B, and the final training loss differed by no more than $7\times10^{-4}$.
-
-Resource allocation principle (Objectives 2–4): concentrate compute on exhaustive search for small models to ensure the fitting points lie on the Fully-Tuned Frontier; for large models, first confirm locally near the extrapolated value, and expand the search if necessary ([§6.7](#67-search-procedure-and-stopping-rules)).
-
-Under a limited budget, "lying on the Fully-Tuned Frontier" uses the following operational definition (our recommendation): the optimum does not lie on the search boundary; under local joint perturbations in the neighborhood of the optimum, the loss change does not exceed a predetermined tolerance, and this tolerance is no smaller than the random seed variance. The conclusion is stated as "reaching the specified near-optimal tolerance within the searched range and budget."
+This asymmetry dictates search strategy: concentrate dense grid searches on cheap small models so that every fitting point's optimum sits strictly in the interior of the search grid (with local perturbation deltas smaller than seed noise), then rely on narrow local verification around the extrapolated values at large scale ([§6.7](#67-search-procedure-and-stopping-rules)).
 
 ### 6.2 Parameterization and Optimizer Transfer
 
-- Width direction: $\mu$-Transfer ([Yang et al., 2022](https://arxiv.org/abs/2203.03466v2)) supports LR transfer along the width direction; for the case with nonzero WD, see Appendix G.1.2 of the original paper and [Power Lines](https://arxiv.org/abs/2505.13738v2). Experiments along BSZ and training length are limited. It can be combined with hyperparameter power laws.
-- Depth direction: [Bordelon et al., 2023](https://arxiv.org/abs/2309.16620) scales the residual branch by $1/\sqrt{\text{depth}}$ and combines it with $\mu$P, observing hyperparameter transfer across width and depth in ResNet and ViT on CIFAR-10 and ImageNet. [Tensor Programs VI (Yang et al., 2023)](https://arxiv.org/abs/2310.02244) gives Depth-$\mu$P for networks with only one layer per residual block; when a residual block contains multiple layers (e.g., Transformer), that paper points out that all infinite-depth parameterizations have limitations. Direct evidence for depth-direction transfer on language models is lacking, so when the width-depth rule changes depth, the hyperparameters must be reconfirmed at a representative scale.
-- Optimizer: [Liu et al., 2025](https://arxiv.org/abs/2502.16982) adds WD to Muon and scales the RMS of the update to the 0.2–0.4 range common for AdamW (taking 0.2), so that the LR and WD tuned for AdamW can be reused directly. [Qwen3.8-Next, 2026](https://arxiv.org/abs/2608.30320) found that after changing the architecture and switching to Muon, both the optimal LR and BSZ shifted. After changing the optimizer, one must recalibrate the hyperparameter scaling law, or first verify the transferability of the original coefficients at small scale.
+- Width transfer: $\mu$-Transfer ([Yang et al., 2022](https://arxiv.org/abs/2203.03466v2)) rescales per-layer initialization and learning rates so that optimal LR transfers zero-shot across model width; modifications for nonzero weight decay are detailed in Appendix G.1.2 of the paper and in [Power Lines](https://arxiv.org/abs/2505.13738v2). Because $\mu$P alone does not handle scaling across batch size or token horizon $D$, combine $\mu$P parameterization with empirical $(N, D)$ power laws for BSZ and horizon.
+- Depth transfer: [Bordelon et al., 2023](https://arxiv.org/abs/2309.16620) scale residual branches by $1/\sqrt{\text{depth}}$ under $\mu$P to achieve width-and-depth hyperparameter transfer in ResNet and ViT on CIFAR-10 and ImageNet. However, [Tensor Programs VI (Yang et al., 2023)](https://arxiv.org/abs/2310.02244) proves that while Depth-$\mu$P holds for blocks with a single layer, fundamental theoretical limitations prevent exact infinite-depth transfer when residual blocks contain multiple non-linear layers (as in standard Transformers). When depth changes in LLMs, recalibrate hyperparameters empirically.
+- Cross-optimizer transfer: switching optimizers reshapes the hyperparameter landscape. When scaling Muon to LLMs, [Liu et al., 2025](https://arxiv.org/abs/2502.16982) added weight decay and scaled the orthogonalized update RMS to match AdamW's typical 0.2–0.4 range (setting 0.2), allowing tuned AdamW LR and WD values to transfer directly. However, when [Qwen3.8-Next, 2026](https://arxiv.org/abs/2608.30320) changed architecture and switched to Muon simultaneously, both optimal LR and optimal BSZ shifted, underscoring the need to re-verify hyperparameter laws at small scale after optimizer changes.
 
 ### 6.3 Scaling Law for LR and BSZ
 
-For a single $D/N$ ratio, a power law in $C$ can be used:
+When a Ladder runs at a single fixed $D/N$ ratio, optimal learning rate and batch size can be fitted as simple univariate power laws of compute $C$:
 
 $$\eta_{opt} = a \cdot C^{-\alpha}, \quad B_{opt} = b \cdot C^{\beta}$$
 
-The fitting coefficients provided by [DeepSeek LLM, 2024](https://arxiv.org/abs/2401.02954) can serve as a reference. When covering multiple $D/N$ levels, $N$ and $D$ must be modeled separately:
+as in [DeepSeek LLM, 2024](https://arxiv.org/abs/2401.02954). Once a Ladder spans multiple $D/N$ ratios, however, $C$ conflates model size and training horizon, so $N$ and $D$ must be decoupled:
 
-| Approach | $\eta_{opt}$ | $B_{opt}$ | Applicable conditions and limitations |
+| Approach | $\eta_{opt}$ Formula | $B_{opt}$ Formula | Key Findings & Scope |
 |---|---|---|---|
-| Step Law ([Li et al., 2025](https://arxiv.org/abs/2503.04715v3)) | $c\cdot N^{-\alpha}D^{\beta}$ | $0.58\,D^{0.571}$ | Can model across $D/N$; validated on 3,700+ models; the assumption that $B_{opt}$ is independent of $N$ passed a regression test (Appendix A.5), but the target range still needs verification |
-| Power Lines ([Bergsma et al., 2025](https://arxiv.org/abs/2505.13738v2)) | Jointly constrained by the timescale $\tau$ ([§6.4](#64-weight-decay)) | $\propto D^{0.4}$, with weak dependence on $N$ within the measured range | Approximate fit under the measured recipes; the LR stability and BSZ efficiency range still need to be checked |
-| Token Horizons ([Bjorck et al., 2024](https://arxiv.org/abs/2409.19913)) | $c \cdot N^{-\alpha} D^{-\beta}$ | — | With fixed model size and BSZ, the peak LR decays with training length |
+| Step Law ([Li et al., 2025](https://arxiv.org/abs/2503.04715v3)) | $c\cdot N^{-\alpha}D^{\beta}$ | $0.58\,D^{0.571}$ | Validated across 3,700+ models and diverse $D/N$; regression tests confirm $B_{opt}$ depends on $D$ and is nearly invariant to $N$ (Appendix A.5) |
+| Power Lines ([Bergsma et al., 2025](https://arxiv.org/abs/2505.13738v2)) | Coupled via timescale $\tau$ ([§6.4](#64-weight-decay)) | $\propto D^{0.4}$ (weakly dependent on $N$) | Unifies $(\eta, B, \lambda)$ via EMA timescale $\tau$, subject to maximum stable LR and critical batch limits |
+| Token Horizons ([Bjorck et al., 2024](https://arxiv.org/abs/2409.19913)) | $c \cdot N^{-\alpha} D^{-\beta}$ | Fixed BSZ | Holding $N$ and BSZ fixed, longer token horizons $D$ require a lower peak LR |
 
-In Token Horizons and Step Law, the exponent of $\eta_{opt}$ with respect to $D$ has opposite sign ($D^{-\beta}$ versus $D^{+\beta}$). The experimental setups of the two differ: Token Horizons fixes BSZ, while Step Law jointly searches BSZ for each $D$. Whether this setup difference can fully explain the sign difference has not been verified. One should choose the candidate form in light of one's own configuration and validate it on a holdout.
+Notice the striking sign flip on the exponent of $D$ in $\eta_{opt}$: Token Horizons finds $D^{-\beta}$ while Step Law finds $D^{+\beta}$. The discrepancy stems from their experimental controls: Token Horizons holds batch size constant as $D$ increases (so more steps require a smaller step size to settle), whereas Step Law co-scales $B_{opt}\propto D^{0.571}$ as $D$ grows—and the variance reduction from a larger batch size outweighs the longer horizon, pushing optimal peak LR slightly upward with $D$.
 
 {% include figure.liquid
   path='assets/img/pretrain-scaling/step-law-hyperparameter-validation.png'
@@ -399,9 +384,9 @@ In Token Horizons and Step Law, the exponent of $\eta_{opt}$ with respect to $D$
   loading='lazy'
 %}
 
-The exponents fitted for $B_{opt}$ in the two works are close, so one can initialize the BSZ transfer rule accordingly and validate it on one's own data.
+On optimal batch size, Step Law and Power Lines converge on a crucial insight: $B_{opt}$ grows as a power law of training tokens $D$ (exponent ~0.4–0.57) and is largely independent of model size $N$.
 
-Power Lines also measures $B_{crit}\propto D_{min}^{0.5}$, where $D_{min}$ is the minimum number of tokens needed to reach the target loss. $B_{crit}$ is the turning point in the trade-off between token efficiency and step count: in that paper's hyperbolic model, at $B=B_{crit}$ reaching the same loss requires about $2D_{min}$ tokens; increasing $B$ further reduces the step count while increasing token and compute cost. Actual training time also depends on hardware utilization and must be measured systematically.
+Alongside $B_{opt}$, Power Lines characterizes the critical batch size $B_{crit}\propto D_{min}^{0.5}$, where $D_{min}$ is the minimum token count needed to reach a target loss at small batch size. As shown in Figure 5, the training tokens $D$ and optimization steps $S$ required to hit a given loss trace a hyperbola: $B=B_{crit}$ marks the knee of the curve where training consumes $2D_{min}$ tokens, beyond which further increases in batch size yield diminishing step reductions at steep token and FLOP cost.
 
 {% include figure.liquid
   path='assets/img/pretrain-scaling/cerebras-bcrit-hyperbola.png'
@@ -413,117 +398,104 @@ Power Lines also measures $B_{crit}\propto D_{min}^{0.5}$, where $D_{min}$ is th
   zoomable=true
 %}
 
-[Schaipp, 2026](https://arxiv.org/abs/2607.01487v1) defines the near-optimal batch region as the range within about 5% compute loss, with a measured width of about 4×; under that paper's log-symmetric fitting model this corresponds to $[B_{opt}/2,2B_{opt}]$, which can serve as the starting point for local search.
+Fortunately, the near-optimal batch size basin is forgiving: [Schaipp, 2026](https://arxiv.org/abs/2607.01487v1) shows that batch sizes within a ~5% compute overhead span a $4\times$ factor—corresponding to $[B_{opt}/2, 2B_{opt}]$ under a log-symmetric model—giving ample leeway to align batch sizes with hardware parallelism multiples.
 
-The unit of BSZ and its variation during training also need to be unified:
+Two practical batch-size rules apply across all runs:
 
-- When changing the sequence length, keep BSZ in terms of tokens, and at the same time check the changes in attention compute and data packing.
-- Some target training runs use a batch size ramp, e.g., Llama 3 405B increases BSZ from 4M tokens to 16M tokens in stages during training ([Llama 3](https://arxiv.org/abs/2407.21783) §3.4.1); Nemotron-4 15B also uses BSZ ramp-up ([Nemotron-4, 2024](https://arxiv.org/abs/2402.16819)). If the Ladder does not include the ramp, its effect on the loss curve and on hyperparameter extrapolation must be verified.
+- Express batch size in total tokens rather than sequence count when changing sequence length, while accounting for shifts in attention FLOPs and document packing.
+- Many flagship runs employ batch size warmup/ramp-up during training (e.g., [Llama 3](https://arxiv.org/abs/2407.21783) §3.4.1 ramps BSZ in stages from 4M to 16M tokens, and [Nemotron-4, 2024](https://arxiv.org/abs/2402.16819) uses a similar ramp). If Ladder runs use a constant batch size while the target run ramps BSZ, test how the ramp alters early loss trajectories and effective hyperparameter transfer.
 
 ### 6.4 Weight Decay
 
-Several public recipes fix WD: [Kimi K2, 2025](https://arxiv.org/abs/2507.20534v2) uses $\lambda=0.1$; [OLMo 3, 2025](https://arxiv.org/abs/2512.13961v1) uses AdamW with no decay on embeddings; [Qwen3, 2025](https://arxiv.org/abs/2505.09388) does not report WD scaling.
+Several prominent recipes hold weight decay constant across scales (e.g., [Kimi K2, 2025](https://arxiv.org/abs/2507.20534v2) fixes $\lambda=0.1$; [OLMo 3, 2025](https://arxiv.org/abs/2512.13961v1) uses AdamW with fixed WD and zero decay on embeddings; [Qwen3, 2025](https://arxiv.org/abs/2505.09388) scales LR and BSZ without scaling WD).
 
-The optimal WD depends on the training volume and the evaluation objective. [Han et al., 2026](https://arxiv.org/abs/2602.11137v2) finds that the WD preferred by pretraining loss decreases as TPP increases, and that stronger WD may benefit post-training plasticity. When reproducing a recipe, follow its WD; when studying fully tuned settings or cross-TPP relationships, the effect of WD should be checked.
+Across wide TPP ranges, however, optimal WD is not constant. [Han et al., 2026](https://arxiv.org/abs/2602.11137v2) show that the weight decay minimizing pretraining loss decreases monotonically as TPP grows, whereas maintaining a somewhat higher WD preserves effective weight rank and downstream plasticity during post-training.
 
-Under the AdamW setup, WD can be jointly calibrated with LR and BSZ through the timescale $\tau = B/(\eta\lambda D)$: [Power Lines](https://arxiv.org/abs/2505.13738) fixes $\eta$ under μP when changing $B$, and adjusts $\lambda$ to maintain the optimal $\tau$; LR is also constrained by the maximum stable learning rate ([Power Lines §2.4](https://arxiv.org/abs/2505.13738)).
+Under AdamW, $(\eta, \lambda, B)$ can be calibrated jointly through the EMA timescale $\tau = B/(\eta\lambda D)$: [Power Lines](https://arxiv.org/abs/2505.13738) demonstrates that optimal configurations maintain a constant $\tau_{opt}$, so when varying $B$ or $D$ at fixed $\mu$P learning rate $\eta$, scaling $\lambda \propto B/D$ preserves the weight memory horizon—provided $\eta$ remains below the maximum stable learning rate ([Power Lines §2.4](https://arxiv.org/abs/2505.13738)).
 
 ### 6.5 LR Schedule
 
-Two commonly used schedules:
+Pretraining runs typically rely on one of two schedules:
 
-- Cosine: smooth decay to 0 or a small residual value after a short warmup. The minimum LR may differ across stages in multi-stage training.
-- WSD (Warmup-Stable-Decay): facilitates reuse of the stable trajectory and annealing at a chosen budget. [River Valley (Wen et al., 2024)](https://arxiv.org/abs/2410.05192v3) explains the roles of the stable and decay phases under specific loss-geometry assumptions.
+- Cosine schedule: smooth cosine decay after a brief warmup down to 0 or ~10% of peak LR, well suited when the target token budget $D$ is fixed upfront.
+- WSD (Warmup-Stable-Decay): holds LR constant across most of training before decaying sharply at the end. [River Valley (Wen et al., 2024)](https://arxiv.org/abs/2410.05192v3) explains WSD through loss-landscape geometry: the high-LR stable phase advances rapidly along the flat valley floor, while the decay phase settles into the sharp transverse walls. For Scaling Ladders, WSD's chief advantage is trajectory reuse—multiple decay branches can fork off a single stable trunk to sweep several $D$ tiers at a fraction of the cost of independent cosine runs.
 
-An annealing ratio of about 10%–20% can serve as an initial reference ([Tissue et al., 2024](https://arxiv.org/abs/2408.11029v2)), but still needs verification at the target budget. [Wang et al., 2025](https://arxiv.org/abs/2512.13705) studies the cross-scale transfer of annealing strategies.
+Setting the decay phase to 10%–20% of total training steps provides a strong baseline ([Tissue et al., 2024](https://arxiv.org/abs/2408.11029v2)); [Wang et al., 2025](https://arxiv.org/abs/2512.13705) analyze how annealing shapes and fractions transfer across scales.
 
 ### 6.6 MoE Training Hyperparameters
 
-The LR and BSZ rules for MoE should be calibrated on the MoE recipe; coefficients from the dense recipe must be verified before reuse (our recommendation). Routing-related hyperparameters, including the load balancing coefficient or bias update rate, the numerical precision of the router, and the capacity factor, are set according to the fixed rules of [§4.4](#44-moe-structural-scaling-rules), and the expert load distribution and token drop ratio are checked at representative scales.
+Because sparse routing changes gradient noise statistics, $(\eta_{opt}, B_{opt})$ scaling laws for MoE should be fitted directly on the MoE family rather than copied unverified from an iso-active dense Ladder. Lock router-specific knobs—load-balancing coefficients or bias update rates, FP32 router logits, and capacity factors—according to [§4.4](#44-moe-structural-scaling-rules), and verify at intermediate scales that expert load distributions and token drop rates remain healthy.
 
 ### 6.7 Search Procedure and Stopping Rules
 
-LR and BSZ should be searched first, then the schedule and WD checked; stability hyperparameters such as $\epsilon$ and $\beta_2$ can be fixed after verification at the baseline and representative scales. Coordinate descent can be used to progressively narrow the range (sizes are illustrative):
+Hyperparameters exhibit a clear sensitivity hierarchy: peak LR and BSZ dominate first-order loss, LR schedule and WD come second, and numerical stability terms ($\beta_2, \epsilon$) can be fixed after baseline and large-scale sanity checks. A coarse-to-fine coordinate search keeps compute tractable (model sizes illustrative):
 
-1. Small model (about 130M) grid search to determine the core interval;
-2. Medium model (about 500M) to check the power-law trend;
-3. Large model local confirmation: LR is first confirmed within a factor of $\sqrt{2}$ around the extrapolated value, BSZ is first confirmed within $[B_{opt}/2,2B_{opt}]$, and after checking the boundaries, decide whether to expand ([§6.1](#61-hyperparameter-search-objective-and-near-optimal-region), [§6.3](#63-scaling-law-for-lr-and-bsz)).
+1. Run a full two-dimensional grid over $(\eta, B)$ at the smallest size (~130M), ensuring the loss minimum lies strictly inside the grid boundaries;
+2. Run a narrower grid at a medium size (~500M) to anchor the power-law slope;
+3. Verify locally around the extrapolated point at large scale: test LR within $[\eta_{pred}/\sqrt{2}, \sqrt{2}\eta_{pred}]$ and BSZ within $[B_{opt}/2, 2B_{opt}]$, expanding the grid only if a boundary point wins ([§6.1](#61-hyperparameter-search-objective-and-near-optimal-region), [§6.3](#63-scaling-law-for-lr-and-bsz)).
 
-The search dimension for BSZ can be reduced with the transfer rules of [§6.3](#63-scaling-law-for-lr-and-bsz). Given a selected LR, the optimal timescale $\tau$ can be searched by adjusting WD ([§6.4](#64-weight-decay)), reducing the cost of joint search; equal $\tau$ does not guarantee that different $(\eta, \lambda, B)$ combinations perform equivalently, and the LR stability and BSZ efficiency range still need to be checked.
+Using the $N$-invariance of $B_{opt}(D)$ from [§6.3](#63-scaling-law-for-lr-and-bsz) and calibrating $\lambda$ via the timescale $\tau$ from [§6.4](#64-weight-decay) collapses the three-dimensional search space into manageable lower-dimensional slices.
 
-Selecting the lowest loss from multiple trials with random fluctuations biases the estimated gain of the selected configuration upward ([Cawley & Talbot, 2010](https://www.jmlr.org/papers/v11/cawley10a.html)). Handling rules (our recommendation):
-
-- Record the search range, boundary results, local joint perturbation results, repeated-run variance, and budget consumption for each fitting point;
-- Separate the evaluation used to select hyperparameters from the evaluation used to report gains; re-verify the final candidate with a new random seed;
-- Reserve the holdout at the final scale for acceptance, and exclude it from hyperparameter search;
-- List the number of tuning runs and the compute for each candidate separately.
-
-When stopping trials early, do not use early rankings by default to eliminate configurations that may prove effective later; rankings can flip during annealing ([§6.8](#68-recipe-comparison)). Runs that are actively stopped, that diverge algorithmically, that suffer infrastructure failures, and that contain implementation errors must be marked with separate statuses; they cannot be uniformly recorded as some terminal loss, nor deleted without a record ([§12.1](#121-experiment-records)).
+Selecting the lowest loss across multiple noisy trials inevitably introduces winner's curse selection bias, overstating the winning configuration's true gain ([Cawley & Talbot, 2010](https://www.jmlr.org/papers/v11/cawley10a.html)). To eliminate selection bias, re-run the winning configuration with a fresh random seed and use that independent evaluation for curve fitting; equally important, never prune candidate trials early based on pre-annealing loss, as rankings routinely flip during LR decay ([§6.8](#68-recipe-comparison)).
 
 ### 6.8 Recipe Comparison
 
-When comparing recipes such as optimizers and LR schedules, the following conditions must be met:
+Comparing optimizers, architectures, or LR schedules on a Ladder fails most often due to unequal tuning or premature evaluation:
 
-- Tune each candidate separately and report its search budget. [Fantastic Optimizers (Wen et al., 2025)](https://arxiv.org/abs/2509.02046) finds that insufficient tuning of the AdamW baseline exaggerates the gains of new optimizers. [Kimi K3, 2026](https://arxiv.org/abs/2607.24653) §3.2 observes that at the same model size and training volume, the optimal peak LR and BSZ of cosine and WSD differ significantly; after separate scaling law searches, the final loss of cosine is consistently lower than that of WSD, so cosine is adopted as the default schedule.
-- Compare annealing endpoints under comparable budgets. Fantastic Optimizers observes that loss rankings flip during annealing, so mid-stable-phase rankings cannot directly substitute for final rankings; verified proxy screening is the exception.
-- Compare across multiple sizes. In the 8× Chinchilla setting of Fantastic Optimizers, the improvement in token efficiency shrinks as the model grows (from $1.4\times$ at 0.1B to $1.1\times$ at 1.2B), and is not equivalent to the speedup in training time.
+- Match tuning rigor across candidates: [Fantastic Optimizers (Wen et al., 2025)](https://arxiv.org/abs/2509.02046) shows that many reported optimizer breakthroughs stem from comparing a freshly tuned new optimizer against an untuned default AdamW baseline. Likewise, [Kimi K3, 2026](https://arxiv.org/abs/2607.24653) §3.2 found that cosine and WSD schedules peak at very different $(\eta, B)$ values for the same $(N, D)$; once separate hyperparameter scaling laws were tuned for each schedule, cosine consistently achieved lower final loss than WSD and was chosen as the production default.
+- Compare only at the annealed endpoint: Fantastic Optimizers documents frequent rank inversions during LR decay, making mid-stable-phase checkpoints unreliable for candidate elimination.
+- Measure how gains decay with scale: in the 8× Chinchilla regime of Fantastic Optimizers, the token-efficiency multiplier of matrix optimizers over AdamW shrank from $1.4\times$ at 0.1B down to $1.1\times$ at 1.2B (and token savings do not automatically equal wall-clock speedups). Any candidate win on a single small model must be tracked across at least three sizes to verify its advantage does not vanish at scale.
 
 ### 6.9 Training Wrap-Up
 
-If the delivery pipeline includes the following steps, the corresponding stages of the Ladder should also be executed, or a verified proxy used, to keep the fitting target consistent with the delivery target:
+Production pretraining rarely ends with a uniform-distribution run. If the delivery pipeline includes late-stage wrap-up operations, incorporate them into the Ladder (or use a validated proxy) so fitted losses match the delivered model:
 
-- Continued training: switch the data mixture and decay the LR after main training ([Nemotron-4, 2024](https://arxiv.org/abs/2402.16819); [OLMo 2, 2025](https://arxiv.org/abs/2501.00656v3)). This stage must be included when predicting final performance ([§11.1](#111-staged-ladder)).
-- Weight averaging: average weights of checkpoints with shared initialization, including merging after independent fine-tuning ([Model Soups](https://arxiv.org/abs/2203.05482v3)) and sliding-window averaging along the same trajectory ([LAWA](https://arxiv.org/abs/2209.14981); [Sanyal et al., 2024](https://arxiv.org/abs/2306.03241)). [Model Merging (ByteDance Seed, 2025)](https://arxiv.org/abs/2505.12082v3) finds in 1.3B and 13B comparisons that PMA in the WSD stable phase can approach the downstream performance of the annealing endpoint; the merging window and starting point still need verification.
+- Continued training / cooldown mixture shift: switching to a high-quality, reasoning-dense mixture during steep LR decay at the end of training ([Nemotron-4, 2024](https://arxiv.org/abs/2402.16819); [OLMo 2, 2025](https://arxiv.org/abs/2501.00656v3); see [§11.1](#111-staged-ladder)).
+- Weight averaging: merging independently fine-tuned branches from a shared checkpoint ([Model Soups](https://arxiv.org/abs/2203.05482v3)) or averaging checkpoints along a sliding window on a single trajectory ([LAWA](https://arxiv.org/abs/2209.14981); [Sanyal et al., 2024](https://arxiv.org/abs/2306.03241)). Notably, [Model Merging (ByteDance Seed, 2025)](https://arxiv.org/abs/2505.12082v3) shows at 1.3B and 13B that checkpoint merging (PMA) during the WSD stable phase closely matches the downstream performance of a fully annealed model, offering a cheap proxy for annealed performance.
 
 ## 7. Data Ladder
 
-The data Ladder fixes the model structure and training configuration, varies the data variables, and uses small-scale experiments to support data decisions at the target scale. This chapter discusses three types of decisions: data source selection ([§7.1](#71-data-quality-and-data-source-evaluation)), mixture ([§7.2](#72-data-mixture-ladder)), and repetition under data-constrained conditions ([§7.3](#73-data-constrained-training-and-repetition)). Data cleaning and filtering pipelines are out of scope.
+Holding model architecture and optimizer fixed, a Data Ladder answers three questions: whether a new corpus is worth adding ([§7.1](#71-data-quality-and-data-source-evaluation)), how to weight domains ([§7.2](#72-data-mixture-ladder)), and how many epochs scarce high-quality data can be repeated before overfitting ([§7.3](#73-data-constrained-training-and-repetition)).
 
 ### 7.1 Data Quality and Data Source Evaluation
 
-[DeepSeek LLM, 2024](https://arxiv.org/abs/2401.02954) observed across the compared training corpora:
+Comparing pretraining corpora of differing quality, [DeepSeek LLM, 2024](https://arxiv.org/abs/2401.02954) established two core findings:
 
-- Higher-quality corpora correspond to an optimal compute allocation that leans more toward parameter count;
-- The scaling law parameters differ significantly across datasets and cannot be reused directly;
-- When the recipe and evaluation distribution are controlled, differences in the optimal $N/D$ can help assess data quality.
+- Higher-quality data shifts compute-optimal allocation toward larger model size $N$: denser, cleaner corpora reward greater model capacity per token;
+- Scaling law exponents are corpus-dependent: coefficients fitted on one dataset version cannot be reused blindly on another.
 
-Therefore the data version must be recorded as a fixed item of the Ladder, and the scaling law parameters must be re-validated after any version change. When Kimi K3 changed its architecture, data, and training recipe together, the team redid the scaling law study and re-tuned BSZ, LR, TPP, and model shape ([Kimi K3, 2026](https://arxiv.org/abs/2607.24653) §3.2).
+Consequently, when [Kimi K3, 2026](https://arxiv.org/abs/2607.24653) §3.2 updated its architecture, corpus, and training recipe simultaneously, the team rebuilt its scaling laws from scratch to re-tune BSZ, LR, optimal TPP, and aspect ratio.
 
-Evaluating a new data source does not require rerunning the full matrix:
+Screening an individual new data source, however, does not require re-running a full two-dimensional Ladder:
 
-- The micro-annealing of [OLMo 2, 2025](https://arxiv.org/abs/2501.00656) starts from a specified checkpoint, mixes candidate data with general data for short-term annealing, and judges the gain. The conclusions of this method are limited to the starting point and stage of the checkpoint used, and cannot be extrapolated to the data ranking over the full run.
-- The per-domain sampling rates of [Kimi K3](https://arxiv.org/abs/2607.24653) were determined by ablations on smaller models (§3.1).
-- In an ablation that added the legal-domain synthetic data released with [Nemotron 3 Ultra, 2026](https://arxiv.org/abs/2606.15007) to Nemotron 3 Nano pretraining, the data raised the average accuracy of the LegalBench proxy evaluation from 64.6 to 74.7.
+- Checkpoint micro-annealing: [OLMo 2, 2025](https://arxiv.org/abs/2501.00656) forks a mid-to-late checkpoint, mixes the candidate dataset with baseline data over a short decay window, and measures downstream lift (noting that micro-annealing captures late-stage marginal value rather than full-run rankings).
+- Small-model domain ablations: [Kimi K3](https://arxiv.org/abs/2607.24653) §3.1 sets per-domain sampling weights via controlled ablations on small models.
+- Targeted synthetic domain injection: adding the legal synthetic corpus released with [Nemotron 3 Ultra, 2026](https://arxiv.org/abs/2606.15007) into Nemotron 3 Nano pretraining lifted average LegalBench proxy accuracy from 64.6 to 74.7.
 
 ### 7.2 Data Mixture Ladder
 
-The data mixture Ladder fixes the model structure, parameter count, training volume, and optimizer, and only varies the data mixture vector $\mathbf{w}=(w_1,\ldots,w_k)$. Mixture experiments select the training distribution, and the scale Ladder fits $N$, $D$, and loss on that distribution; when the mixture is adjusted with training volume, the two types of experiments need to iterate. Data selection for pretraining from scratch and for continued training are handled separately, each stating its transfer scope.
+A Data Mixture Ladder fixes $N$, $D$, and optimizer settings while varying the domain weight vector $\mathbf{w}=(w_1,\ldots,w_m)$. Synthesizing [Olmix, 2026](https://arxiv.org/abs/2602.12237), [OLMo 3, 2025](https://arxiv.org/abs/2512.13961) §3.4.4, and the [Marin data pipeline, 2026](https://openathena.ai/blog/marin-data-pipeline-overview/), an end-to-end mixture optimization pipeline proceeds in seven steps:
 
-The execution flow is as follows. The design values for the proxy experiments come from [Olmix, 2026](https://arxiv.org/abs/2602.12237), using a 1B target model as the reference; the method was used in [OLMo 3, 2025](https://arxiv.org/abs/2512.13961) §3.4.4.
-
-1. Define the mixture variables. Partition data into buckets by attributes such as source and domain, and record the deduplicated available tokens of each bucket; after adjusting filters or thresholds, recheck the capacity and repetition conditions ([Marin data pipeline, 2026](https://openathena.ai/blog/marin-data-pipeline-overview/)). The mixture dimensions can be refined down to instance attributes such as educational value, domain, language, and safety ([Qwen3, 2025](https://arxiv.org/abs/2505.09388)). When the mixture is switched across training stages, design mixture experiments for each stage separately ([§11.1](#111-staged-ladder)): in the 25T-token training of [Nemotron 3 Super, 2026](https://arxiv.org/abs/2604.12374), the first 80% emphasizes diversity and the last 20% emphasizes high-quality data.
-2. Set the baselines. The baselines are proportional sampling and [UniMax](https://arxiv.org/abs/2304.09151); [Marin](https://openathena.ai/blog/marin-data-pipeline-overview/) points out that a poorly executed learned mixture can be worse than these two baselines.
-3. Design the proxy experiments.
-   - Size: at 5× Chinchilla training volume, proxies of 15M and above have a Spearman correlation above 0.89 with the 1B target, while a 1M proxy gives 0.73 ([Olmix](https://arxiv.org/abs/2602.12237)); [OLMo 3](https://arxiv.org/abs/2512.13961) uses a 30M proxy and 3B tokens.
-   - Training volume and data pool: scale down in the same proportion as the repetition conditions of the target training. [Marin](https://openathena.ai/blog/marin-data-pipeline-overview/) sets the proxy budget by active parameter count and shrinks each bucket's data pool by the same proportion, so that the proxy's repetition count matches that of the target ladder (791 tokens per active parameter).
-   - Number and sampling: the required number of proxies grows linearly with the number of domains $m$, and is no fewer than $3(m+1)$ when using log-linear regression; mixtures are sampled from a Dirichlet distribution centered on the natural distribution, with sparse sampling for topic-level domains and dense sampling for source-level domains.
-   - Alternative method: [DeMix, 2026](https://arxiv.org/abs/2602.00747) trains a component model for each candidate dataset and replaces the mixture-trained proxy with a weighted merge of the component models; its ranking consistency is higher than that of proxies trained at small scale.
-4. Fit the regression. In [Olmix](https://arxiv.org/abs/2602.12237), the log-linear model gives the best downstream results; different regression model families have their own advantages at different proxy counts, so conclusions in the existing literature are inconsistent. Fit each task separately: the fit correlation on held-out mixtures is 0.983 with per-task fitting and 0.866 with an aggregate metric. The regression form must be able to represent non-monotonic responses: [Marin](https://openathena.ai/blog/marin-data-pipeline-overview/) observes that as a single bucket's weight increases, the loss first decreases, then saturates, and rises again when repetition is excessive. The correlation coefficient between a single bucket's weight and the metric does not represent that bucket's independent effect, because the weights sum to 1; in [Marin](https://openathena.ai/blog/marin-data-pipeline-overview/) this correlation also varies with the evaluation set and with the pretraining versus cooldown stage.
-5. Solve for the mixture. The constraint $w_j \le k N_j / R$ ($N_j$ is the available tokens of data bucket $j$, $R$ is the target training tokens, and $k$ is the repetition cap) significantly changes the solved mixture ([§7.3](#73-data-constrained-training-and-repetition)). Exact solving plus a KL regularizer toward the natural distribution ($\lambda=0.05$) works best.
-6. Cross-scale confirmation. Before the target training, compare the selected mixture against the baselines on a set of larger models ([Marin](https://openathena.ai/blog/marin-data-pipeline-overview/)). How well this flow transfers to larger models remains to be verified.
-7. Re-estimate after data updates. The mixture reuse of [Olmix](https://arxiv.org/abs/2602.12237) preserves the relative proportions of unaffected data buckets and only recomputes the affected part. In a setting with 5 updates, a final 64 domains, and a 1B model trained on 100B tokens, this method improves by 11.6% over the natural distribution, reaches 95% of the gain from full recomputation, and reduces the number of proxies by 74%. The mixture of [OLMo 3](https://arxiv.org/abs/2512.13961) went through 3 rounds of this flow.
-
-Deliverables: a traceable relationship among the data inventory, the candidate mixture table, the feasible-region constraints, the regression acceptance results, the cross-scale confirmation results, and the final sampling configuration.
+1. Bucket partitioning and inventory: partition corpora by source, domain, or fine-grained instance tags (such as educational value, code, language, and safety; [Qwen3, 2025](https://arxiv.org/abs/2505.09388)), re-tallying deduplicated unique tokens $N_j$ whenever quality filters change ([Marin data pipeline, 2026](https://openathena.ai/blog/marin-data-pipeline-overview/)). If the production run shifts mixtures across stages (e.g., [Nemotron 3 Super, 2026](https://arxiv.org/abs/2604.12374) emphasizes diversity for the first 80% of its 25T tokens and high-quality sources for the final 20%), optimize each stage's mixture separately ([§11.1](#111-staged-ladder)).
+2. Baseline anchors: always benchmark against natural token-proportional sampling and repetition-capped [UniMax](https://arxiv.org/abs/2304.09151); as [Marin](https://openathena.ai/blog/marin-data-pipeline-overview/) notes, poorly constrained learned mixtures frequently underperform both baselines.
+3. Small-scale proxy design:
+   - Proxy size: at 5× Chinchilla horizon, proxy models of 15M parameters and above achieve $>0.89$ Spearman rank correlation with a 1B target model, whereas a 1M proxy drops to 0.73 ([Olmix](https://arxiv.org/abs/2602.12237)); [OLMo 3](https://arxiv.org/abs/2512.13961) uses 30M proxies trained for 3B tokens.
+   - Proportional pool downscaling: if a tiny proxy samples from the full multi-terabyte pool, it never experiences the multi-epoch repetition that hits the flagship model. [Marin](https://openathena.ai/blog/marin-data-pipeline-overview/) therefore shrinks each bucket's available token pool in exact proportion to the proxy's active parameters, forcing the proxy to encounter the exact same repetition rate (791 tokens per active parameter) as the target ladder.
+   - Sample count and model-merging alternatives: fitting a log-linear response surface across $m$ domains requires at least $3(m+1)$ proxy mixtures sampled from a Dirichlet distribution centered on the natural prior. To cut proxy training cost, [DeMix, 2026](https://arxiv.org/abs/2602.00747) trains one component model per domain and evaluates arbitrary mixtures via weighted model merging, achieving higher rank consistency than retrained small proxies.
+4. Per-task response regression: [Olmix](https://arxiv.org/abs/2602.12237) shows that fitting separate log-linear models per evaluation task and then aggregating achieves 0.983 correlation on held-out mixtures, far beating the 0.866 correlation of fitting a single aggregate score directly. Moreover, the regression form must capture non-monotonic saturation: [Marin](https://openathena.ai/blog/marin-data-pipeline-overview/) observes that raising a bucket's weight initially lowers loss, plateaus, and then degrades loss once small bucket capacity forces heavy repetition; because $\sum w_j=1$, single-bucket marginal correlations are confounded by competing buckets and can flip sign between pretraining and cooldown ([Marin](https://openathena.ai/blog/marin-data-pipeline-overview/)).
+5. Repetition-constrained solver: solve for the optimal mixture under explicit per-bucket epoch caps $w_j \le k N_j / R$ ($R$ target tokens, $k$ max epochs; [§7.3](#73-data-constrained-training-and-repetition)) plus a light KL regularizer ($\lambda=0.05$) toward the natural distribution.
+6. Cross-scale confirmation: validate the solved mixture against proportional and UniMax baselines on intermediate-scale models before launching the flagship run ([Marin](https://openathena.ai/blog/marin-data-pipeline-overview/)).
+7. Incremental mixture reuse: when only a subset of buckets is updated, [Olmix](https://arxiv.org/abs/2602.12237)'s mixture reuse freezes the relative weights among unchanged buckets and re-runs proxies only for the modified subspace. Across 5 updates scaling to 64 domains (1B model at 100B tokens), mixture reuse delivered an 11.6% gain over natural sampling—capturing 95% of full-recomputation gains while cutting proxy runs by 74%—and powered three mixture iterations in [OLMo 3](https://arxiv.org/abs/2512.13961).
 
 ### 7.3 Data-Constrained Training and Repetition
 
-When data is constrained, the total number of unique tokens $U$ must be written into the experiment matrix as a constraint at the design stage, and the training volume axis must be annotated with cumulative training tokens, unique tokens, and repetition count simultaneously. The deduplication scope must be consistent with the statistical basis of the repetition count: [Marin data pipeline, 2026](https://openathena.ai/blog/marin-data-pipeline-overview/) performs global deduplication across all sources so that the number of epochs can be treated as a controlled variable, where the largest cross-source overlap comes from [Nemotron-CC](https://arxiv.org/abs/2412.02595) and its synthetic rewritten versions.
+When target training volume $D$ exceeds available unique tokens $U$, multi-epoch repetition is unavoidable. The prerequisite for studying repetition is global cross-source deduplication: the [Marin data pipeline, 2026](https://openathena.ai/blog/marin-data-pipeline-overview/) performs global deduplication across all corpora so "1 epoch" is a true controlled variable, uncovering massive hidden overlap between [Nemotron-CC](https://arxiv.org/abs/2412.02595) and its synthetic rewritten variants.
 
-[Muennighoff et al., 2023](https://arxiv.org/abs/2305.16264v5) assume that the marginal benefit of repeated data decays exponentially and give the effective data volume:
+Assuming the marginal value of repeated tokens decays exponentially with epoch count, [Muennighoff et al., 2023](https://arxiv.org/abs/2305.16264v5) replace raw tokens $D$ with effective data volume $D^\prime$:
 
 $$D^{\prime} = U_D + U_D \cdot R_D^{\ast} \left(1 - e^{-R_D / R_D^{\ast}}\right)$$
 
-$U_D$ is the number of unique tokens, $R_D$ is the number of additional repetitions ($R_D=0$ means a single epoch), and $R_D^\ast$ is the fitted decay scale. As $R_D\to\infty$, $D^\prime\to U_D(1+R_D^\ast)$. This form describes benefit saturation; if the loss rises again with repetition, an overfitting term must also be modeled.
+where $U_D$ is unique tokens, $R_D$ is the number of additional repetitions beyond the first epoch ($R_D=0$ for a single epoch), and $R_D^\ast$ is the fitted decay half-life scale (empirically ~4). As $R_D\to\infty$, effective volume saturates at $U_D(1+R_D^\ast)$.
 
 {% include figure.liquid
   path='assets/img/pretrain-scaling/muennighoff-epoch-returns.png'
@@ -535,28 +507,29 @@ $U_D$ is the number of unique tokens, $R_D$ is the number of additional repetiti
   zoomable=true
 %}
 
-- The upper limit on repetition count depends on the data and the recipe. [Yan et al., 2025](https://arxiv.org/abs/2511.13421v2) obtain, under a linear regression assumption, that the optimal repetition count grows logarithmically with the number of samples; [Lovelace et al., 2026](https://arxiv.org/abs/2605.01640) find that a larger parameter count, fewer unique tokens, and more repetitions jointly exacerbate overfitting.
-- In the controlled experiments of [Xue et al., 2023](https://arxiv.org/abs/2305.13230v2), overfitting caused by repetition varies mainly with parameter count; increasing the data volume alleviates it, while improving quality at the same data volume does not bring the same improvement. Dropout improves repetition-induced overfitting noticeably (v2 Table 4), and larger models need the dropout rate re-tuned.
-- When data is constrained, the choice of model size must also account for the reduced benefit from repetition: with $U$ fixed, increasing $N$ exacerbates overfitting, and the compute-optimal allocation must be re-solved under a fitting form that includes a repetition term.
-- When scarce data is mixed with a large amount of general data for training, the tolerable repetition count is higher than for training on a single source. In over 2,000 training runs, [Sedova et al., 2026](https://arxiv.org/abs/2605.12715) find that scarce target-language corpora can be repeated 15–20 times, and that the optimal repetition count depends on the target data volume, compute, and model size; their mixture scaling law with a repetition term can be extrapolated to larger scales after fitting at small scale.
-- The maximum repetition count of each data source should be used as a mixture constraint ([§7.2](#72-data-mixture-ladder)). When [Kimi K2.5, 2026](https://arxiv.org/abs/2602.02276) continues joint pretraining from a near-final checkpoint of [Kimi K2](https://arxiv.org/abs/2507.20534), it caps the maximum number of epochs per data source; the quality-aware upsampling of [OLMo 3](https://arxiv.org/abs/2512.13961) repeats only high-quality data, with a maximum of 7 repetitions, and outperforms threshold-based filtering in a simulated data-constrained control (§3.4.4, Appendix A.2.5).
-- Rewriting can substitute for part of the repetition. On an early checkpoint, [Kimi K2, 2025](https://arxiv.org/abs/2507.20534) compares three settings on SimpleQA: training on the original text for 10 epochs gives 23.76, rewriting once and training for 10 epochs gives 27.39, and rewriting 10 times and training once each gives 28.94; when generalized to other knowledge corpora, each corpus is rewritten at most 2 times (§2.2). [Kimi K3](https://arxiv.org/abs/2607.24653) follows this rewriting method (§3.1). Rewritten data and original text must be counted separately for unique tokens.
+Recent empirical and theoretical work clarifies when repetition helps and when it hurts:
+
+- Overfitting scales with parameter count $N$ and inverse pool size $1/U$: [Yan et al., 2025](https://arxiv.org/abs/2511.13421v2) show analytically in linear regression that optimal repetition grows logarithmically with dataset size, while [Lovelace et al., 2026](https://arxiv.org/abs/2605.01640) and [Xue et al., 2023](https://arxiv.org/abs/2305.13230v2) demonstrate that larger $N$, smaller $U$, and higher repetition jointly accelerate memorization. Consequently, when unique tokens $U$ are fixed, scaling $N$ too aggressively worsens repetition overfitting, shifting the compute-optimal allocation toward smaller $N$.
+- Quality alone does not prevent multi-epoch overfitting, but dropout helps: [Xue et al., 2023](https://arxiv.org/abs/2305.13230v2) find that at fixed dataset size, higher data quality does not immunize a large model against multi-epoch overfitting, whereas re-tuning dropout (v2 Table 4) substantially mitigates repetition degradation.
+- Scarce domains tolerate far more repetition when diluted in a large general mixture: across 2,000+ runs, [Sedova et al., 2026](https://arxiv.org/abs/2605.12715) show that a small target-language or specialist corpus mixed into a massive general dataset can be repeated 15–20 times with positive returns, and their repetition-aware mixture scaling law extrapolates reliably from small to large scale.
+- Enforce quality-tiered epoch caps: production recipes cap maximum epochs per bucket ([§7.2](#72-data-mixture-ladder)). [Kimi K2.5, 2026](https://arxiv.org/abs/2602.02276) caps per-source epochs when continuing joint pretraining from a late [Kimi K2](https://arxiv.org/abs/2507.20534) checkpoint; [OLMo 3](https://arxiv.org/abs/2512.13961) (§3.4.4, Appendix A.2.5) upsamples only high-quality buckets up to 7 epochs, outperforming aggressive threshold filtering.
+- Synthetic rewriting stretches unique token horizons: paraphrasing high-value knowledge corpora into diverse surface forms delays memorization saturation. On SimpleQA at an early checkpoint, [Kimi K2, 2025](https://arxiv.org/abs/2507.20534) §2.2 scored 23.76 when repeating raw text for 10 epochs, 27.39 when rewriting once and training for 10 epochs, and 28.94 when generating 10 distinct rewrites trained for 1 epoch each (capping production rewrites at 2 passes per corpus, a practice retained in [Kimi K3](https://arxiv.org/abs/2607.24653) §3.1). Track rewritten tokens separately from raw unique tokens $U$.
 
 ## 8. Loss Scaling Law Fitting
 
-Three settings must be confirmed before fitting ([Porian et al., 2024](https://arxiv.org/abs/2406.19146)):
+Before fitting $L(N,D)$, verify that the three confounding factors identified by [Porian et al., 2024](https://arxiv.org/abs/2406.19146) have been resolved:
 
-1. Compute accounting includes the output head, recorded separately from the parameter count basis used for fitting ([§3.1](#31-parameter-count-definition));
-2. Warmup is set according to the scaling rule ([§4.1](#41-variable-classification));
-3. For Objectives 2–4, each size is searched to the Fully-Tuned Frontier ([§6.1](#61-hyperparameter-search-objective-and-near-optimal-region)); Objective 1 runs under the recipe.
+1. Compute $C$ includes output-head FLOPs and is logged separately from the trunk parameter count $N_{\text{body}}$ ([§3.1](#31-parameter-count-definition));
+2. Warmup steps scale proportionally with training volume rather than remaining fixed ([§4.1](#41-variable-classification));
+3. For Objectives 2–4, every fitting point has been tuned onto the Fully-Tuned Frontier ([§6.1](#61-hyperparameter-search-objective-and-near-optimal-region)).
 
 ### 8.1 Functional Form
 
-Chinchilla's parameterization is $L(N,D)=E+A/N^\alpha+B/D^\beta$, and the additive form implies $\partial^2L/\partial N\partial D\equiv0$. [Skaling (Videau et al., 2026)](https://arxiv.org/abs/2608.07222v1) found a negative mixed partial derivative on the analyzed data and added an outer exponent $k$:
+Chinchilla's classic additive law $L(N,D)=E+A/N^\alpha+B/D^\beta$ imposes zero interaction between model size and token horizon ($\partial^2L/\partial N\partial D\equiv0$). Analyzing dense $(N,D)$ grids, [Skaling (Videau et al., 2026)](https://arxiv.org/abs/2608.07222v1) finds a consistently negative mixed partial derivative—meaning $N$ and $D$ complement each other—and introduces a single outer coupling exponent $k$:
 
 $$L(N,D)=\left(\frac{A}{N^{\alpha}}+\frac{B}{D^{\beta}}\right)^{k}+E$$
 
-When $k=1$ it reduces to the Chinchilla form; that paper fits $k\approx0.31$–$0.45$. Skaling has only one more parameter, and the algebraic form of the compute-optimal closed-form solution is unchanged.
+Setting $k=1$ recovers Chinchilla, whereas empirical fits yield $k\approx0.31$–$0.45$. Crucially, adding just 1 extra free parameter $k$ leaves the closed-form algebraic expression for compute-optimal $(N_{opt}, D_{opt})$ unchanged.
 
 {% include figure.liquid
   path='assets/img/pretrain-scaling/skaling-vs-chinchilla-error.svg'
@@ -568,11 +541,11 @@ When $k=1$ it reduces to the Chinchilla form; that paper fits $k\approx0.31$–$
   zoomable=true
 %}
 
-[Farseer (Li et al., 2025)](https://arxiv.org/abs/2506.10972) makes both the coefficient and the exponent on the data side depend on $N$, for nine parameters in total. Skaling, with six parameters, has the lowest interpolation and single-axis extrapolation error on both the Farseer and SK-Grid datasets ([Skaling](https://arxiv.org/abs/2608.07222) Table 1). Skaling can be taken as the default candidate and compared with the Chinchilla form on one's own data; refitting may change the compute-optimal ratio and must be validated by holdout.
+As Figure 7 illustrates, Chinchilla's additive form produces a pronounced saddle-shaped residual pattern that blows up toward the four corners of the $(N, D)$ grid (extreme under-training and over-training), whereas Skaling flattens residuals near zero across the entire surface. Compared against the nine-parameter [Farseer (Li et al., 2025)](https://arxiv.org/abs/2506.10972) form (which makes data-side coefficients and exponents explicit functions of $N$), the six-parameter [Skaling](https://arxiv.org/abs/2608.07222) law achieves lower interpolation and single-axis extrapolation error on both the Farseer and SK-Grid benchmarks (Table 1). Fit both Skaling and Chinchilla as default candidates and select between them on a held-out validation slice.
 
-When $D/N$ is fixed, the one-dimensional approximation $L=G(M)/C^\gamma+E$ can be used (with $M=D/N$); across ratios, $N$ and $D$ still need to be modeled separately.
+When all runs share a single fixed TPP ratio $M=D/N$, the surface collapses to a one-dimensional power law $L=G(M)/C^\gamma+E$; any cross-TPP extrapolation or compute-allocation solve requires the full bivariate $(N, D)$ surface.
 
-The layout must be validated together with the functional form. In the two sets of experiments in the Skaling paper, the compute for the L-shape layout is about 1/5–1/10 of the full grid; the Chinchilla additive form shows a clear increase in error on these sparse layouts. When compute is constrained, the L-shape layout can be evaluated.
+Better functional forms also unlock much cheaper experimental grids. In Skaling's ablations, an L-shape sparse layout—sweeping $N$ only at small $D$ and sweeping $D$ only at small $N$ (Figure 8)—costs just $1/5$–$1/10$ the compute of a full grid; Chinchilla's additive form suffers severe extrapolation drift into the large-$(N,D)$ interior from an L-shape, whereas Skaling extrapolates accurately.
 
 {% include figure.liquid
   path='assets/img/pretrain-scaling/skaling-v1-sampling-evaluation.png'
@@ -586,71 +559,60 @@ The layout must be validated together with the functional form. In the two sets 
 
 ### 8.2 Loss Curves and Annealing Scaling Law
 
-[Tissue et al., 2024](https://arxiv.org/abs/2408.11029) expresses loss as a function of step:
+To predict the entire step-by-step training curve rather than just the final endpoint, [Tissue et al., 2024](https://arxiv.org/abs/2408.11029) parameterize loss at step $s$ directly in terms of the learning rate schedule:
 
 $$\hat L(s) = L_0 + A \cdot S_1(s)^{-\alpha} - C \cdot S_2(s)$$
 
-$S_1(s)=\sum_{i\leq s}\eta_i$ is the cumulative learning rate area, and $S_2(s)$ is the cumulative annealing amount with a forgetting kernel. This formula takes the schedule as input, can fit the entire loss curve using multiple eval points from the same trajectory, and can also predict curves under different re-warmup LRs in continued training (§4.7 of the paper). Reusing coefficients across scales or data distributions still needs validation. When the extrapolation span is too large, systematic bias appears and additional experimental points are needed.
+where $S_1(s)=\sum_{i\leq s}\eta_i$ is cumulative learning rate area (capturing forward optimization progress) and $S_2(s)$ is cumulative LR decay convolved with an exponential forgetting kernel (capturing annealing settling gains). Taking the LR schedule as an explicit functional input allows a single fit to leverage dozens of intermediate evaluation points along a trajectory and predict full loss curves across cosine schedules, WSD branches, and continued-training re-warmups (§4.7 of the paper).
 
 ### 8.3 Fitting Protocol
 
-The following choices must be fixed and recorded before fitting (our recommendation):
+Running a single pass of `scipy.optimize.curve_fit` on raw loss values is notoriously fragile: both the Chinchilla replication by [Besiroglu et al., 2024](https://arxiv.org/abs/2404.10102) and the survey in [(Mis)Fitting (Li et al., 2025)](https://arxiv.org/abs/2502.18969) demonstrate that non-linear power-law fits are highly sensitive to numerical specification, where minor changes in initialization, loss weighting, or outlier handling swing extrapolated $(N_{opt}, D_{opt})$ ratios by severalfold. Standardize the fitting pipeline around three practices:
 
-- Fitting target: fit $L$ or $\log L$; fit $E$ or fix $E$.
-- Objective function: squared error or a robust loss (such as Huber); the weights for each size, trajectory, and checkpoint.
-- Numerical settings: parameter constraints, variable transformations, initialization, multi-start optimization, and convergence checks.
-- Outliers: pre-specified handling rules.
-- Functional form selection: compare candidate forms on the development validation set; holdout does not participate in selection.
-- Uncertainty: the resampling unit for bootstrap must match the dependency structure of the data; multiple branches sharing a prefix cannot be treated as independent runs. Report parameter confidence intervals, prediction intervals for a single future run, and functional form uncertainty separately. Resampling cannot eliminate functional form error or error beyond the validation range.
-
-Parameter fitting and decision computation should be re-verified together: for each valid fit, recompute the target configuration and candidate differences, and observe whether the conclusions are stable ([§2.3](#23-acceptance-thresholds-and-decision-rules)). Reporting only parameter standard errors cannot support candidate selection.
-
-The reproduction by [Besiroglu et al., 2024](https://arxiv.org/abs/2404.10102) shows that the settings for parametric fitting and confidence intervals affect the conclusions; [(Mis)Fitting (Li et al., 2025)](https://arxiv.org/abs/2502.18969) discusses the impact of missing fitting details on reproducibility.
-
-Deliverables: a fitting script that reads the experiment table, outputs residuals, sensitivity analysis, target predictions, and a decision table, together with a complete example using public data or clearly labeled synthetic data.
+- Target transformation and robust loss: specify upfront whether residuals are minimized on $L$ or $\log L$ and whether irreducible entropy $E$ is fitted freely or bounded by a prior; use Huber loss to limit the leverage of noisy points and weight trajectories inversely by checkpoint count so long runs do not dominate short runs.
+- Multi-start global optimization: because power-law coefficients and exponents trade off along curved valleys, local gradient solvers easily trap in poor local minima; optimize in log-parameter space with explicit box bounds across hundreds of random initializations (multi-start L-BFGS-B).
+- Block bootstrap and decision propagation: when estimating confidence intervals, resample at the level of independent runs (or shared-trunk branch clusters) rather than treating serially correlated checkpoints as independent samples. For every bootstrap replicate, re-solve the target $(N_{opt}, D_{opt})$ or candidate margin ([§2.3](#23-acceptance-thresholds-and-decision-rules)) so uncertainty is reported directly on the engineering decision rather than just on raw curve parameters.
 
 ### 8.4 Fitting Diagnostics and Failure Handling
 
-After fitting is complete, check:
+Before trusting an extrapolation, run three diagnostic checks on the fitted surface:
 
-- Residual structure: whether residuals vary systematically with $N$, $D$, or training stage; whether conclusions depend on a few points or a specific functional form.
-- Checkpoint correlation: multiple checkpoints from the same trajectory have serial correlation, and the amount of independent information cannot be judged by the number of points ([Delphi](https://openathena.ai/blog/delphi/) performs bootstrap at the IsoFLOP optimum).
-- Uncertainty separation: report seed variance, evaluation variance, and fitting uncertainty separately.
-- Truncation and validation split: truncation rules are determined in advance or selected using the development validation set; holdout remains for acceptance purposes ([§5.4](#54-intermediate-checkpoints-random-seeds-and-shared-trajectories)).
-- Failure handling: when the error is too large, list the experiments to be added and the decisions that cannot currently be made. Explanations without evidence are recorded as "cause unknown".
-- Artifacts: recipe version, experiment records, fitting method, prediction intervals, and unresolved issues ([§12.1](#121-experiment-records)).
-
-If the decision involves downstream capabilities, the prediction of task metrics also needs to be validated ([§9](#9-downstream-task-prediction)); the scaling laws may differ across samples.
+- Inspect two-dimensional residual structure: plot signed residuals $\hat L - L$ against $\log N$, $\log D$, and TPP. A saddle pattern (as in Figure 7 left) or monotonic tail curvature signals functional-form misspecification that will compound under extrapolation.
+- Guard against inflated degrees of freedom: verify that autocorrelated intermediate checkpoints are down-weighted or block-bootstrapped (for instance, [Delphi](https://openathena.ai/blog/delphi/) bootstraps strictly over the fitted optima of each IsoFLOP parabola, eliminating intra-trajectory correlation).
+- Decompose holdout error: compare holdout residuals against the multi-seed standard deviation at fixed configuration—if holdout error approaches seed noise, the fit has hit the noise floor; if systematic bias dwarfs seed noise, revisit the early-checkpoint truncation cutoff ([§5.4](#54-intermediate-checkpoints-random-seeds-and-shared-trajectories)) or add grid points along the failing axis.
 
 ### 8.5 MoE Fitting
 
-- For a scale ladder with fixed sparsity and granularity, $N_{active}$ can be used in place of $N$ as the fitting independent variable, while also recording $N_{total}$.
-- When sparsity or granularity changes, $S$ (or $E_{total}$) and granularity must enter the fitting form as independent variables ([Krajewski et al., 2024](https://arxiv.org/abs/2402.07871); [Ludziejewski et al., 2025](https://arxiv.org/abs/2502.05172)).
-- Data from the scale ladder and the sparsity ladder cannot be mixed to fit the same set of coefficients ([§5.6](#56-moe-experimental-axes)).
-- Dense control points are fitted separately, to compare how the equivalent compute multiplier of MoE versus dense changes with scale.
+Fit MoE Ladders by aligning the regression variables with the orthogonal axes of [§5.6](#56-moe-experimental-axes):
+
+- On a Scale Ladder with fixed sparsity $S$ and expert granularity, simply substitute per-token active parameters $N_{active}$ for $N$ in the bivariate scaling law (logging $N_{total}$ alongside).
+- When sweeping expert counts or granularity, include sparsity $S$ and granularity as explicit variables in the joint functional form ([Krajewski et al., 2024](https://arxiv.org/abs/2402.07871); [Ludziejewski et al., 2025](https://arxiv.org/abs/2502.05172))—never pool runs of differing sparsity into a single $(N_{active}, D)$ fit.
+- Compare the fitted MoE surface against an independently fitted dense baseline in equivalent-compute coordinates to track how MoE's compute multiplier scales with model size.
 
 ## 9. Downstream Task Prediction
 
 ### 9.1 Method Routes
 
-| Method Route | Core Idea | Representative Work | Limitation |
-|---|---|---|---|
-| Loss → Performance | First predict loss or perplexity, then map to downstream metrics | [Gadre et al., 2024](https://arxiv.org/abs/2403.08540v2) (power law of error rate versus perplexity, equivalent to an exponential relationship with cross-entropy loss); [Delphi](https://openathena.ai/blog/delphi/) (sigmoid mapping) | The mapping depends on the task and evaluation protocol |
-| Compute or $(N,D)$ → Task NLL → Acc | Two stages: first predict the NLL of the correct answer on the task, then fit the mapping from NLL to accuracy | [Bhagia et al., 2024](https://arxiv.org/abs/2412.04403) (OLMo Task Ladder); [Llama 3](https://arxiv.org/abs/2407.21783) §3.2.1 (sigmoid mapping, extrapolated to 405B) | Inter-task noise and prediction error vary widely |
-| End-to-End | Directly model how task metrics change with compute; can be grouped by difficulty | [COD (Xu et al., 2026, v4)](https://arxiv.org/pdf/2502.17262v4) (difficulty feature clustering); [GPT-4 Technical Report](https://arxiv.org/abs/2303.08774v6) (HumanEval difficulty bucketing) | Requires a distinguishable evaluation signal; applicability depends on the method and scoring protocol |
+Extrapolating downstream benchmark accuracy from small pretraining runs generally follows one of three routes:
 
-The first stage of Llama 3 uses only scaling law models within 1e22 FLOPs, fitting a linear relationship between the normalized NLL of the correct answer and training FLOPs; the second stage uses both the scaling law model and the Llama 2 model, fitting a sigmoid relationship between NLL and accuracy. On ARC-Challenge, the prediction for 405B is slightly lower than the measured value ([Llama 3](https://arxiv.org/abs/2407.21783) §3.2.1). The IsoFLOP plus sigmoid mapping of [Delphi](https://openathena.ai/blog/delphi/) can serve as a starting point. The pros and cons of different routes need to be compared under the same task and protocol.
+| Prediction Route | Modeling Chain | Representative Works | Strengths & Limitations |
+|---|---|---|---|
+| Loss $\to$ Accuracy | Extrapolate general pretraining loss from $(N,D)$, then map loss to benchmark score via a monotonic curve | [Gadre et al., 2024](https://arxiv.org/abs/2403.08540v2) (power-law error rate vs. perplexity); [Delphi](https://openathena.ai/blog/delphi/) (sigmoid mapping) | Simplest pipeline; vulnerable to distribution shift between general pretraining loss and specialized tasks |
+| $(N,D) \to$ Task NLL $\to$ Acc | Two-stage fit: extrapolate the negative log-likelihood (NLL) of ground-truth task answers from compute, then map NLL to discrete accuracy | [Bhagia et al., 2024](https://arxiv.org/abs/2412.04403) (OLMo Task Ladder); [Llama 3](https://arxiv.org/abs/2407.21783) §3.2.1 (extrapolated to 405B) | Eliminates domain mismatch between pretraining corpus and target task; stage-two NLL-to-accuracy noise varies widely across benchmarks |
+| Difficulty-Bucketed End-to-End | Cluster benchmark items by small-model pass rates, fit compute-to-accuracy curves on non-degenerate clusters, and map back to the full test set | [COD (Xu et al., 2026, v4)](https://arxiv.org/pdf/2502.17262v4) (difficulty feature clustering); [GPT-4 Technical Report](https://arxiv.org/abs/2303.08774v6) (HumanEval difficulty bucketing) | Solves the zero-signal problem on hard reasoning benchmarks where small models score near zero; requires multi-sample pass rates and stable item clustering |
+
+In [Llama 3](https://arxiv.org/abs/2407.21783) §3.2.1, stage one fits a linear relationship between normalized correct-answer NLL and $\log\text{FLOPs}$ using only Ladder runs up to $10^{22}$ FLOPs; stage two pools the Ladder models with existing Llama 2 checkpoints to fit a sigmoid curve from NLL to accuracy, yielding tight predictions for 405B on benchmarks like ARC-Challenge (slightly conservative relative to actual). In practice, [Delphi](https://openathena.ai/blog/delphi/)'s IsoFLOP-plus-sigmoid mapping provides a fast baseline across standard suites, while two-stage NLL or difficulty bucketing can be layered onto flagship reasoning tasks.
 
 ### 9.2 COD Framework
 
-The four stages of [COD (Xu et al., 2026, v4)](https://arxiv.org/pdf/2502.17262v4):
+Why do aggregate accuracy curves on hard benchmarks like MATH look flat at small scale and then kink sharply upward? Because a benchmark mixes easy items that saturate early with hard items where small models score strictly 0. [COD (Xu et al., 2026, v4)](https://arxiv.org/pdf/2502.17262v4) decomposes an unpredictable full benchmark into predictable difficulty subsets in four stages:
 
-1. Clustering: multiple small models sample each question many times, using the average correctness as the difficulty feature, and cluster by difficulty;
-2. Fitting: fit $E[\mathrm{Acc}(C)] = g + (1-g) \cdot e^{-aC^{-b}-c}$ for each cluster;
-3. Extrapolation: select reliable clusters, plug in the target compute, and take a weighted average by sample count;
-4. Mapping: calibrate the mapping curve from the extrapolatable subset to the full evaluation set.
+1. Multi-sample difficulty clustering: sample each problem multiple times across a suite of small models, use the vector of per-model pass rates as the problem's difficulty signature, and cluster items into difficulty tiers;
+2. Per-cluster curve fitting: fit a double-exponential curve $E[\mathrm{Acc}(C)] = g + (1-g) \cdot e^{-aC^{-b}-c}$ (with random-guessing floor $g$) to each cluster;
+3. Subset extrapolation: discard degenerate clusters that remain stuck at the guessing floor or already saturated at small scale, extrapolate the informative mid-difficulty clusters to target compute $C$, and take a size-weighted average;
+4. Subset-to-full mapping: fit a monotonic calibration curve mapping the extrapolatable subset score back to full-benchmark accuracy.
 
-COD v4 achieves an average absolute prediction error of 1.55 percentage points on a 70B model across 8 benchmarks (Table 1).
+Across 8 benchmarks, COD v4 predicts 70B model accuracy with a mean absolute error of just 1.55 percentage points (Table 1 of the paper).
 
 {% include figure.liquid
   path='assets/img/pretrain-scaling/cod-v4-prediction-accuracy.png'
@@ -663,392 +625,373 @@ COD v4 achieves an average absolute prediction error of 1.55 percentage points o
   loading='lazy'
 %}
 
-Applicability conditions:
+Keep four boundary conditions in mind when deploying COD:
 
-- When there are too few samples, the clustering metrics are unstable; under new architectures or new data distributions, the stability of the difficulty features and the mapping needs to be verified.
-- The main pretraining experiments use a constant LR after warmup. The continued training experiments additionally include data changes and annealing, and small models need to match the distribution and TPP of both stages (v4 Appendix D–E).
-- v4 uses dense clustering to predict a MoE target with an active parameter count of 32B, with average and maximum absolute errors of 3.11 and 8.11 percentage points, respectively, providing limited cross-architecture evidence (§5.3.1, Table 2).
-- CoT already has empirical prediction results, but theory does not yet adequately cover non-unique answers and reasoning paths (Appendix H).
+- Small benchmarks produce noisy clusters, and major changes in architecture or corpus mixture can reshuffle item difficulty rankings, requiring cluster stability checks;
+- When target training includes a continued-training mixture shift and annealing phase, small proxy models must match the two-stage data distribution and TPP trajectory (v4 Appendix D–E);
+- Cross-architecture transfer in v4 works with wider error bars: using dense small-model clusters to predict a 32B-active MoE target yielded mean and maximum absolute errors of 3.11 and 8.11 percentage points, respectively (§5.3.1, Table 2);
+- While open-ended CoT benchmarks show strong empirical fits, theoretical guarantees for non-unique reasoning paths remain an open problem (Appendix H).
 
 ### 9.3 Limits of Predictability
 
-[Schaeffer et al., 2024](https://arxiv.org/abs/2406.04391) analyzed why downstream metrics are hard to predict: multiple-choice accuracy is jointly determined by the probability mass on the correct option and on specific incorrect options, and the step-by-step transformation from loss to accuracy weakens the statistical relationship with compute, while predicting only the probability of the correct answer loses this information.
+Even with sophisticated two-stage or clustering methods, some discrete benchmarks resist accurate extrapolation from small models. [Schaeffer et al., 2024](https://arxiv.org/abs/2406.04391) pinpoint why: on multiple-choice tasks, discrete accuracy depends not only on the probability assigned to the ground-truth answer, but also on how probability mass concentrates on specific competing distractors. Each step from continuous cross-entropy to argmax thresholding discards information about distractor trajectories, weakening the statistical link to compute.
 
-Therefore, downstream prediction must satisfy the signal distinguishability requirement of [§2.2](#22-evaluation-protocol), and must be validated separately on a holdout close to the target scale. When downstream prediction fails validation, decisions can only rely on loss prediction and proxy metrics, and this limitation must be stated.
+Downstream task predictions must therefore pass the signal-resolution checks of [§2.2](#22-evaluation-protocol) and be validated independently on large-scale holdouts; whenever a benchmark fails holdout validation, anchor engineering decisions on continuous task BPB or pretraining loss rather than noisy point predictions.
 
 ## 10. Extrapolation Validation and Launch Decisions
 
 ### 10.1 Holdout Validation
 
-A holdout must be set in the target extrapolation direction, and multiple extrapolation multipliers should be arranged according to the budget ([§5.2](#52-number-of-sizes-span-and-extrapolation-multiplier)). [Delphi](https://openathena.ai/blog/delphi/) fits on 3e18–3e20 FLOPs and holds out to 1e23 FLOPs; the first recipe has a loss 2.5% higher than predicted at about 33× extrapolation, and diverges at 333× extrapolation (Figure 1).
+Holdout runs must sit along the actual direction of extrapolation (larger $N$, longer $D$, or higher compute $C$), ideally spanning multiple progressive extrapolation steps as budget permits ([§5.2](#52-number-of-sizes-span-and-extrapolation-multiplier)). By fitting on $3\times 10^{18}$–$3\times 10^{20}$ FLOPs and stepping holdouts up to $10^{23}$ FLOPs, [Delphi](https://openathena.ai/blog/delphi/) caught both the loss drift at $33\times$ extrapolation and the catastrophic divergence at $333\times$ extrapolation (Figure 1). Without multi-tier out-of-sample holdouts, a clean power-law fit is merely an in-sample interpolation.
 
-The error threshold is predetermined according to [§2.3](#23-acceptance-thresholds-and-decision-rules), and the confidence interval of the extrapolation is reported at the same time. Once holdout results are used to adjust the model or fitting setup, they become development data, and new acceptance requires independent evidence.
+Enforce one strict rule: a holdout can only be used once as an unbiased test. Once holdout errors are used to tweak the recipe, adjust truncation cutoffs, or swap functional forms, those runs become development data, and signing off on a flagship launch requires fresh out-of-sample validation ([§2.3](#23-acceptance-thresholds-and-decision-rules)).
 
 ### 10.2 Combined Validation
 
-After individual changes pass, the final combination must be validated; the gains of individual items cannot be added directly ([Marin follow-up](https://openathena.ai/blog/pretraining-speedup/); [OLMo 3, 2025](https://arxiv.org/abs/2512.13961) Appendix A.2.5):
-
-- Jointly check the data mixture against training volume and degree of repetition;
-- State the transfer scope of conclusions from proxy experiments;
-- When combined validation is only completed at small scale, it must not be described as validated at the target scale.
+When individual ablations on architecture, optimizer, hyperparameter scaling, and data mixing each show positive gains, never assume their improvements add linearly ([Marin follow-up](https://openathena.ai/blog/pretraining-speedup/); [OLMo 3, 2025](https://arxiv.org/abs/2512.13961) Appendix A.2.5). Component changes routinely draw from overlapping gain pools or interact negatively—for instance, a more aggressive optimizer can accelerate memorization on repeated buckets, and a new data mixture can shift optimal LR and weight decay. Before freezing the production recipe, assemble all winning changes into a single combined candidate and validate it end-to-end at the target TPP and repetition regime.
 
 ### 10.3 Stability Stress Testing
 
-Small-scale training cannot fully expose loss spikes and gradient anomalies that occur in large-scale training. When the architecture or optimizer changes, stress testing should be added: [Qwen3.8-Next, 2026](https://arxiv.org/abs/2608.30320) uses a medium-scale model and 2×/4× the predicted optimal LR to increase optimization pressure, comparing the old and new recipes under the same pressure.
+The biggest blind spot of a small-scale Ladder is training stability: because small runs have fewer layers, shorter horizons, and smaller activation magnitudes, numerical overflows, loss spikes, and router collapse that erupt mid-way through a flagship run often remain completely dormant at small scale.
 
-Stability under a short-term high LR and stability near the target training volume are two different conditions. For key candidates, record gradient norms, activation ranges, and loss spikes; for MoE, also record per-expert load, token drop ratio, and changes in the routing distribution. [Nemotron 3 Ultra, 2026](https://arxiv.org/abs/2606.15007) §2.7 reports two divergences late in training: the first is related to output-layer gradient precision and stabilized after restoring FP32; the cause of the second is unknown, and it was mitigated by starting the anneal early.
+To surface stability margins early, [Qwen3.8-Next, 2026](https://arxiv.org/abs/2608.30320) introduces an effective high-LR stress test: run medium-scale models at $2\times$ and $4\times$ the predicted optimal learning rate to deliberately amplify optimization pressure and compare the divergence threshold of candidate architectures and optimizers against the baseline.
+
+Short high-LR stress tests still do not catch every multi-trillion-token late-stage instability. For example, [Nemotron 3 Ultra, 2026](https://arxiv.org/abs/2606.15007) §2.7 encountered two late-training divergences: the first traced to low-precision gradient underflow/overflow in the output layer and resolved after restoring FP32 output-layer gradients, whereas the second had no single identifiable root cause and was mitigated by triggering LR annealing early. Continuously log per-layer gradient norms, activation maxima, and spike counts on all finalist candidates, plus max expert load imbalance, token drop rates, and router entropy drift on MoE runs.
 
 ### 10.4 Implementation Consistency Validation
 
-Large-scale training and Ladder experiments often use different parallelism schemes, gradient accumulation, fused operators, communication precision, and distributed optimizers. Identical configuration names do not prove that the mathematical operations of training are consistent. Validation steps (our recommendation):
+A pervasive engineering failure mode is that small Ladder runs and flagship production runs often execute on different physical code paths. A Ladder might run on single-node FSDP with standard kernels, while the flagship model runs on multi-dimensional TP/PP/EP parallelism with custom fused kernels, chunked gradient accumulation, low-precision communication collectives, and sharded optimizer states. Identical config parameters do not guarantee mathematically identical updates.
 
-1. Using the same checkpoint and a controlled batch, compare forward, loss, gradients, and a single parameter update;
-2. Compare whether the deviation over a short trajectory is within a predetermined tolerance;
-3. After changing the parallelism configuration and gradient accumulation, check the effective global batch, reduction method, gradient clipping order, and precision differences;
-4. Check whether optimizer state, scheduler, random state, and data loading position are correctly restored when resuming training.
+Before transferring Ladder conclusions to the production stack, run a four-step parity check:
 
-Floating-point reduction introduces numerical differences, so an error tolerance or statistical tolerance should be defined rather than requiring bitwise identity. Repeating or skipping data after resumption, resetting momentum, and schedule shifts must all be recorded in the experiment log. When a new kernel or target-precision path has not undergone the above checks, the applicability of the Ladder conclusions must be restricted. [DeepSeek-V3, 2024](https://arxiv.org/abs/2412.19437) §3.3 sets precision separately for computation, accumulation, and optimizer state; [Llama 3](https://arxiv.org/abs/2407.21783) §3.3.4 describes the fault-recovery requirements in a production training system.
+1. Single-step forward/backward/update parity: load an identical checkpoint and feed the exact same global batch into both the research stack and the production stack, verifying that forward logits, loss, per-layer gradient norms, and single-step parameter updates match within floating-point reduction tolerances;
+2. Short-trajectory convergence parity: run both stacks with fixed seeds for several hundred to a few thousand steps, confirming their loss trajectories stay within numerical rounding noise without systematic drift;
+3. Parallelism and reduction audit: when changing parallelism degrees or gradient accumulation steps, verify effective global batch size, loss/gradient reduction denominators (especially under variable sequence lengths or padding), global gradient-norm clipping order, and accumulator precision;
+4. Stateful checkpoint resumption: simulate a crash and restart, verifying that first/second optimizer moments, LR scheduler step, RNG states, and distributed dataloader cursors restore exactly without silently repeating or skipping data windows.
+
+For instance, [DeepSeek-V3, 2024](https://arxiv.org/abs/2412.19437) §3.3 specifies distinct precision rules for operator inputs, Tensor Core accumulation, and master optimizer states under FP8 training, while [Llama 3](https://arxiv.org/abs/2407.21783) §3.3.4 details deterministic dataloader and state recovery across frequent cluster restarts.
 
 ### 10.5 Realized Efficiency and Deployment Constraints
 
-An improvement in theoretical FLOPs does not necessarily yield a training-time improvement of the same magnitude; actual training time must be reported as well ([Marin follow-up](https://openathena.ai/blog/pretraining-speedup/) distinguishes theoretical efficiency from realized efficiency). Precision schemes need to be validated and must not be assumed equivalent ([Nemotron 3 Ultra](https://arxiv.org/abs/2606.15007)).
+Theoretical FLOP savings rarely translate 1:1 into wall-clock training speedups. The [Marin follow-up](https://openathena.ai/blog/pretraining-speedup/) explicitly separates theoretical efficiency from realized efficiency, and [Nemotron 3 Ultra](https://arxiv.org/abs/2606.15007) underscores that low-precision kernels and hybrid architectures must be judged by measured hardware throughput.
 
-When selecting a production configuration, the following quantities should be treated as constraints (our recommendation):
+When selecting the final production configuration, fold both training-side and serving-side physical constraints into the scaling optimization:
 
-- Training side: throughput on the target hardware, parallelism feasibility, memory, effective training time, and the overhead of evaluation, checkpointing, fault recovery, and reruns; for MoE, additionally account for the communication overhead of expert parallelism. When the delivery deadline is a constraint, estimate resource availability separately.
-- Deployment side: given the target workload, specify the input and output length distributions, concurrency, latency, and memory constraints, and measure using the actual precision and inference implementation. [Sardana et al., 2024](https://arxiv.org/abs/2401.00448) models the costs of training, input processing, and output generation separately, and its cost-optimal size must be recomputed using one's own measurements.
-
-A research-oriented Ladder that does not involve deployment may omit the deployment side. The deliverable is a comparison table of quality, cost, and constraints under the target hardware and workload, along with the computation process by which the model size and training volume are selected from it.
+- Training-side constraints: measured MFU and tokens/sec on the target cluster, memory headroom under multi-dimensional parallelism, and effective daily progress after amortizing evaluation, checkpointing, and fault-recovery overhead; for MoE, benchmark expert-parallel all-to-all communication latency on the actual interconnect topology.
+- Serving-side constraints: given the target production workload (prefill and decode length distributions, concurrency, TTFT and TPOT latency SLAs, and device memory limits), measure inference cost under the actual deployment quantization scheme. [Sardana et al., 2024](https://arxiv.org/abs/2401.00448) model training, prefill, and decode costs jointly—plugging measured cluster and serving unit costs into that framework yields the true lifecycle-optimal $(N, D)$ allocation.
 
 ### 10.6 Medium-Scale Trial Run
 
-When the target scale far exceeds the largest holdout, run a medium-scale trial before launching target training (our recommendation):
+When the flagship run's compute budget sits more than two orders of magnitude above the largest Ladder holdout (e.g., extrapolating from a $10^{21}$ FLOPs Ladder to a $10^{24}$–$10^{25}$ FLOPs production run), insert an intermediate medium-scale trial run (dress rehearsal) before committing full cluster resources:
 
-- Use the target recipe, target infrastructure, target parallelism scheme, and target precision scheme;
-- Freeze the predicted loss curve and its interval for that scale before the run;
-- The pass condition is that the loss curve falls within the predicted interval and the stability diagnostics ([§10.3](#103-stability-stress-testing)) show no persistent anomalies;
-- If it fails, handle it according to [§12.2](#122-handling-deviations-during-runs) and do not launch target training until the cause is identified.
-
-The scale of the trial run is determined by the budget and the extrapolation multiplier; there is no universal ratio in the public literature.
+- Execute on the exact production codebase, parallelism topology, numerical precision scheme, and combined data mixture;
+- Freeze the predicted loss trajectory and confidence band for that intermediate scale before launch;
+- Gate the flagship launch on the trial run's loss curve tracking inside the predicted band with clean stability diagnostics ([§10.3](#103-stability-stress-testing)).
 
 ## 11. Specialized Ladders
 
 ### 11.1 Staged Ladder
 
-Different training stages have different data distributions, sequence lengths, and schedules, and the scaling law coefficients may change across stages ([Qwen3, 2025](https://arxiv.org/abs/2505.09388); [OLMo 3, 2025](https://arxiv.org/abs/2512.13961)). For stages whose configuration needs to be predicted or selected, separate Ladders can be built:
+Modern pretraining pipelines proceed through distinct stages—general pretraining, quality/reasoning mid-training (or annealing), and long-context extension—each with its own corpus mixture, sequence length, and LR schedule, causing scaling law exponents to shift across stages ([Qwen3, 2025](https://arxiv.org/abs/2505.09388); [OLMo 3, 2025](https://arxiv.org/abs/2512.13961)). Build dedicated stage Ladders wherever quantitative configuration decisions are needed:
 
-1. Pretraining Ladder: start from random initialization, fit $N$, $D$, LR, and BSZ;
-2. Mid-training Ladder: start from the corresponding pretraining checkpoint, fit the added token count and LR schedule;
-3. Long-context Ladder: start from the corresponding mid-training checkpoint, search over sequence length, RoPE configuration, and LR ([§11.2](#112-long-context-ladder)).
+1. Pretraining Ladder: starts from random initialization to fit baseline $(N, D, \eta, B)$ scaling laws;
+2. Mid-training / Annealing Ladder: forks from size-matched pretraining checkpoints to optimize mid-training token budgets, re-warmup / decay schedules, and specialist mixtures;
+3. Long-context Ladder: forks from mid-training checkpoints to sweep context length, RoPE base frequency scaling, and continuation LR ([§11.2](#112-long-context-ladder)).
 
-Do not directly reuse scaling law coefficients across stages, and simultaneously record changes in base capabilities and increments in target capabilities.
-
-Checkpoints with similar total loss may differ in domain capability, seen data, optimizer state, and recent LR trajectory. When one checkpoint is fixed to compare subsequent recipes, the conclusions are conditional on that starting point; when extrapolating to other starting points, retain cross-comparisons of representative starting points. Also record (our recommendation):
-
-- Whether stage boundaries reset the optimizer, whether to re-warmup, which data continues to be repeated;
-- The allocation of budget across pretraining, mid-training, and long-context stages;
-- The confirmation results on end-to-end delivery metrics after combining the locally optimal choices of each stage ([§10.2](#102-combined-validation)).
+Stage Ladders are conditioned on their starting checkpoint: two checkpoints with identical aggregate validation loss can differ substantially in domain exposure, optimizer momentum state, and recent LR history, causing downstream recipes to rank differently. Explicitly test across representative parent checkpoints whether resetting optimizer states, re-warming up LR, or carrying over repeated data buckets changes the stage outcome, and verify the chained end-to-end pipeline ([§10.2](#102-combined-validation)).
 
 ### 11.2 Long-Context Ladder
 
-The long-context Ladder needs to specify the length distribution for training and evaluation, the position of key information in the sequence, and the cross-document packing method, and simultaneously evaluate whether short-context capabilities degrade and how compute changes. [RULER (Hsieh et al., 2024)](https://arxiv.org/abs/2404.06654v3) shows that passing simple retrieval tests does not imply equivalent capability on tasks such as multi-hop tracing and aggregation; the evaluation set should cover multiple task types.
+Extending context length shifts both the attention FLOP share ([§3.2](#32-compute)) and cross-document packing dynamics. A Long-Context Ladder must control the mixture of short and long sequences, position distributions of key information, and document-boundary attention masks while tracking both long-context gains and any regression on short-context benchmarks. As [RULER (Hsieh et al., 2024)](https://arxiv.org/abs/2404.06654v3) demonstrates, passing simple needle-in-a-haystack retrieval tests does not imply competence on multi-hop tracing or context aggregation, so the evaluation suite must span diverse long-context reasoning tasks.
 
 ## 12. Execution Process and Deliverables
 
 ### 12.1 Experiment Records
 
-Each run must have a unique identifier and be associated with: code version, configuration, data manifest, tokenizer, evaluation version, initialization and data random seeds, parent checkpoint and shared prefix, hardware and precision scheme.
-
-Run status is divided into: completed, actively stopped, algorithmic anomaly, infrastructure failure, implementation error. A run with a changed configuration gets a new record, and state whether old results are still usable for the current fitting.
+A Scaling Ladder is only as reliable as its experiment table. Every run should automatically log a complete provenance record: code commit, full hyperparameter config, dataset manifest and mixture hash, tokenizer version, evaluation script version, initialization and data-order seeds, parent checkpoint path (and shared prefix steps), and hardware topology and precision settings. Tag runs terminated early by design, diverged runs, hardware crashes, and bug-invalidated runs with distinct status codes—neither recording pre-divergence transient losses as valid endpoints nor silently deleting diverged runs that mark the stability boundary.
 
 ### 12.2 Handling Deviations During Runs
 
-When delivering the Ladder, deliver the training trajectories and stage configurations of each experimental point at the same time; when target training deviates from predictions, investigate accordingly. Before running, specify: the evaluation data used for comparison, the prediction interval aligned by training progress, the window for determining sustained deviation, and the diagnostic quantities to save.
-
-A single excursion outside the interval may come from evaluation noise and cannot be directly attributed to scaling law failure. Handling order (our recommendation): first recheck measurements and configuration, then check the data flow, implementation, and hardware, and finally determine whether the recipe needs modification and recalibration. While the cause is unknown, keep the status "cause unknown".
-
-Independent acceptance should be able to regenerate the target predictions from the raw experiment tables, and verify the freezing time of predictions against actual results.
+Once flagship training launches, the Ladder's predicted loss curve ([§8.2](#82-loss-curves-and-annealing-scaling-law)) and reference trajectories serve as a live flight instrument. Isolated single-point excursions outside the prediction band typically reflect validation sampling noise or local batch fluctuations; sustained divergence across a progress window calls for a structured triage: first audit evaluation scripts, token counters, and config files, next check dataloader ordering, distributed reductions, and kernel precision parity ([§10.4](#104-implementation-consistency-validation)), and only then diagnose recipe extrapolation failure and intervene.
 
 ### 12.3 Ladder Maintenance
 
-The Ladder needs continuous maintenance as recipes and infrastructure change (our recommendation):
+As cluster infrastructure and training recipes evolve, maintain the Ladder as a living engineering asset:
 
-- Regression Ladder: keep a fixed set of reference configurations, rerun after changes to code, kernels, parallelism, or clusters, and check whether loss is within seed variance;
-- Coefficient versions: archive fitted coefficients together with the corresponding recipe version, data version, and fitting script version;
-- Refitting conditions: when architecture, optimizer, data version, precision scheme, or tokenizer change, first verify the transferability of the original coefficients at small scale, and when the deviation exceeds the threshold, perform local calibration or full refitting.
+- Golden regression suite: keep a small set of reference configurations and their historical loss curves across sizes; re-run them whenever deep learning frameworks, fused kernels, communication libraries, or cluster hardware change to verify losses remain within seed variance;
+- Versioned coefficients: archive fitted scaling exponents alongside the exact dataset version, model family, and fitting script that produced them;
+- Incremental recalibration: when architecture details, optimizers, corpus versions, precision schemes, or tokenizers change, test two or three small grid points against the existing power law first, triggering local recalibration or a full Ladder rebuild only when deviations exceed seed noise.
 
 ### 12.4 Checklist
 
-Design phase:
+Experimental Design Phase
 
-- [ ] Clarify the applicable scenario ([§1.2](#12-typical-scenarios)), decision objective ([§2.1](#21-decision-objectives)), evaluation protocol ([§2.2](#22-evaluation-protocol))
-- [ ] Each metric has a distinguishable signal at the Ladder scale; when delivering a post-training model, arrange SFT/RL acceptance ([§2.2](#22-evaluation-protocol))
-- [ ] Determine acceptance thresholds and decision rules before observing the holdout, expressed as equivalent compute multiplier ([§2.3](#23-acceptance-thresholds-and-decision-rules))
-- [ ] Distinguish fixed quantities, scaling rules, and experimental independent variables, and specify the warmup scaling rule ([§4.1](#41-variable-classification))
-- [ ] Determine the number of sizes and extrapolation multipliers, and set multiple holdout levels ([§5.2](#52-number-of-sizes-span-and-extrapolation-multiplier))
-- [ ] Training volume levels cover the target TPP; when data is limited, write in $U$ and repetition count ([§5.3](#53-training-volume-tiers), [§7.3](#73-data-constrained-training-and-repetition))
-- [ ] Formulate an experiment plan including trials, search, fitting, acceptance, and reserve budget ([§5.5](#55-budget-allocation-and-follow-up-experiments))
-- [ ] MoE: record total parameters, active parameters, and routing configuration, design scale, sparsity, and granularity experiments separately, and set a dense control ([§3.1](#31-parameter-count-definition), [§5.6](#56-moe-experimental-axes))
-- [ ] Fix the data version ([§7.1](#71-data-quality-and-data-source-evaluation)); the statistical definitions of deduplication scope and repetition count are consistent ([§7.3](#73-data-constrained-training-and-repetition))
-- [ ] When the data mixture is undetermined, arrange mixture experiments and compare with proportional sampling and the UniMax baseline ([§7.2](#72-data-mixture-ladder)); design experiments separately for multi-stage training ([§11.1](#111-staged-ladder))
+- [ ] Identify the target regime ([§1.2](#12-typical-scenarios)), decision objective ([§2.1](#21-decision-objectives)), and evaluation protocol ([§2.2](#22-evaluation-protocol))
+- [ ] Verify that evaluation metrics have clean signal resolution at Ladder scales; include fast SFT/RL checks when delivering a post-trained model ([§2.2](#22-evaluation-protocol))
+- [ ] Lock acceptance thresholds before inspecting holdouts, expressed in equivalent compute multipliers ([§2.3](#23-acceptance-thresholds-and-decision-rules))
+- [ ] Separate fixed invariants, prescribed scaling rules, and independent variables, scaling warmup steps proportionally to total tokens ([§4.1](#41-variable-classification))
+- [ ] Choose the number of model sizes, size span, and multi-tier holdout extrapolation multipliers ([§5.2](#52-number-of-sizes-span-and-extrapolation-multiplier))
+- [ ] Bracket the target TPP with token horizon tiers; log unique tokens $U$ and repetition counts under data constraints ([§5.3](#53-training-volume-tiers), [§7.3](#73-data-constrained-training-and-repetition))
+- [ ] Allocate budget across pilot trials, hyperparameter grids, multi-seed replications, and contingency runs ([§5.5](#55-budget-allocation-and-follow-up-experiments))
+- [ ] MoE: log $N_{total}$ and $N_{active}$ separately, factor experiments into orthogonal scale, sparsity, and granularity axes, and include dense baselines ([§3.1](#31-parameter-count-definition), [§5.6](#56-moe-experimental-axes))
+- [ ] Freeze the dataset version ([§7.1](#71-data-quality-and-data-source-evaluation)) and align global deduplication scope with epoch accounting ([§7.3](#73-data-constrained-training-and-repetition))
+- [ ] Benchmark learned mixtures against natural sampling and UniMax while downscaling proxy data pools proportionally ([§7.2](#72-data-mixture-ladder)); optimize multi-stage mixtures per stage ([§11.1](#111-staged-ladder))
 
-Configuration phase:
+Configuration and Measurement Phase
 
-- [ ] Record $N_{\text{body}}$ and $C$ separately, and count FLOPs according to the actual architecture and kernel ([§3.1](#31-parameter-count-definition), [§3.2](#32-compute))
-- [ ] Fix the loss, token, and evaluation conventions, and write out counting and aggregation examples ([§3.3](#33-loss-and-token-conventions))
-- [ ] Keep architectural attributes and scaling rules consistent within a model family, and fix the MoE routing rule ([§4.2](#42-architecture-and-training-configuration-consistency), [§4.4](#44-moe-structural-scaling-rules))
-- [ ] Use the target training precision scheme; when comparing different vocabularies, use byte-normalized metrics ([§4.5](#45-vocabulary-and-numerical-precision))
+- [ ] Separate trunk parameters $N_{\text{body}}$ for curve fitting from full FLOP accounting $C$ (including output head and attention) ([§3.1](#31-parameter-count-definition), [§3.2](#32-compute))
+- [ ] Lock primary cross-entropy loss, fixed evaluation corpus, token accounting, and progress-proportional evaluation intervals ([§3.3](#33-loss-and-token-conventions))
+- [ ] Enforce uniform architectural primitives, aspect-ratio progression, and MoE routing/balancing rules ([§4.2](#42-architecture-and-training-configuration-consistency), [§4.4](#44-moe-structural-scaling-rules))
+- [ ] Run the target numerical precision scheme; use byte-normalized BPB when comparing tokenizers ([§4.5](#45-vocabulary-and-numerical-precision))
 
-Hyperparameter search stage:
+Hyperparameter Search Phase
 
-- [ ] Objectives 2–4: operational definition of searching small models up to the Fully-Tuned Frontier; Objective 1: run according to the recipe ([§6.1](#61-hyperparameter-search-objective-and-near-optimal-region))
-- [ ] Recalibrate the hyperparameter rules after changing the optimizer or parameterization ([§6.2](#62-parameterization-and-optimizer-transfer))
-- [ ] BSZ is measured in tokens; use $B_{opt}\propto D^{0.4}$ as a prior and verify it; check the effect of batch size ramp ([§6.3](#63-scaling-law-for-lr-and-bsz))
-- [ ] Reproduction recipes follow their WD; when studying across TPP, check the effect of WD ([§6.4](#64-weight-decay))
-- [ ] Record search coverage, re-verify the final candidate with a new seed, and record failed trials by category ([§6.7](#67-search-procedure-and-stopping-rules))
+- [ ] Tune small models onto the interior of the Fully-Tuned Frontier for Objectives 2–4; follow prescribed recipe rules for Objective 1 ([§6.1](#61-hyperparameter-search-objective-and-near-optimal-region))
+- [ ] Re-verify hyperparameter transfer at small scale after changing optimizers or depth scaling rules ([§6.2](#62-parameterization-and-optimizer-transfer))
+- [ ] Measure batch size in tokens, initialize with $B_{opt}\propto D^{0.4\sim 0.57}$, and test the impact of batch size ramps ([§6.3](#63-scaling-law-for-lr-and-bsz))
+- [ ] Check weight decay shifts or calibrate via timescale $\tau$ when spanning wide TPP ranges ([§6.4](#64-weight-decay))
+- [ ] Re-evaluate winning hyperparameter configs with a fresh random seed to remove selection bias, and never prune trials before annealing completes ([§6.7](#67-search-procedure-and-stopping-rules))
 
-Fitting stage:
+Curve Fitting Phase
 
-- [ ] Check the FLOPs and parameter count conventions and the warmup rule ([§8](#8-loss-scaling-law-fitting))
-- [ ] Compare candidate functional forms ([§8.1](#81-functional-form)); for multi-epoch training, specify unique tokens and repetition count ([§7.3](#73-data-constrained-training-and-repetition))
-- [ ] Determine the truncation rule in advance ([§5.4](#54-intermediate-checkpoints-random-seeds-and-shared-trajectories))
-- [ ] Fix settings according to the fitting protocol, perform bootstrap according to the dependency structure, and re-verify the decision conclusions ([§8.3](#83-fitting-protocol))
-- [ ] Check residual structure, correlations, and sources of uncertainty; when the error is too large, record experiments to be added ([§8.4](#84-fitting-diagnostics-and-failure-handling))
+- [ ] Confirm output-head FLOP accounting, proportional warmup, and small-model tuning completeness before fitting ([§8](#8-loss-scaling-law-fitting))
+- [ ] Compare Skaling and Chinchilla forms on validation slices ([§8.1](#81-functional-form)); include effective data volume decay under multi-epoch repetition ([§7.3](#73-data-constrained-training-and-repetition))
+- [ ] Lock the early-checkpoint truncation rule before fitting ([§5.4](#54-intermediate-checkpoints-random-seeds-and-shared-trajectories))
+- [ ] Use multi-start robust regression, block-bootstrap over independent runs or shared-trunk clusters, and propagate uncertainty to the final decision ([§8.3](#83-fitting-protocol))
+- [ ] Inspect two-dimensional residual plots for saddle curvature or monotonic drift, separating seed noise from functional-form error ([§8.4](#84-fitting-diagnostics-and-failure-handling))
 
-Validation stage:
+Validation and Launch Phase
 
-- [ ] Holdout acceptance according to the predetermined threshold ([§10.1](#101-holdout-validation))
-- [ ] Downstream capability decisions require validating task metric predictions ([§9](#9-downstream-task-prediction))
-- [ ] After individual changes pass, validate the final combination ([§10.2](#102-combined-validation))
-- [ ] Perform stability stress tests after architecture or optimizer changes ([§10.3](#103-stability-stress-testing))
-- [ ] Validate consistency between the research implementation and the target implementation ([§10.4](#104-implementation-consistency-validation))
-- [ ] Report theoretical FLOPs, actual training time, and deployment constraints simultaneously ([§10.5](#105-realized-efficiency-and-deployment-constraints))
-- [ ] When the extrapolation multiplier is large, run a medium-scale trial ([§10.6](#106-medium-scale-trial-run))
-- [ ] Save experiment records, fitting coefficient versions, prediction intervals, and unresolved issues ([§12](#12-execution-process-and-deliverables))
+- [ ] Validate extrapolation on out-of-sample holdouts against pre-committed thresholds without tuning on the holdout ([§10.1](#101-holdout-validation))
+- [ ] Validate task-level NLL or clustering predictions on holdouts before relying on downstream forecasts ([§9](#9-downstream-task-prediction))
+- [ ] Validate the combined stack of all winning changes end-to-end ([§10.2](#102-combined-validation))
+- [ ] Run $2\times/4\times$ high-LR stress tests and monitor long-horizon stability metrics after architecture or optimizer changes ([§10.3](#103-stability-stress-testing))
+- [ ] Verify single-step update parity, short-trajectory convergence, and stateful checkpoint resumption between research and production stacks ([§10.4](#104-implementation-consistency-validation))
+- [ ] Combine measured cluster throughput with serving latency and memory constraints when sizing the production model ([§10.5](#105-realized-efficiency-and-deployment-constraints))
+- [ ] Run an intermediate-scale dress rehearsal on the production stack when extrapolating across large compute gaps ([§10.6](#106-medium-scale-trial-run))
+- [ ] Archive full run provenance, versioned fitting scripts, and golden regression benchmarks ([§12](#12-execution-process-and-deliverables))
 
 ## Appendix A. Public Ladder Configurations
 
 ### A.1 Public Scale Configurations
 
-Scales and training volumes of the Ladder scans (parameter counts follow each source's convention):
+Model scales and training volumes used in major public Scaling Law studies (parameter conventions follow each source):
 
-| Source | Model parameter count | Training volume | Reference |
+| Source | Model Parameter Range | Training Volume / Compute Range | Reference |
 |---|---|---|---|
-| OpenAI | Multiple sizes, max 1.5B (non-embedding parameters) | 22M–23B tokens | [Kaplan et al., 2020](https://arxiv.org/abs/2001.08361) |
+| OpenAI | Multiple sizes, up to 1.5B (non-embedding) | 22M–23B tokens | [Kaplan et al., 2020](https://arxiv.org/abs/2001.08361) |
 | DeepMind Chinchilla | 70M–16B (400+ models) | 5B–500B tokens | [Hoffmann et al., 2022](https://arxiv.org/abs/2203.15556) |
-| StepFun | Multiple sizes (3,700+ models) | 100T tokens cumulative across all experiments | [Step Law (Li et al., 2025)](https://arxiv.org/abs/2503.04715) |
+| StepFun | Multiple sizes (3,700+ models) | ~100T tokens cumulative across all runs | [Step Law (Li et al., 2025)](https://arxiv.org/abs/2503.04715) |
 | Gadre et al. | 11M–6.9B (104 models) | Up to 32× Chinchilla ratio | [Gadre et al., 2024](https://arxiv.org/abs/2403.08540) |
 | Fantastic Optimizers | 0.1B–1.2B (4 sizes) | 1×–8× Chinchilla ratio | [Wen et al., 2025](https://arxiv.org/abs/2509.02046) |
-| Delphi | Scan size and training volume by compute budget, max holdout 25B | Fit 3e18–3e20 FLOPs, holdout up to 1e23 FLOPs | [Marin, 2026](https://openathena.ai/blog/delphi/) |
-| Llama 3 | 40M–16B | Fit 6e18–1e22 FLOPs, target 3.8e25 FLOPs | [Llama 3, 2024](https://arxiv.org/abs/2407.21783) §3.2.1 |
+| Delphi | Sweeps size and tokens by compute budget, max holdout 25B | Fit $3\times 10^{18}$–$3\times 10^{20}$ FLOPs, holdout up to $10^{23}$ FLOPs | [Marin, 2026](https://openathena.ai/blog/delphi/) |
+| Llama 3 | 40M–16B | Fit $6\times 10^{18}$–$10^{22}$ FLOPs, target $3.8\times 10^{25}$ FLOPs | [Llama 3, 2024](https://arxiv.org/abs/2407.21783) §3.2.1 |
 
-Training volumes of individual released models, as a reference for target TPP (not Ladder scans):
+Training volumes of representative open-weight release models (for target production TPP comparison):
 
-| Source | Model parameter count | Training volume | Reference |
+| Source | Released Model Sizes | Cumulative Training Volume | Reference |
 |---|---|---|---|
 | NVIDIA Nemotron | 15B, 340B | 8T, 9T tokens | [15B report](https://arxiv.org/abs/2402.16819); [340B report](https://arxiv.org/abs/2406.11704) |
-| OLMo | 1B, 7B, 13B, 32B | OLMo 1: 2T–2.46T; OLMo 2: multi-stage budget set per model | [OLMo, 2024](https://arxiv.org/abs/2402.00838v4); [OLMo 2, 2025](https://arxiv.org/abs/2501.00656v3) |
-| Llama 3 | 8B, 70B, 405B | 405B: 15.6T tokens; 8B and 70B use similar recipes, with training duration far exceeding compute-optimal | [Llama 3, 2024](https://arxiv.org/abs/2407.21783) §1, §3.4 |
+| OLMo | 1B, 7B, 13B, 32B | OLMo 1: 2T–2.46T; OLMo 2: multi-stage budgets up to 5T+ | [OLMo, 2024](https://arxiv.org/abs/2402.00838v4); [OLMo 2, 2025](https://arxiv.org/abs/2501.00656v3) |
+| Llama 3 | 8B, 70B, 405B | 405B: 15.6T tokens (near compute-optimal); 8B/70B heavily over-trained | [Llama 3, 2024](https://arxiv.org/abs/2407.21783) §1, §3.4 |
 
 ### A.2 Fantastic Optimizers Ladder
 
-[Fantastic Optimizers (Wen et al., 2025)](https://arxiv.org/abs/2509.02046v2) Table 2–3. Dense, Llama 2 architecture, all four sizes fixed at 32 layers, MHA, seq_len 4096. The goal is a fair comparison of optimizers, with emphasis on hyperparameter search.
+[Fantastic Optimizers (Wen et al., 2025)](https://arxiv.org/abs/2509.02046v2) Table 2–3 defines a dense benchmark tailored for fair optimizer comparisons and rigorous hyperparameter search: built on the Llama 2 architecture, all four sizes fix depth at 32 layers, MHA, and sequence length 4096, scaling parameter count purely via `hidden_dim`.
 
-| Size | hidden_dim | inter_dim | heads | Data ratio |
+| Size | hidden_dim | inter_dim | heads | Horizon Tiers |
 |---|---|---|---|---|
 | 130M | 512 | 2,048 | 8 | 1×–8× Chinchilla |
 | 300M | 768 | 3,072 | 12 | Same as above |
 | 520M | 1,024 | 4,096 | 16 | Same as above |
 | 1.2B | 1,536 | 6,144 | 24 | Same as above |
 
-Table 3 gives a hyperparameter search example for AdamW: Peak LR 8e-3, WD 0.1, warmup 2000 steps, BSZ 128 sequences (seq_len 4096, about 0.5M tokens). This result corresponds to a specific size and ratio; configurations differ across sizes, e.g., 520M/1× uses WD 0.2, BSZ 256. The data is a mixture of DCLM-baseline, StarCoder V2 Data, and ProofPile 2.
+The corpus mixes DCLM-baseline, StarCoder V2 Data, and ProofPile 2. Each (size, horizon) grid point undergoes independent hyperparameter tuning (for example, Table 3 lists an AdamW optimum of Peak LR 8e-3, WD 0.1, warmup 2000 steps, and BSZ 128 sequences or ~0.5M tokens at one tier, shifting to WD 0.2 and BSZ 256 at 520M/1×).
 
 ### A.3 Delphi Ladder
 
-[Delphi (Marin, 2026)](https://openathena.ai/blog/delphi/). Dense decoder-only, Qwen 3 architecture, MLP ratio 4, seq_len 4096. The goal is to fit an IsoFLOP scaling law and extrapolate to 1e23 FLOPs (25B), with emphasis on end-to-end loss prediction. Later extended to MoE ([535B-A23B](https://openathena.ai/blog/pretraining-speedup/)).
+[Delphi (Marin, 2026)](https://openathena.ai/blog/delphi/) exemplifies a dense Ladder built for end-to-end loss extrapolation across wide compute spans: based on the Qwen 3 decoder-only architecture (MLP ratio 4, sequence length 4096) and later extended to MoE ([535B-A23B](https://openathena.ai/blog/pretraining-speedup/)).
 
-Common settings: AdamH, WSD (10% warmup, 20% decay to 0), f32 parameters with bf16 compute, FSDP. Data is Nemotron-CC, StarCoderData, and ProofPile 2.
-
-Structure: perform an IsoFLOP scan over 3e18–3e20 FLOPs, take the 7 optimal points for fitting; holdout is 1e21–1e23 FLOPs (3×–333× extrapolation). Hyperparameters are set according to recipe rules, without manual per-point search.
+All runs share the AdamH optimizer, WSD schedule (10% warmup, 20% linear decay to 0), FP32 master weights with BF16 compute, and FSDP across a mixture of Nemotron-CC, StarCoderData, and ProofPile 2. Delphi sweeps IsoFLOP slices from $3\times 10^{18}$ to $3\times 10^{20}$ FLOPs and fits a power law through the 7 slice minima, setting hyperparameters via prescribed scaling formulas rather than manual per-point grids, and validates extrapolation across stepped holdouts from $10^{21}$ to $10^{23}$ FLOPs (up to 25B parameters, spanning $3\times$–$333\times$ extrapolation).
 
 ### A.4 Selection Recommendations
 
-- When you need to search for optimal hyperparameters and fit a hyperparameter scaling law, refer to the grid design of Fantastic Optimizers.
-- When you need end-to-end loss prediction and extrapolation to large scale, refer to the IsoFLOP layout and recipe formulas of Delphi.
-- Both configurations are dense starting points; a MoE Ladder must be designed separately per [§5.6](#56-moe-experimental-axes). The model family and architecture scaling rule should have proxy validity for the target model ([§4.2](#42-architecture-and-training-configuration-consistency)).
+- For hyperparameter scaling laws and fair algorithm comparisons: follow the $(N \times \text{TPP})$ Cartesian grid of Fantastic Optimizers, investing compute to tune every small grid point onto the Fully-Tuned Frontier.
+- For end-to-end compute allocation and large-scale loss forecasting: follow Delphi's IsoFLOP layout and formula-driven hyperparameters, using stepped holdouts to catch late-stage divergence.
+- For production MoE targets: both public templates above are dense starting points; factor MoE experiments along the orthogonal axes of [§5.6](#56-moe-experimental-axes) and align GQA grouping and aspect-ratio progression with the target architecture ([§4.2](#42-architecture-and-training-configuration-consistency)).
 
 ## References
 
-Grouped by topic, with the corresponding section in the main text noted after each entry.
+Grouped by topic, with back-links to the corresponding sections in the main text.
 
 ### Scaling Law Foundations, Functional Forms, and Fitting
 
 1. Scaling Laws for Neural Language Models — Kaplan et al., OpenAI, 2020. [arXiv:2001.08361](https://arxiv.org/abs/2001.08361)  
-   Empirical power laws spanning 7 orders of magnitude are observed within the measured range; given the parameter count, the width-depth ratio has little effect on loss. See [§3.1](#31-parameter-count-definition), [§4.3](#43-width-depth-configuration)
+   Empirical power laws across 7 orders of magnitude and non-embedding parameter conventions ([§3.1](#31-parameter-count-definition), [§4.3](#43-width-depth-configuration))
 2. Training Compute-Optimal Large Language Models (Chinchilla) — Hoffmann et al., DeepMind, 2022. [arXiv:2203.15556](https://arxiv.org/abs/2203.15556)  
-   The IsoFLOP method and results showing that model and data scale at roughly equal rates; additive form $L=E+A/N^\alpha+B/D^\beta$; the parameter count convention of 20 TPP. See [§3.1](#31-parameter-count-definition), [§5.3](#53-training-volume-tiers), [§8.1](#81-functional-form)
+   IsoFLOP methodology, proportional $(N,D)$ scaling, and additive power-law parameterization ([§3.1](#31-parameter-count-definition), [§5.3](#53-training-volume-tiers), [§8.1](#81-functional-form))
 3. Language models scale reliably with over-training and on downstream tasks — Gadre et al., 2024. [arXiv:2403.08540](https://arxiv.org/abs/2403.08540)  
-   Scaling laws validated on 104 models in the over-trained regime; power-law exponents are close across different $D/N$. See [§5.3](#53-training-volume-tiers), [§9.1](#91-method-routes)
+   Power-law extrapolation up to 32× Chinchilla over-training and downstream error mappings ([§5.3](#53-training-volume-tiers), [§9.1](#91-method-routes))
 4. Skaling: Chinchilla's Exponents Meet Kaplan's Coupling — Videau et al., FAIR at Meta, 2026. [arXiv:2608.07222](https://arxiv.org/abs/2608.07222)  
-   Negative mixed partial derivatives are observed on the analyzed data; an outer exponent $k$ and L-shape sampling are proposed, and their extrapolation performance is validated. See [§8.1](#81-functional-form)
+   Outer coupling exponent $k$ eliminating corner saddle residuals and enabling L-shape sparse grids ([§8.1](#81-functional-form))
 5. Predictable Scale: Part II, Farseer: A Refined Scaling Law in Large Language Models — Li et al., StepFun & Fudan, NeurIPS 2025. [arXiv:2506.10972](https://arxiv.org/abs/2506.10972)  
-   A nine-parameter form in which the data-side coefficients and exponents explicitly depend on $N$; ablation on the parameter count convention. See [§3.1](#31-parameter-count-definition), [§8.1](#81-functional-form)
+   Nine-parameter coupled surface and ablation on excluding embedding parameters ([§3.1](#31-parameter-count-definition), [§8.1](#81-functional-form))
 6. Scaling Law with Learning Rate Annealing — Tissue et al., 2024. [arXiv:2408.11029](https://arxiv.org/abs/2408.11029)  
-   Expresses loss as a function of the cumulative learning rate area and the annealing amount, allowing the entire curve to be fitted. See [§6.5](#65-lr-schedule), [§8.2](#82-loss-curves-and-annealing-scaling-law)
+   Full-trajectory loss curve modeling via cumulative learning rate area and annealing kernels ([§6.5](#65-lr-schedule), [§8.2](#82-loss-curves-and-annealing-scaling-law))
 7. A Hitchhiker's Guide to Scaling Law Estimation — Choshen et al., MIT/IBM, ICML 2025. [arXiv:2410.11840](https://arxiv.org/abs/2410.11840)  
-   The use of intermediate checkpoints and early truncation; the value of the number of sizes, extrapolation span, and random seeds; the minimum meaningful difference in the literature. See [§2.3](#23-acceptance-thresholds-and-decision-rules), [§5.2](#52-number-of-sizes-span-and-extrapolation-multiplier), [§5.4](#54-intermediate-checkpoints-random-seeds-and-shared-trajectories), [§5.5](#55-budget-allocation-and-follow-up-experiments)
+   Empirical study of early checkpoint truncation, size spans, and seed variance ([§2.3](#23-acceptance-thresholds-and-decision-rules), [§5.2](#52-number-of-sizes-span-and-extrapolation-multiplier), [§5.4](#54-intermediate-checkpoints-random-seeds-and-shared-trajectories), [§5.5](#55-budget-allocation-and-follow-up-experiments))
 8. Resolving Discrepancies in Compute-Optimal Scaling of Language Models — Porian et al., NeurIPS 2024. [arXiv:2406.19146](https://arxiv.org/abs/2406.19146)  
-   Analyzes the effect of the output head, warmup, and hyperparameter tuning on discrepancies in compute-optimal exponents. See [§3.1](#31-parameter-count-definition), [§4.1](#41-variable-classification), [§8](#8-loss-scaling-law-fitting)
+   How output-head FLOPs, fixed warmup steps, and under-tuned hyperparameters distort compute-optimal exponents ([§3.1](#31-parameter-count-definition), [§4.1](#41-variable-classification), [§8](#8-loss-scaling-law-fitting))
 9. Chinchilla Scaling: A Replication Attempt — Besiroglu et al., Epoch AI, 2024. [arXiv:2404.10102](https://arxiv.org/abs/2404.10102)  
-   Reproduces Chinchilla's parametric fit and points out issues with the fitting and confidence interval setup. See [§8.3](#83-fitting-protocol)
+   Replication of Chinchilla's parametric fit highlighting solver and confidence-interval sensitivity ([§8.3](#83-fitting-protocol))
 10. (Mis)Fitting: A Survey of Scaling Laws — Li et al., 2025. [arXiv:2502.18969](https://arxiv.org/abs/2502.18969)  
-   Discusses the impact of missing fitting details on reproducibility and conclusions. See [§8.3](#83-fitting-protocol)
+    Survey of how omitted fitting objectives and numerical settings impact reproducibility ([§8.3](#83-fitting-protocol))
 11. Beyond Chinchilla-Optimal: Accounting for Inference in Language Model Scaling Laws — Sardana et al., 2024. [arXiv:2401.00448](https://arxiv.org/abs/2401.00448)  
-   Incorporates inference cost into resource allocation, separately modeling the costs of training, input processing, and output generation; over-training experiments up to 10,000 TPP. See [§5.3](#53-training-volume-tiers), [§10.5](#105-realized-efficiency-and-deployment-constraints)
+    Inference-aware compute allocation and extreme over-training experiments up to 10,000 TPP ([§5.3](#53-training-volume-tiers), [§10.5](#105-realized-efficiency-and-deployment-constraints))
 12. Gemstones: A Model Suite for Multi-Faceted Scaling Laws — McLeish et al., 2025. [arXiv:2502.06857](https://arxiv.org/abs/2502.06857)  
-   The effect of width-depth configuration on benchmarks; the effect of experimental point selection on resource allocation recommendations. See [§2.3](#23-acceptance-thresholds-and-decision-rules), [§4.3](#43-width-depth-configuration)
+    Aspect-ratio effects on downstream tasks and sensitivity of compute-optimal fits to grid point selection ([§2.3](#23-acceptance-thresholds-and-decision-rules), [§4.3](#43-width-depth-configuration))
 13. Scaling Laws with Vocabulary: Larger Models Deserve Larger Vocabularies — Tao et al., NeurIPS 2024. [arXiv:2407.13623](https://arxiv.org/abs/2407.13623)  
-   The optimal vocabulary size grows with compute. See [§4.5](#45-vocabulary-and-numerical-precision)
+    Power-law growth of optimal vocabulary size with training compute ([§4.5](#45-vocabulary-and-numerical-precision))
 14. Scaling Laws for Precision — Kumar et al., 2024. [arXiv:2411.04330](https://arxiv.org/abs/2411.04330)  
-   The effect of training precision and post-training quantization on loss. See [§4.5](#45-vocabulary-and-numerical-precision)
+    Joint scaling laws for training precision and post-training quantization ([§4.5](#45-vocabulary-and-numerical-precision))
 
 ### Hyperparameter Scaling Laws and Optimizers
 
 {:start="15"}
 15. DeepSeek LLM: Scaling Open-Source Language Models with Longtermism — DeepSeek, 2024. [arXiv:2401.02954](https://arxiv.org/abs/2401.02954)  
-   Fits hyperparameter power laws as a function of compute $C$; the optimal resource allocation differs across the corpora tested. See [§6.3](#63-scaling-law-for-lr-and-bsz), [§7.1](#71-data-quality-and-data-source-evaluation)
+    Compute-based hyperparameter power laws and corpus-quality shifts in optimal $N/D$ ([§6.3](#63-scaling-law-for-lr-and-bsz), [§7.1](#71-data-quality-and-data-source-evaluation))
 16. Predictable Scale: Part I, Step Law — Optimal Hyperparameter Scaling Law in Large Language Model Pre-training — Li et al., StepFun, 2025. [arXiv:2503.04715v3](https://arxiv.org/abs/2503.04715v3)  
-   $\eta_{opt}=c\,N^{-\alpha}D^{\beta}$, $B_{opt}=d\,D^{\gamma}$ validated on 3,700+ models. See [§6.1](#61-hyperparameter-search-objective-and-near-optimal-region), [§6.3](#63-scaling-law-for-lr-and-bsz)
+    Bivariate $\eta_{opt}(N,D)$ and $B_{opt}(D)$ scaling laws calibrated across 3,700+ models ([§6.1](#61-hyperparameter-search-objective-and-near-optimal-region), [§6.3](#63-scaling-law-for-lr-and-bsz))
 17. Power Lines: Scaling Laws for Weight Decay and Batch Size in LLM Pre-training — Bergsma et al., Cerebras, 2025. [arXiv:2505.13738](https://arxiv.org/abs/2505.13738)  
-   Under the recipes tested, obtains $B_{opt}\propto D^{0.4}$, $B_{crit}\propto D_{min}^{0.5}$, with weak dependence on $N$; the timescale $\tau=B/(\eta\lambda D)$ is used for joint search. See [§6.2](#62-parameterization-and-optimizer-transfer), [§6.3](#63-scaling-law-for-lr-and-bsz), [§6.4](#64-weight-decay)
+    $B_{opt}\propto D^{0.4}$, $B_{crit}\propto D_{min}^{0.5}$ hyperbolas, and EMA timescale $\tau$ coupling ([§6.2](#62-parameterization-and-optimizer-transfer), [§6.3](#63-scaling-law-for-lr-and-bsz), [§6.4](#64-weight-decay))
 18. Scaling Optimal LR Across Token Horizons — Bjorck et al., Microsoft, 2024. [arXiv:2409.19913](https://arxiv.org/abs/2409.19913)  
-   With model size and BSZ fixed, peak LR decays with training length. See [§6.3](#63-scaling-law-for-lr-and-bsz)
+    Power-law decay of optimal peak LR with token horizon at fixed model size and batch size ([§6.3](#63-scaling-law-for-lr-and-bsz))
 19. Tensor Programs V: Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer ($\mu$-Transfer) — Yang et al., Microsoft, 2022. [arXiv:2203.03466](https://arxiv.org/abs/2203.03466)  
-   Width-direction hyperparameter transfer under $\mu$P. See [§6.2](#62-parameterization-and-optimizer-transfer)
+    Zero-shot learning rate transfer across width under $\mu$P parameterization ([§6.2](#62-parameterization-and-optimizer-transfer))
 20. Tensor Programs VI: Feature Learning in Infinite-Depth Neural Networks — Yang et al., 2023. [arXiv:2310.02244](https://arxiv.org/abs/2310.02244)  
-   Depth-$\mu$P with one layer per residual block; limitations of infinite-depth parameterization when residual blocks contain multiple layers. See [§6.2](#62-parameterization-and-optimizer-transfer)
+    Single-layer Depth-$\mu$P and theoretical limits of infinite-depth parameterizations in multi-layer blocks ([§6.2](#62-parameterization-and-optimizer-transfer))
 21. Depthwise Hyperparameter Transfer in Residual Networks: Dynamics and Scaling Limit — Bordelon et al., 2023. [arXiv:2309.16620](https://arxiv.org/abs/2309.16620)  
-   Scales the residual branch by $1/\sqrt{\text{depth}}$, observing hyperparameter transfer across depths on ResNet and ViT. See [§6.2](#62-parameterization-and-optimizer-transfer)
+    $1/\sqrt{\text{depth}}$ residual scaling for width-and-depth transfer in ResNet and ViT ([§6.2](#62-parameterization-and-optimizer-transfer))
 22. Muon is Scalable for LLM Training — Liu et al., Moonshot AI, 2025. [arXiv:2502.16982](https://arxiv.org/abs/2502.16982)  
-   Adds weight decay to Muon and matches the update RMS, reusing AdamW's hyperparameter settings. See [§6.2](#62-parameterization-and-optimizer-transfer)
+    Update RMS alignment and weight decay enabling Muon to reuse tuned AdamW hyperparameters ([§6.2](#62-parameterization-and-optimizer-transfer))
 23. Fantastic Pretraining Optimizers and Where to Find Them — Wen et al., Stanford, 2025. [arXiv:2509.02046](https://arxiv.org/abs/2509.02046)  
-   A fair tuning benchmark across four sizes and the 1×–8× Chinchilla range; token efficiency gains vary with size; ranking flips during annealing. See [§5.3](#53-training-volume-tiers), [§6.8](#68-recipe-comparison), [Appendix A.2](#a2-fantastic-optimizers-ladder)
+    Controlled optimizer tuning benchmark, scale decay of speedups, and annealing rank inversions ([§5.3](#53-training-volume-tiers), [§6.8](#68-recipe-comparison), [Appendix A.2](#a2-fantastic-optimizers-ladder))
 24. Weight Decay Improves Language Model Plasticity — Han et al., 2026. [arXiv:2602.11137](https://arxiv.org/abs/2602.11137)  
-   The WD preferred by pretraining loss decreases as TPP grows; post-training plasticity may benefit from stronger WD. See [§6.4](#64-weight-decay)
+    Decrease of pretraining-optimal WD with TPP and plasticity benefits of higher WD ([§6.4](#64-weight-decay))
 25. Small-Scale Experiments: Are We There Yet? — Lourie et al., NYU & Meta, 2026. [arXiv:2608.11859](https://arxiv.org/abs/2608.11859)  
-   Small models' sensitivity to hyperparameters and the Fully-Tuned Frontier; sizes are partitioned into fitting, validation, and test segments. See [§5.4](#54-intermediate-checkpoints-random-seeds-and-shared-trajectories), [§6.1](#61-hyperparameter-search-objective-and-near-optimal-region)
+    Small-model hyperparameter sensitivity, the Fully-Tuned Frontier, and fit/validation/test size splits ([§5.4](#54-intermediate-checkpoints-random-seeds-and-shared-trajectories), [§6.1](#61-hyperparameter-search-objective-and-near-optimal-region))
 26. How to Allocate Your Tokens? Scaling Laws with Training Steps and Batch Size — Schaipp, Inria, 2026. [arXiv:2607.01487](https://arxiv.org/abs/2607.01487)  
-   Defines a near-optimal batch interval in terms of compute loss, roughly 4× the width tested. See [§6.3](#63-scaling-law-for-lr-and-bsz)
+    Characterization of the ~4× near-optimal batch size window within 5% compute overhead ([§6.3](#63-scaling-law-for-lr-and-bsz))
 27. On Over-fitting in Model Selection and Subsequent Selection Bias in Performance Evaluation — Cawley & Talbot, JMLR 2010. [JMLR 11](https://www.jmlr.org/papers/v11/cawley10a.html)  
-   Selection bias from model selection on finite samples. See [§6.7](#67-search-procedure-and-stopping-rules)
+    Analysis of selection bias when choosing the best configuration across finite noisy trials ([§6.7](#67-search-procedure-and-stopping-rules))
 
 ### MoE
 
 {:start="28"}
 28. Scaling Laws for Fine-Grained Mixture of Experts — Krajewski et al., 2024. [arXiv:2402.07871](https://arxiv.org/abs/2402.07871)  
-   Incorporates expert granularity into the scaling law. See [§4.4](#44-moe-structural-scaling-rules), [§5.6](#56-moe-experimental-axes), [§8.5](#85-moe-fitting)
+    MoE scaling laws incorporating expert granularity as an independent dimension ([§4.4](#44-moe-structural-scaling-rules), [§5.6](#56-moe-experimental-axes), [§8.5](#85-moe-fitting))
 29. Parameters vs FLOPs: Scaling Laws for Optimal Sparsity for Mixture-of-Experts Language Models — Abnar et al., Apple, 2025. [arXiv:2501.12370](https://arxiv.org/abs/2501.12370)  
-   The relationship between sparsity and pretraining loss at fixed compute; the effect of sparsity on downstream transfer. See [§4.4](#44-moe-structural-scaling-rules)
+    Optimal sparsity laws under fixed FLOPs vs. fixed total parameters and downstream transfer ([§4.4](#44-moe-structural-scaling-rules))
 30. Joint MoE Scaling Laws: Mixture of Experts Can Be Memory Efficient — Ludziejewski et al., 2025. [arXiv:2502.05172](https://arxiv.org/abs/2502.05172)  
-   Jointly models the number of experts, active parameter count, and training volume, incorporating memory constraints. See [§4.4](#44-moe-structural-scaling-rules), [§8.5](#85-moe-fitting)
+    Joint scaling of expert count, active parameters, and training tokens under memory constraints ([§4.4](#44-moe-structural-scaling-rules), [§8.5](#85-moe-fitting))
 
 ### Data Construction, Mixture, and Repetition
 
 {:start="31"}
 31. Scaling Data-Constrained Language Models — Muennighoff et al., 2023. [arXiv:2305.16264](https://arxiv.org/abs/2305.16264)  
-   The equivalent token count formula for repeated data and the diminishing marginal returns curve. See [§7.3](#73-data-constrained-training-and-repetition)
+    Exponentially decaying effective data volume formula for multi-epoch repetition ([§7.3](#73-data-constrained-training-and-repetition))
 32. To Repeat or Not To Repeat: Insights from Scaling LLM under Token-Crisis — Xue et al., 2023. [arXiv:2305.13230](https://arxiv.org/abs/2305.13230)  
-   The effect of parameter count, data volume, and quality on repetition overfitting; the role of dropout. See [§7.3](#73-data-constrained-training-and-repetition)
+    Scaling of repetition overfitting with parameter count $N$ and mitigation via dropout ([§7.3](#73-data-constrained-training-and-repetition))
 33. Prescriptive Scaling Laws for Data Constrained Training — Lovelace et al., 2026. [arXiv:2605.01640](https://arxiv.org/abs/2605.01640)  
-   Overfitting jointly affected by parameter count, unique tokens, and repetition count. See [§7.3](#73-data-constrained-training-and-repetition)
+    Joint overfitting dynamics and compute allocation across parameters, unique tokens, and epochs ([§7.3](#73-data-constrained-training-and-repetition))
 34. Larger Datasets Can Be Repeated More: A Theoretical Analysis of Multi-Epoch Scaling in Linear Regression — Yan et al., 2025. [arXiv:2511.13421](https://arxiv.org/abs/2511.13421)  
-   The relationship between repetition count and sample size under linear regression assumptions, with LLM experiments provided. See [§7.3](#73-data-constrained-training-and-repetition)
+    Logarithmic scaling of optimal repetition epochs with dataset size in linear models and LLMs ([§7.3](#73-data-constrained-training-and-repetition))
 35. UniMax: Fairer and More Effective Language Sampling for Large-Scale Multilingual Pretraining — Chung et al., ICLR 2023. [arXiv:2304.09151](https://arxiv.org/abs/2304.09151)  
-   A sampling method that caps the maximum repetition count per corpus. See [§7.2](#72-data-mixture-ladder)
+    Epoch-capped sampling baseline for multi-source pretraining ([§7.2](#72-data-mixture-ladder))
 36. Olmix: A Framework for Data Mixing Throughout LM Development — Chen et al., Allen Institute, ICLR 2026. [arXiv:2602.12237](https://arxiv.org/abs/2602.12237)  
-   Design choices for mixture proxy experiments (proxy size, number of proxies, sampling distribution, regression model and granularity, repetition constraints, solver); mixture reuse after domain updates. See [§7.2](#72-data-mixture-ladder)
+    Proxy sizing, per-task log-linear regression, repetition caps, and incremental mixture reuse ([§7.2](#72-data-mixture-ladder))
 37. Scaling Laws for Mixture Pretraining Under Data Constraints — Sedova et al., Apple, 2026. [arXiv:2605.12715](https://arxiv.org/abs/2605.12715)  
-   Repetition count in mixture training with scarce data; a mixture scaling law that includes a repetition term. See [§7.3](#73-data-constrained-training-and-repetition)
+    High repetition tolerance of scarce domains in general mixtures and repetition-aware mixture laws ([§7.3](#73-data-constrained-training-and-repetition))
 38. Decouple Searching from Training: Scaling Data Mixing via Model Merging for Large Language Model Pre-training (DeMix) — Li et al., 2026. [arXiv:2602.00747](https://arxiv.org/abs/2602.00747)  
-   Replaces training a proxy at a given mixture with weighted merging of component models. See [§7.2](#72-data-mixture-ladder)
+    Evaluating candidate data mixtures via weighted merging of single-domain component models ([§7.2](#72-data-mixture-ladder))
 39. Nemotron-CC: Transforming Common Crawl into a Refined Long-Horizon Pretraining Dataset — Su et al., NVIDIA, 2024. [arXiv:2412.02595](https://arxiv.org/abs/2412.02595)  
-   The Common Crawl dataset and its synthetic rewritten version; the largest cross-source overlap in Marin's global deduplication. See [§7.3](#73-data-constrained-training-and-repetition)
+    Refined Common Crawl and synthetic rewrites, a primary cross-source overlap in global deduplication ([§7.3](#73-data-constrained-training-and-repetition))
 
 ### LR Schedule and Training Wrap-up
 
 {:start="40"}
 40. Understanding Warmup-Stable-Decay Learning Rates: A River Valley Loss Landscape Perspective — Wen et al., 2024. [arXiv:2410.05192](https://arxiv.org/abs/2410.05192)  
-   Explains the stable and decay phases of WSD under specific assumptions about loss geometry and optimization dynamics. See [§6.5](#65-lr-schedule)
+    River-valley loss-landscape geometry explaining the stable and decay phases of WSD ([§6.5](#65-lr-schedule))
 41. Scaling and Transferability of Annealing Strategies in Large Language Model Training — Wang et al., 2025. [arXiv:2512.13705](https://arxiv.org/abs/2512.13705)  
-   Scaling and cross-scale transferability of annealing strategies. See [§6.5](#65-lr-schedule)
+    Cross-scale transferability of LR annealing ratios and decay shapes ([§6.5](#65-lr-schedule))
 42. Model Merging in Pre-training of Large Language Models — ByteDance Seed, 2025. [arXiv:2505.12082](https://arxiv.org/abs/2505.12082)  
-   Checkpoint merging in pretraining; comparison of PMA during the stable phase with the performance at the annealing endpoint. See [§6.9](#69-training-wrap-up)
+    Approximating annealed endpoint performance via WSD stable-phase checkpoint merging (PMA) ([§6.9](#69-training-wrap-up))
 43. Model Soups: Averaging Weights of Multiple Fine-tuned Models — Wortsman et al., 2022. [arXiv:2203.05482](https://arxiv.org/abs/2203.05482)  
-   Weight averaging of models obtained by independent fine-tuning from a shared pretraining starting point. See [§6.9](#69-training-wrap-up)
+    Weight averaging across branches independently fine-tuned from a shared checkpoint ([§6.9](#69-training-wrap-up))
 44. Stop Wasting My Time! Saving Days of ImageNet and BERT Training with Latest Weight Averaging (LAWA) — Kaddour, 2022. [arXiv:2209.14981](https://arxiv.org/abs/2209.14981)  
-   Sliding-window weight averaging along a single trajectory. See [§6.9](#69-training-wrap-up)
+    Sliding-window weight averaging along the tail of a single trajectory ([§6.9](#69-training-wrap-up))
 45. Early Weight Averaging meets High Learning Rates for LLM Pre-training — Sanyal et al., COLM 2024. [arXiv:2306.03241](https://arxiv.org/abs/2306.03241)  
-   Early weight averaging under high learning rates. See [§6.9](#69-training-wrap-up)
+    Early sliding weight averaging during high-LR pretraining ([§6.9](#69-training-wrap-up))
 
 ### Downstream Task Prediction and Evaluation
 
 {:start="46"}
 46. Unveiling Downstream Performance Scaling of LLMs: A Clustering-Based Perspective (COD) — Xu et al., ICLR 2026, v4 (2026-03-09). [arXiv:2502.17262v4](https://arxiv.org/pdf/2502.17262v4)  
-    Clustering by difficulty features, selecting predictable clusters, and mapping to the full set; includes dense and MoE target prediction and continued training experiments. See [§9.1](#91-method-routes), [§9.2](#92-cod-framework)
+    Four-stage difficulty-clustering framework for downstream benchmark extrapolation ([§9.1](#91-method-routes), [§9.2](#92-cod-framework))
 47. GPT-4 Technical Report — OpenAI, 2023. [arXiv:2303.08774](https://arxiv.org/abs/2303.08774)  
-    Bucketing HumanEval difficulty by small-model performance, then fitting and extrapolating on the subset. See [§9.1](#91-method-routes)
+    Difficulty bucketing of HumanEval items by small-model pass rates ([§9.1](#91-method-routes))
 48. Establishing Task Scaling Laws via Compute-Efficient Model Ladders (OLMo Task Ladder) — Bhagia et al., Allen Institute, 2024. [arXiv:2412.04403](https://arxiv.org/abs/2412.04403)  
-    Two-stage downstream prediction: fit task-specific loss from $N,D$, then fit loss to accuracy; noise varies markedly across tasks. See [§9.1](#91-method-routes)
+    Two-stage $(N,D) \to \text{Task NLL} \to \text{Accuracy}$ prediction pipeline ([§9.1](#91-method-routes))
 49. Why Has Predicting Downstream Capabilities of Frontier AI Models with Scale Remained Elusive? — Schaeffer et al., 2024. [arXiv:2406.04391](https://arxiv.org/abs/2406.04391)  
-    Multiple-choice accuracy depends on probability mass on incorrect options, weakening its statistical relationship with compute. See [§9.3](#93-limits-of-predictability)
+    How distractor probability mass and argmax thresholding degrade downstream predictability ([§9.3](#93-limits-of-predictability))
 50. RULER: What's the Real Context Size of Your Long-Context Language Models? — Hsieh et al., NVIDIA, 2024. [arXiv:2404.06654](https://arxiv.org/abs/2404.06654)  
-    The gap between simple retrieval tests and performance on multiple long-context task types. See [§11.2](#112-long-context-ladder)
+    Multi-hop tracing and aggregation benchmark for evaluating effective context length ([§11.2](#112-long-context-ladder))
 
 ### Model Technical Reports and Ladder Examples
 
 {:start="51"}
 51. Delphi: An Open Scaling Suite from 3e18 to 1e23 FLOPs — Marin Team, 2026. [openathena.ai/blog/delphi](https://openathena.ai/blog/delphi/)  
-    IsoFLOP fitting and recipe-formula-driven hyperparameters; multi-tier extrapolation holdout; performance competitiveness and predictability validated separately; bootstrap of the IsoFLOP optimum; sigmoid downstream mapping. See [§1.1](#11-definition-of-scaling-ladder), [§2.1](#21-decision-objectives), [§5.2](#52-number-of-sizes-span-and-extrapolation-multiplier), [§8.4](#84-fitting-diagnostics-and-failure-handling), [§9.1](#91-method-routes), [§10.1](#101-holdout-validation), [Appendix A.3](#a3-delphi-ladder)
+    IsoFLOP sweeps, formula-driven hyperparameters, stepped holdouts, and optimum bootstrap ([§1.1](#11-definition-of-scaling-ladder), [§2.1](#21-decision-objectives), [§5.2](#52-number-of-sizes-span-and-extrapolation-multiplier), [§8.4](#84-fitting-diagnostics-and-failure-handling), [§9.1](#91-method-routes), [§10.1](#101-holdout-validation), [Appendix A.3](#a3-delphi-ladder))
 52. The Llama 3 Herd of Models — Meta, 2024. [arXiv:2407.21783](https://arxiv.org/abs/2407.21783)  
-    IsoFLOP determines the 405B size; smaller models are overtrained; two-stage downstream prediction; batch size ramp; failure recovery in the training system. See [§5.2](#52-number-of-sizes-span-and-extrapolation-multiplier), [§5.3](#53-training-volume-tiers), [§6.3](#63-scaling-law-for-lr-and-bsz), [§9.1](#91-method-routes), [§10.4](#104-implementation-consistency-validation)
+    405B IsoFLOP sizing, small-model over-training, two-stage task prediction, BSZ ramp, and fault recovery ([§5.2](#52-number-of-sizes-span-and-extrapolation-multiplier), [§5.3](#53-training-volume-tiers), [§6.3](#63-scaling-law-for-lr-and-bsz), [§9.1](#91-method-routes), [§10.4](#104-implementation-consistency-validation))
 53. DeepSeek-V3 Technical Report — DeepSeek, 2024. [arXiv:2412.19437](https://arxiv.org/abs/2412.19437)  
-    Auxiliary-loss-free load balancing without dropping tokens (§2.1.2); precision settings for compute, accumulation, and storage in FP8 training (§3.3). See [§4.4](#44-moe-structural-scaling-rules), [§10.4](#104-implementation-consistency-validation)
+    Auxiliary-loss-free bias load balancing, zero-drop routing, and FP8 mixed-precision design ([§4.4](#44-moe-structural-scaling-rules), [§10.4](#104-implementation-consistency-validation))
 54. Nemotron-4 15B Technical Report — NVIDIA, 2024. [arXiv:2402.16819](https://arxiv.org/abs/2402.16819)  
-    Batch size ramp; continued training at the end of training. See [§6.3](#63-scaling-law-for-lr-and-bsz), [§6.9](#69-training-wrap-up)
+    Batch size ramp-up and late-stage continued-training decay ([§6.3](#63-scaling-law-for-lr-and-bsz), [§6.9](#69-training-wrap-up))
 55. Nemotron-4 340B Technical Report — NVIDIA, 2024. [arXiv:2406.11704](https://arxiv.org/abs/2406.11704)  
-    Training volume of the released model. See [Appendix A.1](#a1-public-scale-configurations)
+    340B training configuration and token horizon reference ([Appendix A.1](#a1-public-scale-configurations))
 56. OLMo: Accelerating the Science of Language Models — Groeneveld et al., Allen Institute, 2024. [arXiv:2402.00838](https://arxiv.org/abs/2402.00838)  
-    Fully open training data, code, and intermediate checkpoints. See [Appendix A.1](#a1-public-scale-configurations)
+    Open pretraining suite, corpus, and intermediate checkpoint reference ([Appendix A.1](#a1-public-scale-configurations))
 57. 2 OLMo 2 Furious — OLMo Team, Allen Institute, 2025. [arXiv:2501.00656](https://arxiv.org/abs/2501.00656)  
-    Two-stage training; micro-annealing to validate data sources; model souping. See [§6.9](#69-training-wrap-up), [§7.1](#71-data-quality-and-data-source-evaluation)
+    Two-stage curriculum, micro-annealing data probes, and model souping ([§6.9](#69-training-wrap-up), [§7.1](#71-data-quality-and-data-source-evaluation))
 58. OLMo 3 — Allen Institute, 2025. [arXiv:2512.13961](https://arxiv.org/abs/2512.13961)  
-    Effective scale range of evaluation metrics; Olmix mixture pipeline and quality-aware upsampling; no decay for embeddings; staged training and combined validation. See [§2.2](#22-evaluation-protocol), [§6.4](#64-weight-decay), [§7.2](#72-data-mixture-ladder), [§7.3](#73-data-constrained-training-and-repetition), [§10.2](#102-combined-validation), [§11.1](#111-staged-ladder)
+    BPB proxies, Olmix mixture iterations, quality-aware upsampling, and post-training checks ([§2.2](#22-evaluation-protocol), [§6.4](#64-weight-decay), [§7.2](#72-data-mixture-ladder), [§7.3](#73-data-constrained-training-and-repetition), [§10.2](#102-combined-validation), [§11.1](#111-staged-ladder))
 59. Qwen3 Technical Report — Qwen Team, 2025. [arXiv:2505.09388](https://arxiv.org/abs/2505.09388)  
-    Staged prediction of LR and batch size; WD scaling not reported; data mixture along instance-attribute dimensions. See [§6.4](#64-weight-decay), [§7.2](#72-data-mixture-ladder), [§11.1](#111-staged-ladder)
+    Stage-wise hyperparameter prediction and fine-grained instance-attribute data mixing ([§6.4](#64-weight-decay), [§7.2](#72-data-mixture-ladder), [§11.1](#111-staged-ladder))
 60. On the Design of Qwen3.8-Next Architecture: Evaluation, Efficiency, and Training Stability — Qwen Team, 2026. [arXiv:2608.30320](https://arxiv.org/abs/2608.30320)  
-    Near-optimal region for large models; hyperparameter shift after architecture and optimizer changes; post-training acceptance; stability stress tests. See [§2.2](#22-evaluation-protocol), [§6.1](#61-hyperparameter-search-objective-and-near-optimal-region), [§6.2](#62-parameterization-and-optimizer-transfer), [§10.3](#103-stability-stress-testing)
+    Wide hyperparameter plateau at scale, Muon hyperparameter shifts, post-training checks, and high-LR stress tests ([§2.2](#22-evaluation-protocol), [§6.1](#61-hyperparameter-search-objective-and-near-optimal-region), [§6.2](#62-parameterization-and-optimizer-transfer), [§10.3](#103-stability-stress-testing))
 61. Kimi K2: Open Agentic Intelligence — Moonshot AI, 2025. [arXiv:2507.20534](https://arxiv.org/abs/2507.20534)  
-    Sparsity scaling law at fixed active scale; fixed WD recipe; controlled comparison of rewriting and repetition. See [§5.6](#56-moe-experimental-axes), [§6.4](#64-weight-decay), [§7.3](#73-data-constrained-training-and-repetition)
+    MoE sparsity scaling law at fixed active scale and multi-pass synthetic rewriting ablations ([§5.6](#56-moe-experimental-axes), [§6.4](#64-weight-decay), [§7.3](#73-data-constrained-training-and-repetition))
 62. Kimi K2.5: Visual Agentic Intelligence — Moonshot AI, 2026. [arXiv:2602.02276](https://arxiv.org/abs/2602.02276)  
-    Controlling the maximum number of epochs per data source in joint pretraining. See [§7.3](#73-data-constrained-training-and-repetition)
+    Per-source maximum epoch caps during continued joint pretraining ([§7.3](#73-data-constrained-training-and-repetition))
 63. Kimi K3: Open Frontier Intelligence — Moonshot AI, 2026. [arXiv:2607.24653](https://arxiv.org/abs/2607.24653)  
-    Redoing the scaling law study after recipe changes; comparison of cosine and WSD after separate hyperparameter search; small-model ablations to determine domain sampling rates; reusing K2's rewriting method. See [§6.8](#68-recipe-comparison), [§7.1](#71-data-quality-and-data-source-evaluation), [§7.3](#73-data-constrained-training-and-repetition)
+    Full scaling-law rebuild after recipe updates, tuned cosine vs. WSD comparison, and rewriting reuse ([§6.8](#68-recipe-comparison), [§7.1](#71-data-quality-and-data-source-evaluation), [§7.3](#73-data-constrained-training-and-repetition))
 64. Nemotron 3 Super: Open, Efficient Mixture-of-Experts Hybrid Mamba-Transformer Model for Agentic Reasoning — NVIDIA, 2026. [arXiv:2604.12374](https://arxiv.org/abs/2604.12374)  
-    Two-stage mixture: the first 80% emphasizes diversity, the last 20% emphasizes high-quality data. See [§7.2](#72-data-mixture-ladder)
+    Two-stage 25T-token mixture shifting from 80% diversity to 20% high-quality data ([§7.2](#72-data-mixture-ladder))
 65. Nemotron 3 Ultra: Open, Efficient Mixture-of-Experts Hybrid Mamba-Transformer Model for Agentic Reasoning — NVIDIA, 2026. [arXiv:2606.15007](https://arxiv.org/abs/2606.15007)  
-    Comparison of late-training divergence against a high-precision branch; ablation of domain synthetic data. See [§7.1](#71-data-quality-and-data-source-evaluation), [§10.3](#103-stability-stress-testing), [§10.5](#105-realized-efficiency-and-deployment-constraints)
+    Late-training divergence fixes via FP32 output gradients and early annealing, plus legal synthetic data ablations ([§7.1](#71-data-quality-and-data-source-evaluation), [§10.3](#103-stability-stress-testing), [§10.5](#105-realized-efficiency-and-deployment-constraints))
 66. Marin: MoE and Training Efficiency Follow-up — Marin Team, 2026. [openathena.ai/blog/pretraining-speedup](https://openathena.ai/blog/pretraining-speedup/)  
-    Distinguishing theoretical from realized efficiency; comparison across scales and design of combination experiments. See [§10.5](#105-realized-efficiency-and-deployment-constraints), [§10.2](#102-combined-validation)
+    Theoretical vs. realized wall-clock efficiency and combined validation of multiple recipe changes ([§10.5](#105-realized-efficiency-and-deployment-constraints), [§10.2](#102-combined-validation))
 67. Marin Data Pipeline — Marin Team, 2026. [openathena.ai/blog/marin-data-pipeline-overview](https://openathena.ai/blog/marin-data-pipeline-overview/)  
-    Global deduplication and repetition counts; mixture baselines; scaling training volume and data pool proportionally in proxy experiments; confirmation across scales. See [§7.2](#72-data-mixture-ladder), [§7.3](#73-data-constrained-training-and-repetition)
+    Global cross-source deduplication, proportional proxy pool downscaling, non-monotonic mixture regression, and cross-scale confirmation ([§7.2](#72-data-mixture-ladder), [§7.3](#73-data-constrained-training-and-repetition))
 68. Phi-4 Technical Report — Microsoft, 2024. [arXiv:2412.08905](https://arxiv.org/abs/2412.08905)  
-    Handling of high-noise evaluation tasks. See [§2.2](#22-evaluation-protocol)
+    Multi-sample variance reduction on high-noise evaluation benchmarks ([§2.2](#22-evaluation-protocol))
 69. GLM-4.5: Agentic, Reasoning, and Coding (ARC) Foundation Models — Zhipu AI, 2025. [arXiv:2508.06471](https://arxiv.org/abs/2508.06471)  
-    Effect of width-depth configuration on reasoning ability. See [§4.3](#43-width-depth-configuration)
+    Impact of model depth and attention head configuration on reasoning performance ([§4.3](#43-width-depth-configuration))
 
 ### Further Reading
 
-The following references are related to Ladder design but are not discussed in the main text:
+Additional references on critical batch size and grouped-query attention:
 
 {:start="70"}
 70. Critical Batch Size Revisited: A Simple Empirical Approach to Large-Batch Language Model Training — Merrill et al., 2025. [arXiv:2505.23971](https://arxiv.org/abs/2505.23971)
