@@ -2,7 +2,7 @@
 layout: page
 permalink: /coffee-chat/
 title: Coffee Chat
-description: Book a 1-hour Coffee Chat with me here.
+description: Book a Coffee Chat with me here. 🙂
 nav: true
 nav_order: 6
 ---
