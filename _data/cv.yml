@@ -4,7 +4,7 @@ cv:
   email: 3140143497@qq.com
   website: https://jiaxuanzou0714.github.io
   image: headshot.png
-  summary: Undergraduate in Mathematics and Statistics at Xi'an Jiaotong University and research intern in the ByteDance Seed Pre-training team. Previously a research intern at the Gaoling School of Artificial Intelligence, Renmin University of China. My work focuses on mechanistic interpretability, training dynamics, optimizer design, and scaling laws.
+  summary: Undergraduate in Mathematics and Statistics at Xi'an Jiaotong University. Previously a research intern in the ByteDance Seed Pre-training team and at the Gaoling School of Artificial Intelligence, Renmin University of China. My work focuses on mechanistic interpretability, training dynamics, optimizer design, and scaling laws.
 
   social_networks:
     - network: X
@@ -35,7 +35,7 @@ cv:
         location: Beijing, China
         url: https://seed.bytedance.com/en/
         start_date: "2026-07"
-        end_date: Present
+        end_date: "2026-10"
 
       - company: Gaoling School of Artificial Intelligence, Renmin University of China
         position: Research Intern
