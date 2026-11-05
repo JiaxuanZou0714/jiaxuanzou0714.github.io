@@ -1,8 +1,8 @@
 ---
 layout: about
 title: About
-description: Jiaxuan Zou's academic homepage, with research notes and publications on mechanistic interpretability, deep learning theory, optimization, and scaling laws.
-keywords: academic homepage, mechanistic interpretability, deep learning theory, optimization, scaling laws
+description: Jiaxuan Zou's academic homepage, with research notes and publications on pre-training, scaling laws, training dynamics, and optimization.
+keywords: academic homepage, pre-training, scaling laws, deep learning theory, training dynamics, optimization
 permalink: /
 subtitle: Undergraduate Student @ XJTU | Former Research Intern @ ByteDance Seed Pre-training
 
@@ -36,7 +36,7 @@ Hi, I am **Jiaxuan Zou (邹嘉轩)**.
 
 I am an undergraduate student in Mathematics and Statistics at <a class="affiliation-link" href="https://en.xjtu.edu.cn/" target="_blank" rel="external nofollow noopener"><img class="affiliation-icon affiliation-icon--seal" src="{{ '/assets/img/affiliations/xjtu-emblem.png' | relative_url }}" alt="" aria-hidden="true">Xi'an Jiaotong University</a>. Previously, I was a research intern in the <a class="affiliation-link" href="https://seed.bytedance.com/en/" target="_blank" rel="external nofollow noopener"><img class="affiliation-icon affiliation-icon--seed" src="{{ '/assets/img/affiliations/bytedance-seed.png' | relative_url }}" alt="" aria-hidden="true">ByteDance Seed Pre-training team</a>. I was also a research intern at the <a class="affiliation-link" href="https://ai.ruc.edu.cn/" target="_blank" rel="external nofollow noopener"><img class="affiliation-icon affiliation-icon--seal" src="{{ '/assets/img/affiliations/gsai-ruc-emblem.png' | relative_url }}" alt="" aria-hidden="true">Gaoling School of Artificial Intelligence</a>, Renmin University of China, advised by [Prof. Yong Liu](https://gsai.ruc.edu.cn/liuyong).
 
-My research focuses on mechanistic interpretability, deep learning theory, optimization, and scaling laws. I am especially interested in turning empirical training phenomena into first-principles mechanisms: why models train, where behaviors emerge, and when scaling or optimization rules break.
+My research centers on pre-training and scaling. I study how model architectures, data, and optimization jointly determine learning efficiency, training stability, and model capabilities. My approach connects empirical training phenomena with mathematical analysis and controlled experiments, aiming to make large-scale training more predictable.
 
 I also work as an AI Technical Consultant for a Tsinghua-affiliated AI startup.
 
@@ -44,8 +44,6 @@ I write research notes on my blog and welcome conversations on these topics. I a
 
 ## Research Interests
 
-- Mechanistic interpretability of LLMs
-- Training dynamics of finite-width networks
-- Optimizer design for LLM pre-training
-- Scaling laws and their failure modes
-- Deep learning theory and optimization
+- Scaling laws and predictable large-scale pre-training
+- Joint design of model architectures, data, and optimizers
+- Feature learning, finite-width training dynamics, and hyperparameter transfer
