@@ -327,7 +327,7 @@ $$\eta_{opt} = a \cdot C^{-\alpha}, \quad B_{opt} = b \cdot C^{\beta}$$
 
 Token Horizons 与 Step Law 中，$\eta_{opt}$ 关于 $D$ 的指数符号相反（前者为 $D^{-\beta}$，后者为 $D^{+\beta}$）。两者的实验设置不同：Token Horizons 固定 batch size，而 Step Law 对每个 $D$ 联合搜索并按 $D^{0.571}$ 放大 $B_{opt}$。该设置差异能否完全解释符号相反尚未验证，实际使用时可根据自身调度和 BSZ 策略在 holdout 上验证。
 
-对于 MoE 模型，由于稀疏结构很难搭建极小尺寸的 Ladder，直接在 MoE 上做全网格搜参算力开销较大。实践中，改变 attention 结构或从 dense 切换到 MoE 时，最优 LR 的幂律指数通常变化很小，主要只差一个常数倍。因此可以先搭建低成本的 dense Ladder 拟合出 $\eta^*_{\text{dense}}(N, D)$，再用几个小尺寸 MoE 实验点拟合一个迁移系数 $c_{\text{MoE}}$，直接按 $\eta^*_{\text{MoE}} = c_{\text{MoE}}\,\eta^*_{\text{dense}}$ 得到 MoE 的 LR scaling law。
+对于 MoE 模型，由于稀疏结构很难搭建极小尺寸的 Ladder，直接在 MoE 上做全网格搜参算力开销较大。实践中，改变 attention 结构或从 dense 切换到 MoE 时，最优 LR 的幂律指数通常变化很小，主要只差一个常数倍。因此可以先搭建低成本的 dense Ladder 拟合出 $\eta_{\text{dense}}^{\ast}(N, D)$，再用几个小尺寸 MoE 实验点拟合一个迁移系数 $c_{\text{MoE}}$，直接按 $\eta_{\text{MoE}}^{\ast} = c_{\text{MoE}}\,\eta_{\text{dense}}^{\ast}$ 得到 MoE 的 LR scaling law。
 
 {% include figure.liquid
   path='assets/img/pretrain-scaling/step-law-hyperparameter-validation.png'
@@ -374,7 +374,7 @@ Power Lines 还测量了临界 batch size $B_{crit}\propto D_{min}^{0.5}$（$D_{
 
 - $\eta_{\text{end}}$ 通常不衰减到 0：预训练结束后往往还要接继续训练（CPT / CT）和后训练，把 $\eta_{\text{end}}$ 留在一个较小的非零值（例如 $3\times 10^{-5}$），能为后续阶段留出优化空间。
 - 固定 $\eta_{\text{end}}$ 优于固定 $\eta_{\text{end}}/\eta_{\text{peak}}$ 比例：早期工作（如 [Kaplan et al., 2020](https://arxiv.org/abs/2001.08361)、[DeepSeek LLM, 2024](https://arxiv.org/abs/2401.02954)）常固定 $\eta_{\text{end}}/\eta_{\text{peak}}=0.1$，但这会把峰值学习率和终点学习率绑死——当尝试更大的 $\eta_{\text{peak}}$ 时，$\eta_{\text{end}}$ 也会跟着变大，导致训练末期无法充分消除梯度噪声，从而限制了 $\eta_{\text{peak}}$ 取到更优的较大值。直接固定绝对值 $\eta_{\text{end}}$（如 [Step Law](https://arxiv.org/abs/2503.04715v3) 的做法）能搜到更大的最优 $\eta_{\text{peak}}$ 和更低的最终 loss。
-- 充分调优下 Cosine 优于 WSD：同尺寸、同训练量下 Cosine 与 WSD 的最优 $(\eta, B)$ 差异明显；在固定 $\eta_{\text{end}}$ 并分别为两者独立调优超参后，Cosine 的最优峰值学习率高于 WSD（$\eta^*_{\text{cosine}} > \eta^*_{\text{WSD}}$），且最终预训练 loss 稳定低于 WSD（[Kimi K3, 2026](https://arxiv.org/abs/2607.24653) §3.2）。
+- 充分调优下 Cosine 优于 WSD：同尺寸、同训练量下 Cosine 与 WSD 的最优 $(\eta, B)$ 差异明显；在固定 $\eta_{\text{end}}$ 并分别为两者独立调优超参后，Cosine 的最优峰值学习率高于 WSD（$\eta_{\text{cosine}}^{\ast} > \eta_{\text{WSD}}^{\ast}$），且最终预训练 loss 稳定低于 WSD（[Kimi K3, 2026](https://arxiv.org/abs/2607.24653) §3.2）。
 
 如果正式大模型训练包含以下收尾步骤，Ladder 实验也建议保持一致：
 
