@@ -3,8 +3,9 @@ layout: page
 permalink: /coffee-chat/
 title: Coffee Chat
 description: Book a Coffee Chat with me here. 🙂
-nav: true
+nav: false
 nav_order: 6
+published: false
 ---
 
 <!-- Lark Scheduler Inline Embed Begin -->
