@@ -30,7 +30,13 @@ jobs:
           bundler-cache: true
 
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y imagemagick
+        run: |
+          if ! timeout 5 getent ahosts azure.archive.ubuntu.com >/dev/null 2>&1; then
+            printf 'https://mirrors.edge.kernel.org/ubuntu/\n' | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
+            sudo find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) -exec sed -i 's|https\?://[^[:space:]]*ubuntu\.com/ubuntu/\?|https://mirrors.edge.kernel.org/ubuntu/|g' {} +
+          fi
+          sudo apt-get update -o Acquire::Retries=2 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
+          sudo apt-get install -y -o Acquire::Retries=2 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 imagemagick
 
       - name: Install Node dependencies
         run: npm ci
