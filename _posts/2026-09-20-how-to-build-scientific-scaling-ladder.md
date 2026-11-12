@@ -5,7 +5,7 @@ date: 2026-09-20 10:00:00
 description: "整理 LLM 预训练 Scaling Ladder 的设计与搭建方法：涵盖参数与算力统计、Dense 与 MoE 实验设计、超参搜索与调度、数据配比与多轮重复、Loss Scaling Law 拟合、下游任务预测及外推验证。"
 tags: [scaling-laws, pretraining, hyperparameter, optimization, llm, empirical-methodology]
 categories: [research]
-featured: false
+featured: true
 giscus_comments: true
 toc:
   sidebar: left
