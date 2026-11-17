@@ -62,6 +62,7 @@ layout: default
 
         <!-- Header/Contact Information -->
         {% if cv.name or cv.label or cv.location or cv.email or cv.phone or cv.website %}
+          <a class="anchor" id="contact-email"></a>
           <div class="card mt-3 p-3">
             <h3 class="card-title font-weight-medium">Contact Information</h3>
             <table class="table table-cv table-sm table-borderless">
@@ -80,7 +81,7 @@ layout: default
               {% if cv.email %}
                 <tr>
                   <td class="p-1 pr-2 font-weight-bold"><b>Email</b></td>
-                  <td class="p-1 pl-2 font-weight-light">{{ cv.email }}</td>
+                  <td class="p-1 pl-2 font-weight-light">{{ cv.email | replace: '@', ' [at] ' | replace: '.', ' [dot] ' | escape }}</td>
                 </tr>
               {% endif %}
               {% if cv.phone %}
@@ -201,6 +202,7 @@ layout: default
 
         <!-- Contact Information -->
         {% if site.data.resume.basics %}
+          <a class="anchor" id="contact-email"></a>
           <div class="card mt-3 p-3">
             <h3 class="card-title font-weight-medium">Contact Information</h3>
             {% assign basics = site.data.resume.basics %}
@@ -220,7 +222,7 @@ layout: default
               {% if basics.email %}
                 <tr>
                   <td class="p-1 pr-2 font-weight-bold"><b>Email</b></td>
-                  <td class="p-1 pl-2 font-weight-light">{{ basics.email }}</td>
+                  <td class="p-1 pl-2 font-weight-light">{{ basics.email | replace: '@', ' [at] ' | replace: '.', ' [dot] ' | escape }}</td>
                 </tr>
               {% endif %}
               {% if basics.phone %}

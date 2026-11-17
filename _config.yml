@@ -173,7 +173,7 @@ kramdown:
 include: ["_pages", "_scripts"]
 exclude:
   - bin/
-  - docker-compose.yml
+  - cv/ # Keep CV source files out of the published site; the PDF stays in assets/.
   - Gemfile
   - Gemfile.lock
   - LICENSE

@@ -159,10 +159,10 @@ ninja.data = [
           {%- assign social_id = "social-discord" -%}
           {%- assign social_title = "Discord" -%}
           {%- capture social_url %}"https://discord.com/users/{{ social[1] }}"{% endcapture -%}
-        {%- when "email" -%}
+        {%- when "email", "email_contact" -%}
           {%- assign social_id = "social-email" -%}
           {%- assign social_title = "email" -%}
-          {%- capture social_url %}"mailto:{{ social[1] | encode_email }}"{% endcapture -%}
+          {%- capture social_url %}"{{ '/cv/#contact-email' | relative_url }}"{% endcapture -%}
         {%- when "facebook_id" -%}
           {%- assign social_id = "social-facebook" -%}
           {%- assign social_title = "Facebook" -%}

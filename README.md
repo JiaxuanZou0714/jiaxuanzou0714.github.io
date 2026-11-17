@@ -4,14 +4,22 @@ Source for [jiaxuanzou0714.github.io](https://jiaxuanzou0714.github.io), an acad
 
 ## Local development
 
-Docker is the supported local workflow:
+On an Apple silicon Mac with macOS 26 or later, install
+[Apple container](https://github.com/apple/container/releases), then run:
 
 ```bash
-docker compose pull
-docker compose up
+./bin/serve.sh
 ```
 
-The site is available at <http://localhost:8080>.
+The script starts Jekyll in the background at <http://localhost:8080>, with live
+reload. The first run downloads the al-folio image and installs the gems from
+`Gemfile.lock`. Gems are cached in the `jiaxuan-blog-bundle` volume. Run the script
+again to restart the site.
+
+```bash
+container logs --follow jiaxuan-blog  # watch startup and build output
+container stop jiaxuan-blog          # stop the site
+```
 
 ## Post translations
 

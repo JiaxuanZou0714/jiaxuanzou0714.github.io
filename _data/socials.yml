@@ -1,7 +1,10 @@
 # this file contains the social media links and usernames of the author
 # the socials will be displayed in the order they are defined here
 # for more information, please refer to the documentation of jekyll-socials plugin: https://github.com/george-gca/jekyll-socials
-email: 3140143497@qq.com # your email address
+email_contact:
+  logo: fa-solid fa-envelope
+  title: Email
+  url: /cv/#contact-email
 x_username: SmartPig_Joe # your X/Twitter username
 linkedin_username: "%E5%98%89%E8%BD%A9-%E9%82%B9-bb3439341" # your LinkedIn username
 # inspirehep_id: 1010907 # Inspire HEP author ID
