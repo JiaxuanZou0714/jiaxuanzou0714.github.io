@@ -37,9 +37,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 {% endif %}
 
-<!-- Bootstrap & MDB -->
+<!-- Bootstrap -->
 <link rel="stylesheet" href="{{ '/assets/css/bootstrap.min.css' | relative_url | bust_file_cache }}">
-<link rel="stylesheet" href="{{ '/assets/css/mdb.min.css' | relative_url | bust_file_cache }}">
 
 {% if page.pretty_table %}
   <!-- Bootstrap Table -->
@@ -52,9 +51,6 @@
   >
 {% endif %}
 
-<!-- Fonts & Icons -->
-<link defer rel="stylesheet" href="{{ '/assets/css/academicons.min.css' | relative_url | bust_file_cache }}">
-<link defer rel="stylesheet" href="{{ '/assets/css/scholar-icons.css' | relative_url | bust_file_cache }}">
 {% if google_fonts_url and google_fonts_url != '' %}
   <link defer rel="stylesheet" type="text/css" href="{{ google_fonts_url }}">
 {% endif %}

@@ -1,116 +1,70 @@
 /*******************************************************************************
- * Variables used throughout the theme.
- * To adjust anything, simply edit the variables below and rebuild the theme.
+ * Minimal academic design tokens
  ******************************************************************************/
 
-@use "sass:color";
+// Palette: paper white, ink black, classic academic blue, muted grays
+$white-color: #ffffff !default;
+$black-color: #1a1a1a !default;
+$link-color: #004499 !default;
+$link-hover-color: #002266 !default;
 
-// Colors
-$seed-navy: #0a3a7a !default;
-$seed-deep-blue: #0a4f9c !default;
-$seed-blue: #115fb3 !default;
-$seed-bright-blue: #1a6fe0 !default;
-$seed-light-blue: #5ba0ff !default;
-$seed-cyan: #00cbd4 !default;
-$seed-mint: #7af0e6 !default;
+$grey-color: #595959 !default;
+$grey-color-light: #e0e0e0 !default;
+$grey-color-subtle: #f6f6f6 !default;
+$grey-color-dark: #1a1a1a !default;
+$grey-900: #222222 !default;
 
-$red-color: #cd5c58 !default;
-$red-color-dark: #7f2c28 !default;
-$orange-color: #d97757 !default;
-$blue-color: $seed-light-blue !default;
-$blue-color-dark: $seed-navy !default;
-$cyan-color: $seed-cyan !default;
-$light-cyan-color: color.adjust($cyan-color, $lightness: 25%);
-$green-color: #788c5d !default;
-$green-color-lime: #e9f1dc !default;
-$green-color-dark: #265b19 !default;
-$green-color-light: #e9f1dc !default;
-$green-color-bright: #7ab948 !default;
-$purple-color: $seed-blue !default;
-$light-purple-color: color.adjust($purple-color, $lightness: 25%);
-$pink-color: #cd5c58 !default;
-$pink-color-light: #f7ecec !default;
-$yellow-color: #d1a041 !default;
+$code-bg-color-light: #f6f6f6 !default;
+$code-bg-color-dark: #1a1a1a !default;
 
-$grey-color: #526277 !default;
-$grey-color-light: #c5d4e6 !default;
-$grey-color-dark: #17202d;
-$grey-900: #1d2938;
+// Kept for any legacy partial references
+$purple-color: $link-color !default;
+$red-color: #9b1c1c !default;
+$orange-color: #9a5b13 !default;
+$green-color: #215d42 !default;
 
-$white-color: #f7f9fc !default;
-$black-color: #101828 !default;
-
-// Theme colors
-
-$code-bg-color-light: #eef3f9;
-$code-bg-color-dark: #111a26 !default;
-
-// Typography
+// Typography: unified academic serif + clean monospace
 $font-family-serif:
-  "Lora", Georgia, "Songti SC", "STSong", "SimSun", serif !default;
-$font-family-sans:
-  "Poppins",
-  -apple-system,
-  BlinkMacSystemFont,
-  "PingFang SC",
-  "Hiragino Sans GB",
-  "Microsoft YaHei",
-  sans-serif !default;
+  Georgia,
+  "Times New Roman",
+  "Songti SC",
+  "Noto Serif CJK SC",
+  "STSong",
+  "SimSun",
+  serif !default;
+$font-family-sans: $font-family-serif !default;
 $font-family-mono:
-  "SFMono-Regular", "Cascadia Code", "Fira Code", Menlo, Consolas, monospace !default;
+  "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace !default;
 
-// Static type scale. Keep responsive behavior in layout, not font-size.
-$text-xs: 0.75rem !default;
-$text-sm: 0.875rem !default;
-$text-base: 1rem !default;
-$text-lg: 1.125rem !default;
-$text-xl: 1.375rem !default;
-$text-2xl: 1.75rem !default;
-$text-3xl: 2.125rem !default;
-$text-4xl: 2.625rem !default;
-$text-5xl: 3.25rem !default;
+// Restrained academic type scale
+$text-xs: 0.8rem !default;
+$text-sm: 0.9rem !default;
+$text-base: 1.02rem !default;
+$text-lg: 1.1rem !default;
+$text-xl: 1.2rem !default;
+$text-2xl: 1.32rem !default;
+$text-3xl: 1.5rem !default;
+$text-4xl: 1.7rem !default;
+$text-5xl: 2rem !default;
 
-// Line-height scale
-$leading-tight: 1.15 !default;
-$leading-title: 1.25 !default;
-$leading-normal: 1.6 !default;
-$leading-relaxed: 1.75 !default;
+// Line heights
+$leading-tight: 1.25 !default;
+$leading-title: 1.32 !default;
+$leading-normal: 1.65 !default;
+$leading-relaxed: 1.74 !default;
 
-// Border-radius scale
-$radius-xs: 0.125rem !default;
-$radius-sm: 0.25rem !default;
-$radius-md: 0.375rem !default;
-$radius-lg: 0.5rem !default;
+// Minimal geometry
+$radius-xs: 2px !default;
+$radius-sm: 2px !default;
+$radius-md: 2px !default;
+$radius-lg: 3px !default;
 
-// Transition tokens
-$transition-fast: 0.15s ease !default;
-$transition-base: 0.2s ease !default;
-$transition-slow: 0.35s ease !default;
+$transition-fast: 0.1s ease !default;
+$transition-base: 0.15s ease !default;
+$transition-slow: 0.25s ease !default;
 
-// Shadow tokens
-$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05) !default;
-$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08) !default;
-
-// Book shelf status colors
-$book-abandoned: #ee5f5b !default;
-$book-finished: #62c462 !default;
-$book-interested: #7691db !default;
-$book-paused: #bdac7e !default;
-$book-queued: #9e76b5 !default;
-$book-reading: #f89406 !default;
-$book-reread: #a6517d !default;
-$book-uncategorized: #b0abb3 !default;
-
-// Font awesome location
-$fa-font-path: "../webfonts";
-
-// Back To Top button config
-$back-to-top-z-index: 10;
-$back-to-top-bottom: 30px;
-$back-to-top-right: 30px;
-$back-to-top-diameter: 40px;
-$back-to-top-height: $back-to-top-diameter;
-$back-to-top-width: $back-to-top-diameter;
+$shadow-sm: none !default;
+$shadow-md: none !default;
 
 // Max width default
-$max-content-width: 1200px !default;
+$max-content-width: 740px !default;

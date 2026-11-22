@@ -2,16 +2,34 @@
 layout: default
 ---
 <div class="post about-home">
-  <header class="post-header">
+  <header class="post-header about-header">
     <h1 class="post-title">
       {% if site.title == 'blank' %}
-        <span class="font-weight-bold">{{ site.first_name }}</span> {{ site.middle_name }}
-        {{ site.last_name }}
+        {{ site.first_name }} {{ site.middle_name }} {{ site.last_name }}
       {% else %}
         {{ site.title }}
       {% endif %}
     </h1>
-    <p class="desc">{{ page.subtitle }}</p>
+    {% if page.subtitle %}
+      <p class="desc">{{ page.subtitle }}</p>
+    {% endif %}
+    {% if page.social %}
+      <p class="about-links">
+        <a href="{{ '/cv/#contact-email' | relative_url }}">Email</a>
+        &middot;
+        <a href="https://scholar.google.com/citations?user={{ site.data.socials.scholar_userid }}" target="_blank" rel="external nofollow noopener">Google Scholar</a>
+        &middot;
+        <a href="https://x.com/{{ site.data.socials.x_username }}" target="_blank" rel="external nofollow noopener">X</a>
+        &middot;
+        <a href="https://www.linkedin.com/in/{{ site.data.socials.linkedin_username }}" target="_blank" rel="external nofollow noopener">LinkedIn</a>
+        &middot;
+        <a href="{{ site.data.socials.bilibili_social.url }}" target="_blank" rel="external nofollow noopener">Bilibili</a>
+        &middot;
+        <a href="{{ site.data.socials.xiaohongshu_social.url }}" target="_blank" rel="external nofollow noopener">Xiaohongshu</a>
+        &middot;
+        <span>WeChat: Jiaxuan_Zou</span>
+      </p>
+    {% endif %}
   </header>
 
   <article>
@@ -29,27 +47,14 @@ layout: default
             {% endif %}
           {% endcapture %}
           {% assign profile_image_alt = profile_image_alt | strip %}
-          {% if page.profile.image_circular %}
-            {% assign profile_image_class = 'img-fluid z-depth-1 rounded-circle' %}
-          {% else %}
-            {% assign profile_image_class = 'img-fluid z-depth-1
-      rounded' %}
-          {% endif %}
-          {% capture sizes %}(min-width: {{ site.max_width }}) {{ site.max_width | minus: 30 | times: 0.3}}px, (min-width: 576px) 30vw, 95vw{% endcapture %}
           {%
-            include figure.liquid loading="eager" decoding="async" fetchpriority="high" path=profile_image_path class=profile_image_class sizes=sizes alt=profile_image_alt
+            include figure.liquid loading="eager" decoding="async" fetchpriority="high" path=profile_image_path class="img-fluid profile-photo" sizes="180px" alt=profile_image_alt
             width="1024" height="1024"
             cache_bust=true
           %}
         {% endif %}
         {% if page.profile.more_info %}
           <div class="more-info">{{ page.profile.more_info }}</div>
-        {% endif %}
-        {% if page.social %}
-          <div class="profile-social">
-            <div class="contact-icons">{% social_links %}</div>
-            <div class="contact-note">{{ site.contact_note }}</div>
-          </div>
         {% endif %}
       </div>
     {% endif %}
@@ -58,41 +63,32 @@ layout: default
 
     <!-- News -->
     {% if page.announcements and page.announcements.enabled %}
-      <h2>
-        <a href="{{ '/news/' | relative_url }}" style="color: inherit">News</a>
-      </h2>
-      {% include news.liquid limit=true %}
+      <section class="home-section">
+        <h2>
+          <a href="{{ '/news/' | relative_url }}">News</a>
+        </h2>
+        {% include news.liquid limit=true %}
+      </section>
     {% endif %}
 
     <!-- Latest posts -->
     {% if page.latest_posts and page.latest_posts.enabled %}
-      <h2>
-        <a href="{{ '/blog/' | relative_url }}" style="color: inherit">Latest Posts</a>
-      </h2>
-      {% include latest_posts.liquid %}
+      <section class="home-section">
+        <h2>
+          <a href="{{ '/blog/' | relative_url }}">Latest Posts</a>
+        </h2>
+        {% include latest_posts.liquid %}
+      </section>
     {% endif %}
 
     <!-- Selected papers -->
     {% if page.selected_papers %}
-      <h2>
-        <a href="{{ '/publications/' | relative_url }}" style="color: inherit">Selected Publications</a>
-      </h2>
-      {% include selected_papers.liquid %}
-    {% endif %}
-
-    <!-- Social -->
-    {% if page.social %}
-      {% unless page.profile %}
-        <div class="social">
-          <div class="contact-icons">{% social_links %}</div>
-
-          <div class="contact-note">{{ site.contact_note }}</div>
-        </div>
-      {% endunless %}
-    {% endif %}
-
-    {% if site.newsletter and site.newsletter.enabled and site.footer_fixed %}
-      {% include newsletter.liquid center=true %}
+      <section class="home-section">
+        <h2>
+          <a href="{{ '/publications/' | relative_url }}">Selected Publications</a>
+        </h2>
+        {% include selected_papers.liquid %}
+      </section>
     {% endif %}
   </article>
 </div>

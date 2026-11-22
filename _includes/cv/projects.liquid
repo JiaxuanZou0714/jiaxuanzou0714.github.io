@@ -1,31 +1,25 @@
-{% comment %}
-  Unified projects entry renderer for both formats
-{% endcomment %}
-
-<ul class="card-text font-weight-light list-group list-group-flush">
+<ul class="cv-entries">
   {% for entry in entries %}
-    <li class="list-group-item">
-      {% if entry.url %}
-        <h6 class="title font-weight-bold">
-          <a href="{{ entry.url }}" target="_blank">{{ entry.name }}</a>
-        </h6>
-      {% else %}
-        <h6 class="title font-weight-bold">{{ entry.name }}</h6>
-      {% endif %}
-
-      {% if entry.summary %}
-        <p>{{ entry.summary | markdownify | remove: '<p>' | remove: '</p>' }}</p>
-      {% endif %}
-
-      {% if entry.highlights %}
-        <ul class="items">
-          {% for item in entry.highlights %}
-            <li>
-              <span class="item">{{ item | markdownify | remove: '<p>' | remove: '</p>' }}</span>
-            </li>
-          {% endfor %}
-        </ul>
-      {% endif %}
+    <li class="cv-entry cv-entry--plain">
+      <div class="cv-body">
+        <div class="cv-title">
+          {% if entry.url %}
+            <strong><a href="{{ entry.url }}" target="_blank" rel="external nofollow noopener">{{ entry.name }}</a></strong>
+          {% else %}
+            <strong>{{ entry.name }}</strong>
+          {% endif %}
+        </div>
+        {% if entry.summary %}
+          <div class="cv-note">{{ entry.summary | markdownify | remove: '<p>' | remove: '</p>' }}</div>
+        {% endif %}
+        {% if entry.highlights %}
+          <ul class="cv-highlights">
+            {% for item in entry.highlights %}
+              <li>{{ item | markdownify | remove: '<p>' | remove: '</p>' }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
     </li>
   {% endfor %}
 </ul>

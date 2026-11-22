@@ -1,232 +1,124 @@
-/*****************************
- * CV shared styles
- *****************************/
+/*******************************************************************************
+ * Minimal academic CV styles
+ ******************************************************************************/
 
-div.container-link-button {
-  margin-right: 0.5rem;
+.cv {
+  margin-bottom: 2rem;
 }
 
-table.table-cv {
-  background-color: transparent !important;
+.cv-section {
+  margin-top: 1.65rem;
 
-  td,
-  th {
-    padding: 1px;
+  &:first-child {
+    margin-top: 0.5rem;
+  }
+
+  h2 {
+    font-size: 1.18rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--global-divider-color);
+    padding-bottom: 0.2rem;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
   }
 }
 
-a.btncv {
-  color: var(--global-text-color) !important;
-  border: 1px solid var(--global-text-color) !important;
-  border-radius: var(--radius-xs);
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-  text-decoration: none;
-  font-weight: 400;
-  font-size: var(--text-xs);
-  text-align: center;
-  vertical-align: middle;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transition:
-    color var(--transition-fast),
-    border-color var(--transition-fast);
+.cv-contact-table {
+  th {
+    width: 6rem;
+    font-weight: 600;
+    color: var(--global-text-color);
+  }
 }
 
-a.btncv:hover {
-  color: var(--global-theme-color) !important;
-  border-color: var(--global-theme-color) !important;
-  text-decoration: none !important;
-}
-
-.cv-entry-meta {
-  font-size: var(--text-sm);
-}
-
-.cv-entry-note {
-  font-size: var(--text-sm);
-  font-style: italic;
-}
-
-/*****************************
- * CV TIME_TABLE styles
- *****************************/
-
-p.location {
-  font-size: var(--text-xs);
-  white-space: nowrap;
-}
-
-i.iconlocation {
-  color: var(--global-theme-color);
-  font-size: var(--text-sm);
-}
-
-i.iconinstitution {
-  color: var(--global-theme-color);
-  font-size: var(--text-base);
-  margin-right: 0.25rem;
-}
-
-i.icondepartment {
-  color: var(--global-theme-color);
-  font-size: var(--text-sm);
-  margin-right: 0.25rem;
-}
-
-table.institution {
-  margin-bottom: 1rem;
-}
-
-td.department {
-  font-size: var(--text-sm);
-}
-
-div.container-links {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-/*****************************
- * CV MAP styles
- *****************************/
-
-div.container-pdf {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-/*****************************
- * CV LIST_GROUPS styles
- *****************************/
-
-div.list-groups {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  flex-direction: row;
-  align-content: center;
-}
-
-div.list-group {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-}
-
-td.list-group-category {
-  color: var(--global-theme-color);
-  margin-bottom: 0.5rem;
-}
-
-td.list-group-category-icon {
-  font-size: var(--text-sm);
-  color: var(--global-theme-color);
-  width: 1.4rem;
-  padding-right: 0.4rem;
-}
-
-td.list-group-name {
-  font-size: var(--text-sm);
-}
-
-td.list-group-level {
-  font-size: var(--text-sm);
-  padding-left: 0.5rem;
-}
-
-td.list-group-school {
-  font-size: var(--text-xs);
-  padding-left: 0.5rem;
-  text-align: center;
-}
-
-p.list-group-time {
-  font-size: var(--text-xs);
-  padding-left: 0.5rem;
-}
-
-td.list-group-link {
-  padding-left: 0.5rem;
-}
-
-/*****************************
- * CV TOC styles
- *****************************/
-
-a.anchor {
-  display: block;
-  position: relative;
-  top: -50px;
-  visibility: hidden;
-}
-
-ul.timeline {
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-}
-
-ul.timeline li {
-  position: relative;
-  min-height: 2.2rem;
-  color: var(--global-text-color);
-  list-style-position: inside;
-}
-
-span.badge-toc {
-  color: var(--global-bg-color);
-  background-color: var(--global-theme-color);
-  border-radius: var(--radius-xs);
-  padding: 0.125rem 0.5rem 0.125rem 0.5rem;
-  font-weight: 700 !important;
-  display: inline-block;
-  inline-size: fit-content;
-}
-
-ul.timeline li::before {
-  content: "";
-  min-height: 2.5rem;
-  width: 1px;
-  background: var(--global-text-color);
-  margin: 0;
+.cv-entries {
+  list-style: none;
   padding: 0;
-  position: absolute;
-  left: 2px;
-  top: -0.5rem;
+  margin: 0;
 }
 
-/*ul.timeline::before {
-     content: "●";
-     font-size: 1em;
-     display: inline-block;
-     margin: 0;
-     padding: 0;
-     position: relative;
-     left: -2px;
-     top: 0.4rem;
-     color: var(--global-text-color);
+.cv-entry {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 0.15rem 1.25rem;
+  margin-bottom: 0.85rem;
+
+  &.cv-entry--plain {
+    display: block;
+  }
 }
- ul.timeline::after {
-     content: "●";
-     font-size: 1em;
-     display: inline-block;
-     margin: 0;
-     padding: 0;
-     position: relative;
-     left: -2px;
-     top: -1rem;
-     color: var(--global-text-color);
+
+.cv-date {
+  font-size: 0.88rem;
+  color: var(--global-text-color-light);
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.08rem;
+  white-space: nowrap;
 }
-*/
+
+.cv-body {
+  min-width: 0;
+}
+
+.cv-title {
+  line-height: 1.42;
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.cv-subtitle {
+  font-size: 0.94rem;
+  color: #333333;
+  line-height: 1.45;
+}
+
+.cv-meta {
+  font-size: 0.9rem;
+  color: var(--global-text-color-light);
+}
+
+.cv-note {
+  font-size: 0.92rem;
+  color: #444444;
+  margin-top: 0.1rem;
+}
+
+.cv-highlights {
+  list-style-type: disc;
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.94rem;
+  line-height: 1.52;
+
+  li {
+    margin-bottom: 0.15rem;
+  }
+}
+
+.cv-bullets {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+
+  li {
+    margin-bottom: 0.25rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .cv-entry {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+  }
+
+  .cv-date {
+    font-size: 0.84rem;
+  }
+}

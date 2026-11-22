@@ -1,63 +1,26 @@
 /*******************************************************************************
- * Footer styles
+ * Minimal light footer
  ******************************************************************************/
 
-footer.fixed-bottom {
-  background-color: var(--global-footer-bg-color);
+.site-footer {
+  margin-top: 3.5rem;
+  padding-bottom: 2.25rem;
+  background-color: transparent;
+  color: var(--global-text-color-light);
   font-size: var(--text-xs);
 
   .container {
-    color: var(--global-footer-text-color);
-    padding-top: 9px;
-    padding-bottom: 9px;
-    text-align: center;
+    border-top: 1px solid var(--global-divider-color);
+    padding-top: 1rem;
+    text-align: left;
+    color: var(--global-text-color-light);
   }
 
   a {
-    color: var(--global-footer-link-color);
-    text-decoration: underline;
-    text-decoration-thickness: 0.08em;
-    text-underline-offset: 0.16em;
+    color: var(--global-text-color-light);
 
     &:hover {
-      color: var(--global-footer-link-hover-color);
-      text-decoration-thickness: 0.12em;
-    }
-  }
-}
-
-footer.sticky-bottom {
-  border-top: 1px solid var(--global-divider-color);
-  padding-top: 40px;
-  padding-bottom: 40px;
-  font-size: var(--text-sm);
-
-  .container {
-    text-align: center;
-  }
-}
-
-footer {
-  background-color: var(--global-footer-bg-color);
-  border-top: 1px solid var(--global-divider-color);
-  padding-top: 40px;
-  padding-bottom: 40px;
-  font-size: var(--text-sm);
-
-  .container {
-    color: var(--global-footer-text-color);
-    text-align: center;
-  }
-
-  a {
-    color: var(--global-footer-link-color);
-    text-decoration: underline;
-    text-decoration-thickness: 0.08em;
-    text-underline-offset: 0.16em;
-
-    &:hover {
-      color: var(--global-footer-link-hover-color);
-      text-decoration-thickness: 0.12em;
+      color: var(--global-theme-color);
     }
   }
 }

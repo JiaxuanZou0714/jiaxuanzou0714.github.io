@@ -1,9 +1,5 @@
 {% comment %}
   Links a Chinese post to its generated English translation and back.
-
-  The two documents are paired on the source filename slug. scripts/translate.mjs
-  writes that slug into the generated document's `ref` field, so neither side has
-  to guess at the other's URL.
 {% endcomment %}
 
 {% if page.collection == 'en_posts' %}
@@ -16,15 +12,10 @@
   {% assign switch_lang = 'en' %}
 {% endif %}
 
-{% comment %}
-  A div rather than a p: `.post p a` in _typography.scss underlines every link,
-  which would fight the pill styling.
-{% endcomment %}
 {% if counterpart %}
   <div class="post-lang-switch">
     <a href="{{ counterpart.url | relative_url }}" hreflang="{{ switch_lang }}" lang="{{ switch_lang }}">
-      <i class="fa-solid fa-language"></i>
-      {{ switch_label }}
+      [{{ switch_label }}]
     </a>
   </div>
 {% endif %}

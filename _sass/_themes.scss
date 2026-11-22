@@ -1,8 +1,7 @@
 /*******************************************************************************
- * Themes
+ * Theme CSS custom properties (light academic paper only)
  ******************************************************************************/
 @use "variables" as v;
-@use "sass:color";
 
 :root {
   color-scheme: light;
@@ -10,21 +9,22 @@
   --global-code-bg-color: #{v.$code-bg-color-light};
   --global-text-color: #{v.$black-color};
   --global-text-color-light: #{v.$grey-color};
-  --global-theme-color: #{v.$purple-color};
-  --global-hover-color: #{v.$seed-deep-blue};
+  --global-theme-color: #{v.$link-color};
+  --global-hover-color: #{v.$link-hover-color};
   --global-hover-text-color: #{v.$white-color};
-  --global-footer-bg-color: #{v.$black-color};
-  --global-footer-text-color: #{v.$grey-color-light};
-  --global-footer-link-color: #{v.$white-color};
-  --global-footer-link-hover-color: #{v.$seed-mint};
-  --global-distill-app-color: #{v.$grey-color};
-  --global-divider-color: rgba(10, 58, 122, 0.14);
-  --global-card-bg-color: #fcfdff;
+  --global-footer-bg-color: #{v.$white-color};
+  --global-footer-text-color: #{v.$grey-color};
+  --global-footer-link-color: #{v.$link-color};
+  --global-footer-link-hover-color: #{v.$link-hover-color};
+  --global-divider-color: #{v.$grey-color-light};
+  --global-subtle-border-color: #ebebeb;
+  --global-card-bg-color: #{v.$white-color};
+  --global-highlight-color: #{v.$link-color};
 
-  // Typography tokens
   --font-serif: #{v.$font-family-serif};
   --font-sans: #{v.$font-family-sans};
   --font-mono: #{v.$font-family-mono};
+
   --text-xs: #{v.$text-xs};
   --text-sm: #{v.$text-sm};
   --text-base: #{v.$text-base};
@@ -34,212 +34,32 @@
   --text-3xl: #{v.$text-3xl};
   --text-4xl: #{v.$text-4xl};
   --text-5xl: #{v.$text-5xl};
+
   --leading-tight: #{v.$leading-tight};
   --leading-title: #{v.$leading-title};
   --leading-normal: #{v.$leading-normal};
   --leading-relaxed: #{v.$leading-relaxed};
 
-  // Layout tokens
   --radius-xs: #{v.$radius-xs};
   --radius-sm: #{v.$radius-sm};
   --radius-md: #{v.$radius-md};
   --radius-lg: #{v.$radius-lg};
-  --shadow-sm: #{v.$shadow-sm};
-  --shadow-md: #{v.$shadow-md};
   --transition-fast: #{v.$transition-fast};
   --transition-base: #{v.$transition-base};
   --transition-slow: #{v.$transition-slow};
 
-  --global-highlight-color: #{v.$seed-bright-blue};
-  --global-back-to-top-bg-color: rgba(
-    #{color.channel(v.$black-color, "red", v.$space: rgb)},
-    #{color.channel(v.$black-color, "green", v.$space: rgb)},
-    #{color.channel(v.$black-color, "blue", v.$space: rgb)},
-    0.4
-  );
-  --global-back-to-top-text-color: #{v.$white-color};
-  --global-newsletter-bg-color: #{v.$white-color};
-  --global-newsletter-text-color: #{v.$black-color};
+  --global-tip-block: #2e7d5b;
+  --global-tip-block-bg: #f5faf7;
+  --global-tip-block-text: #1a1a1a;
+  --global-tip-block-title: #215d42;
 
-  --global-tip-block: #42b983;
-  --global-tip-block-bg: #e2f5ec;
-  --global-tip-block-text: #215d42;
-  --global-tip-block-title: #359469;
-  --global-warning-block: #e7c000;
-  --global-warning-block-bg: #fff8d8;
-  --global-warning-block-text: #6b5900;
-  --global-warning-block-title: #b29400;
-  --global-danger-block: #c00;
-  --global-danger-block-bg: #ffe0e0;
-  --global-danger-block-text: #600;
-  --global-danger-block-title: #c00;
+  --global-warning-block: #b08800;
+  --global-warning-block-bg: #fdfbf2;
+  --global-warning-block-text: #1a1a1a;
+  --global-warning-block-title: #7c5e00;
 
-  #light-toggle-system {
-    display: inline-block;
-  }
-
-  #light-toggle-dark {
-    display: none;
-  }
-
-  #light-toggle-light {
-    display: none;
-  }
-
-  .only-light {
-    display: block;
-  }
-
-  .only-dark {
-    display: none;
-  }
-
-  #back-to-top {
-    color: var(--global-back-to-top-text-color);
-    background: var(--global-back-to-top-bg-color);
-    bottom: v.$back-to-top-bottom;
-    right: v.$back-to-top-right;
-    height: v.$back-to-top-height;
-    width: v.$back-to-top-width;
-    z-index: v.$back-to-top-z-index;
-  }
-}
-
-html[data-theme="dark"] {
-  color-scheme: dark;
-  --global-bg-color: #{v.$grey-color-dark};
-  --global-code-bg-color: #{v.$code-bg-color-dark};
-  --global-text-color: #{v.$white-color};
-  --global-text-color-light: #b7c4d6;
-  --global-theme-color: #{v.$seed-light-blue};
-  --global-hover-color: #{v.$seed-mint};
-  --global-hover-text-color: #{v.$black-color};
-  --global-footer-bg-color: #{v.$black-color};
-  --global-footer-text-color: #{v.$grey-color-light};
-  --global-footer-link-color: #{v.$white-color};
-  --global-distill-app-color: #b7c4d6;
-  --global-divider-color: rgba(127, 179, 255, 0.18);
-  --global-card-bg-color: #{v.$grey-900};
-  --global-back-to-top-bg-color: rgba(
-    #{color.channel(v.$white-color, "red", v.$space: rgb)},
-    #{color.channel(v.$white-color, "green", v.$space: rgb)},
-    #{color.channel(v.$white-color, "blue", v.$space: rgb)},
-    0.5
-  );
-  --global-back-to-top-text-color: #{v.$black-color};
-  --global-newsletter-bg-color: #{v.$grey-900};
-  --global-newsletter-text-color: #{v.$white-color};
-  --global-highlight-color: #{v.$seed-light-blue};
-
-  --global-tip-block: #42b983;
-  --global-tip-block-bg: #215d42;
-  --global-tip-block-text: #beffe2;
-  --global-tip-block-title: #e2f5ec;
-  --global-warning-block: #e7c000;
-  --global-warning-block-bg: #6b5900;
-  --global-warning-block-text: #fff2af;
-  --global-warning-block-title: #fff8d8;
-  --global-danger-block: #c00;
-  --global-danger-block-bg: #600;
-  --global-danger-block-text: #ffb9b9;
-  --global-danger-block-title: #ffe0e0;
-
-  .only-light {
-    display: none;
-  }
-
-  .only-dark {
-    display: block;
-  }
-}
-
-html[data-theme-setting="dark"] {
-  #light-toggle-system {
-    display: none;
-  }
-
-  #light-toggle-dark {
-    display: inline-block;
-  }
-
-  #light-toggle-light {
-    display: none;
-  }
-
-  #back-to-top {
-    color: var(--global-back-to-top-text-color);
-    background: var(--global-back-to-top-bg-color);
-  }
-}
-
-html[data-theme-setting="light"] {
-  #light-toggle-system {
-    display: none;
-  }
-
-  #light-toggle-dark {
-    display: none;
-  }
-
-  #light-toggle-light {
-    display: inline-block;
-  }
-}
-
-.fa-half-sun-moon {
-  position: relative;
-  display: inline-block;
-
-  --fa-font: var(--fa-font-solid);
-  speak: none;
-  font-style: normal;
-  font-variant: normal;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  width: 1em;
-  height: 1em;
-}
-
-.fa-half-sun-moon::before,
-.fa-half-sun-moon::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  top: -0.5px;
-  bottom: -0.5px;
-  text-align: center;
-  line-height: 1em;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-  font: var(--fa-font);
-}
-
-/* Left half: MOON */
-.fa-half-sun-moon::before {
-  content: "\f111";
-  color: var(--global-text-color);
-  clip-path: polygon(0 0, calc(50% - 0.5px) 0, calc(50% - 0.5px) 100%, 0 100%);
-}
-
-/* Right half: SUN */
-.fa-half-sun-moon::after {
-  content: "\f185";
-  color: var(--global-text-color);
-  clip-path: polygon(
-    calc(50% + 0.5px) 0,
-    100% 0,
-    100% 100%,
-    calc(50% + 0.5px) 100%
-  );
-  right: -1.5px; /* slight overflow to avoid right-edge clipping */
-  transform: translateX(-1px); /* visually re-center the sun half */
-}
-
-#light-toggle:hover .fa-half-sun-moon::before {
-  color: var(--global-theme-color);
-}
-
-#light-toggle:hover .fa-half-sun-moon::after {
-  color: var(--global-theme-color);
+  --global-danger-block: #a62626;
+  --global-danger-block-bg: #fdf5f5;
+  --global-danger-block-text: #1a1a1a;
+  --global-danger-block-title: #8b1e1e;
 }

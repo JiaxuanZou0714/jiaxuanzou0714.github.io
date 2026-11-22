@@ -17,51 +17,45 @@ layout: default
   <header class="post-header">
     <h1 class="post-title">{{ page.title }}</h1>
     <p class="post-meta">
-      Created on {{ page.date | date: '%B %d, %Y' }}
-      {% if page.author %}by {{ page.author }}{% endif %}
+      {{ page.date | date: '%B %d, %Y' }}
+      {% if page.author %} &middot; {{ page.author }}{% endif %}
       {% assign last_date = page.last_modified_at | default: page.last_updated %}
-      {% if last_date %}, last updated on {{ last_date | date: '%B %d, %Y' }}{% endif %}
-      {% if page.meta %}• {{ page.meta }}{% endif %}
+      {% if last_date %} &middot; Updated {{ last_date | date: '%B %d, %Y' }}{% endif %}
+      {% if page.meta %} &middot; {{ page.meta }}{% endif %}
       {% if site.enable_goatcounter_analytics %}
         <span class="post-views" {% include goatcounter-paths.liquid document=page %}>
-          &nbsp; &middot; &nbsp;<i class="fa-regular fa-eye"></i>
-          <span class="goatcounter-count">--</span> views
+          &middot; <span class="goatcounter-count">--</span> views
         </span>
       {% endif %}
     </p>
     <p class="post-tags">
-      {% if url_beginning == '/blog/' %}
-        <a href="{{ year | prepend: '/blog/' | relative_url }}"> <i class="fa-solid fa-calendar fa-sm"></i> {{ year }} </a>
-      {% else %}
-        <i class="fa-solid fa-calendar fa-sm"></i> {{ year }}
-      {% endif %}
-      {% if tags != '' %}
-        &nbsp; &middot; &nbsp;
-        {% for tag in page.tags %}
-          {% if url_beginning == '/blog/' %}
-            <a href="{{ tag | slugify | prepend: '/blog/tag/' | relative_url }}"> <i class="fa-solid fa-hashtag fa-sm"></i> {{ tag }}</a>
-          {% else %}
-            <i class="fa-solid fa-hashtag fa-sm"></i> {{ tag }}
-          {% endif %}
-          {% unless forloop.last %}
-            &nbsp;
-          {% endunless %}
-        {% endfor %}
-      {% endif %}
-
-      {% if categories != '' %}
-        &nbsp; &middot; &nbsp;
-        {% for category in page.categories %}
-          {% if url_beginning == '/blog/' %}
-            <a href="{{ category | slugify | prepend: '/blog/category/' | relative_url }}"> <i class="fa-solid fa-tag fa-sm"></i> {{ category -}}</a>
-          {% else %}
-            <i class="fa-solid fa-tag fa-sm"></i> {{ category }}
-          {% endif %}
-          {% unless forloop.last %}
-            &nbsp;
-          {% endunless %}
-        {% endfor %}
-      {% endif %}
+      {%- if url_beginning == '/blog/' -%}
+        <a href="{{ year | prepend: '/blog/' | relative_url }}">{{ year }}</a>
+      {%- else -%}
+        <span>{{ year }}</span>
+      {%- endif -%}
+      {%- if tags != '' -%}
+        &nbsp;&middot;&nbsp;
+        {%- for tag in page.tags -%}
+          {%- if url_beginning == '/blog/' -%}
+            <a href="{{ tag | slugify | prepend: '/blog/tag/' | relative_url }}">#{{ tag }}</a>
+          {%- else -%}
+            <span>#{{ tag }}</span>
+          {%- endif -%}
+          {%- unless forloop.last -%}, {% endunless -%}
+        {%- endfor -%}
+      {%- endif -%}
+      {%- if categories != '' -%}
+        &nbsp;&middot;&nbsp;
+        {%- for category in page.categories -%}
+          {%- if url_beginning == '/blog/' -%}
+            <a href="{{ category | slugify | prepend: '/blog/category/' | relative_url }}">{{ category }}</a>
+          {%- else -%}
+            <span>{{ category }}</span>
+          {%- endif -%}
+          {%- unless forloop.last -%}, {% endunless -%}
+        {%- endfor -%}
+      {%- endif -%}
     </p>
     {% include lang_switch.liquid %}
   </header>

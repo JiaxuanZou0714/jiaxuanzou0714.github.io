@@ -4,41 +4,35 @@ layout: default
 <div class="post">
   <header class="post-header">
     {% if page.type == 'categories' %}
-      <h1 class="post-title"><i class="fa-solid fa-tag fa-sm"></i> {{ page.title }}</h1>
-      <p class="post-description">an archive of {{ page.collection_name }} in this category</p>
+      <h1 class="post-title">Category: {{ page.title }}</h1>
     {% elsif page.type == 'year' %}
-      <h1 class="post-title"><i class="fa-solid fa-calendar fa-sm"></i> {{ page.date | date: '%Y' }}</h1>
-      <p class="post-description">an archive of {{ page.collection_name }} from this year</p>
+      <h1 class="post-title">{{ page.date | date: '%Y' }}</h1>
     {% elsif page.type == 'tags' %}
-      <h1 class="post-title"><i class="fa-solid fa-hashtag fa-sm"></i> {{ page.title }}</h1>
-      <p class="post-description">an archive of {{ page.collection_name }} with this tag</p>
+      <h1 class="post-title">#{{ page.title }}</h1>
     {% endif %}
   </header>
 
   <article class="archive">
-    <div class="table-responsive">
-      <table class="table table-sm table-borderless">
-        {% for document in page.documents %}
-          <tr>
-            <th scope="row">{{ document.date | date: '%b %d, %Y' }}</th>
-            <td>
-              {% if document.redirect == blank %}
-                <a class="post-link" href="{{ document.url | relative_url }}">{{ document.title }}</a>
-                {% if site.enable_goatcounter_analytics %}
-                  <div class="archive-views post-views" {% include goatcounter-paths.liquid document=document %}>
-                    <i class="fa-regular fa-eye"></i>
-                    <span class="goatcounter-count">--</span> views
-                  </div>
-                {% endif %}
-              {% elsif document.redirect contains '://' %}
-                <a class="post-link" href="{{ document.redirect }}" target="_blank">{{ document.title }}</a>
-              {% else %}
-                <a class="post-link" href="{{ document.redirect | relative_url }}">{{ document.title }}</a>
+    <table class="minimal-list-table">
+      {% for document in page.documents %}
+        <tr>
+          <th scope="row">{{ document.date | date: '%Y-%m-%d' }}</th>
+          <td>
+            {% if document.redirect == blank %}
+              <a class="post-link" href="{{ document.url | relative_url }}">{{ document.title }}</a>
+              {% if site.enable_goatcounter_analytics %}
+                <span class="archive-views post-views" {% include goatcounter-paths.liquid document=document %}>
+                  (<span class="goatcounter-count">--</span> views)
+                </span>
               {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-      </table>
-    </div>
+            {% elsif document.redirect contains '://' %}
+              <a class="post-link" href="{{ document.redirect }}" target="_blank">{{ document.title }}</a>
+            {% else %}
+              <a class="post-link" href="{{ document.redirect | relative_url }}">{{ document.title }}</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
   </article>
 </div>

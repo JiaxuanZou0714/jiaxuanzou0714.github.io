@@ -1,138 +1,48 @@
 /*******************************************************************************
- * Publication and bibliography styles
+ * Minimal academic publications list
  ******************************************************************************/
 
-@use "variables" as v;
-
 .publications {
-  margin-top: 2rem;
-
-  h1 {
-    color: var(--global-theme-color);
-    font-size: var(--text-3xl);
-    font-family: var(--font-sans);
-    text-align: center;
-    margin-top: 1em;
-    margin-bottom: 1em;
-  }
-
-  h2 {
-    margin-bottom: 1rem;
-
-    span {
-      font-size: var(--text-xl);
-    }
-  }
+  margin-top: 1rem;
 
   h2.bibliography {
-    color: var(--global-text-color-light);
-    border-top: 1px solid var(--global-divider-color);
-    padding-top: 1rem;
-    margin-top: 2rem;
-    text-align: right;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--global-text-color);
+    border-bottom: 1px solid var(--global-subtle-border-color);
+    padding-bottom: 0.2rem;
+    margin-top: 1.75rem;
+    margin-bottom: 0.9rem;
+    text-align: left;
   }
 
   ol.bibliography {
     list-style: none;
     padding: 0;
-    margin-top: 0;
+    margin: 0;
 
     li {
-      margin-bottom: 1rem;
-
-      .preview {
-        display: inline-block;
-        width: 100%;
-        max-width: 100%;
-        height: auto;
-      }
-
-      .abbr {
-        margin-bottom: 0.5rem;
-
-        abbr {
-          display: inline-block;
-          background-color: var(--global-theme-color);
-          margin-bottom: 0.5rem;
-          color: var(--global-card-bg-color) !important;
-
-          a {
-            color: white;
-
-            &:hover {
-              text-decoration: none;
-            }
-          }
-        }
-
-        .award {
-          color: var(--global-theme-color) !important;
-          border: 1px solid var(--global-theme-color);
-        }
-      }
+      margin-bottom: 1.1rem;
 
       .title {
         font-weight: 600;
+        color: var(--global-text-color);
+        line-height: 1.4;
       }
 
       .author {
+        font-size: 0.95rem;
+        color: #2f2f2f;
+        line-height: 1.48;
+
+        .self-author {
+          text-decoration: underline;
+          text-underline-offset: 2px;
+        }
+
         a {
-          border-bottom: 1px dashed var(--global-theme-color);
-
-          &:hover {
-            border-bottom-style: solid;
-            text-decoration: none;
-          }
-        }
-
-        > em {
-          border-bottom: 1px solid;
-          font-style: normal;
-        }
-
-        > span.more-authors {
-          color: var(--global-text-color-light);
-          border-bottom: 1px dashed var(--global-text-color-light);
-          cursor: pointer;
-
-          &:hover {
-            color: var(--global-text-color);
-            border-bottom: 1px dashed var(--global-text-color);
-          }
-        }
-      }
-
-      .links {
-        a.btn {
-          color: var(--global-text-color);
-          border: 1px solid var(--global-text-color);
-          padding-left: 1rem;
-          padding-right: 1rem;
-          padding-top: 0.25rem;
-          padding-bottom: 0.25rem;
-          margin-left: 0;
-          transition:
-            color var(--transition-fast),
-            border-color var(--transition-fast);
-
-          &:hover {
-            color: var(--global-theme-color);
-            border-color: var(--global-theme-color);
-          }
-        }
-        a.award.btn {
-          border-color: var(--global-highlight-color);
-        }
-      }
-
-      .badges {
-        padding-bottom: 0.5rem;
-        span {
-          display: inline-block;
-          color: v.$black-color;
-          height: 100%;
-          padding-right: 0.5rem;
-          vertical-align: middle;
+          color: var(--global-theme-color);
+          text-decoration: none;
 
           &:hover {
             text-decoration: underline;
@@ -140,48 +50,76 @@
         }
       }
 
+      .periodical {
+        font-size: 0.92rem;
+        color: var(--global-text-color-light);
+        line-height: 1.45;
+      }
+
+      .links {
+        margin-top: 0.15rem;
+        font-size: 0.88rem;
+
+        a.pub-link {
+          display: inline;
+          margin-right: 0.45rem;
+          color: var(--global-theme-color);
+          text-decoration: none;
+          cursor: pointer;
+
+          &:hover {
+            color: var(--global-hover-color);
+            text-decoration: underline;
+          }
+        }
+      }
+
       .hidden {
+        display: none;
         font-size: var(--text-sm);
-        max-height: 0px;
-        overflow: hidden;
-        text-align: justify;
-        transition: max-height 0.25s ease;
+        margin-top: 0.55rem;
+        padding: 0.6rem 0.85rem;
+        border-left: 2px solid var(--global-divider-color);
+        background-color: #fafafa;
 
         p {
+          margin: 0;
           line-height: var(--leading-normal);
-          margin: 10px;
         }
 
         pre {
-          font-size: var(--text-sm);
-          line-height: var(--leading-normal);
-          padding: 10px;
+          margin: 0;
+          padding: 0.5rem;
+          font-size: 0.82rem;
+          line-height: 1.45;
         }
       }
 
       .hidden.open {
-        max-height: 100em;
-        transition: max-height var(--transition-slow);
+        display: block;
       }
-
-      div.abstract.hidden {
-        border: dashed 1px var(--global-bg-color);
-      }
-
-      div.abstract.hidden.open {
-        border-color: var(--global-text-color);
-      }
-    }
-    div.award.hidden {
-      border: dashed 1px var(--global-bg-color);
-    }
-    div.award.hidden.open {
-      border-color: var(--global-highlight-color);
     }
   }
 }
 
-.citation,
-.citation-number {
-  color: var(--global-theme-color);
+.bibsearch-form-input {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.35rem 0.6rem;
+  margin-bottom: 1rem;
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  color: var(--global-text-color);
+  background-color: var(--global-bg-color);
+  border: 1px solid var(--global-divider-color);
+  border-radius: 2px;
+
+  &:focus {
+    outline: none;
+    border-color: var(--global-text-color);
+  }
+}
+
+.unloaded {
+  display: none !important;
 }

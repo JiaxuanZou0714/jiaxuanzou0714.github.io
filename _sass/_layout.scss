@@ -1,11 +1,15 @@
-/******************************************************************************
- * Content
+/*******************************************************************************
+ * Core page layout and optional margin TOC
  ******************************************************************************/
-
 @use "variables" as v;
 
+html {
+  background-color: var(--global-bg-color);
+}
+
 body {
-  padding-bottom: 70px;
+  margin: 0;
+  padding: 0;
   color: var(--global-text-color);
   background-color: var(--global-bg-color);
 
@@ -15,51 +19,118 @@ body {
   h4,
   h5,
   h6 {
-    scroll-margin-top: 66px;
+    scroll-margin-top: 1.5rem;
   }
-}
-
-body.fixed-top-nav {
-  // Add some padding for the nav-bar.
-  padding-top: 57px;
-}
-
-body.sticky-bottom-footer {
-  // Remove padding below footer.
-  padding-bottom: 0;
 }
 
 .container {
   max-width: v.$max-content-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.site-main {
+  margin-top: 1.75rem;
+  margin-bottom: 2rem;
 }
 
 .container,
 .container-fluid,
 .row,
-[class*="col-"] {
+[class*="col-"],
+.toc-layout,
+.toc-main,
+.toc-column {
   min-width: 0;
 }
 
-// Profile
-.profile {
-  img {
-    width: 100%;
+/* Margin table of contents for long posts */
+.toc-layout {
+  display: block;
+}
+
+.toc-column {
+  margin-bottom: 1.5rem;
+}
+
+.toc-nav:empty {
+  display: none;
+}
+
+.toc-nav {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--global-subtle-border-color);
+
+  ul.nav {
+    display: block;
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+
+  ul.nav ul.nav {
+    padding-left: 0.85rem;
+    margin-top: 0.15rem;
+  }
+
+  li {
+    margin: 0.18rem 0;
+  }
+
+  a.nav-link {
+    display: block;
+    padding: 0.1rem 0 0.1rem 0.55rem;
+    border-left: 2px solid transparent;
+    color: var(--global-text-color-light);
+    text-decoration: none;
+    white-space: normal;
+    overflow-wrap: anywhere;
+
+    &:hover {
+      color: var(--global-text-color);
+      text-decoration: underline;
+    }
+
+    &.active {
+      color: var(--global-text-color);
+      font-weight: 600;
+      border-left-color: var(--global-text-color);
+      background-color: transparent;
+    }
   }
 }
 
-// Content layout uses Bootstrap's grid system with responsive columns
-// Main content flows naturally through container-mt-5 and Bootstrap grid classes
-// See _layouts/default.liquid and _includes/projects.liquid for examples
+@media (min-width: 1080px) {
+  .container.container--with-toc {
+    max-width: 960px;
+  }
 
-/******************************************************************************
- * Publications
- ******************************************************************************/
+  .toc-layout {
+    display: grid;
+    grid-template-columns: 185px minmax(0, 720px);
+    gap: 2.25rem;
+    align-items: start;
+  }
 
-// Publications layout is defined in _includes/bib_search.liquid
-// Uses jekyll-scholar for BibTeX parsing and Bootstrap cards for display
+  .toc-layout--right {
+    grid-template-columns: minmax(0, 720px) 185px;
+  }
 
-/*****************************************************************************
-* Projects
-*****************************************************************************/
+  .toc-column {
+    position: sticky;
+    top: 1.5rem;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    margin-bottom: 0;
+    padding-right: 0.25rem;
+  }
 
-// TODO: redefine projects layout.
+  .toc-nav {
+    border-bottom: 0;
+    padding-bottom: 0.5rem;
+  }
+}

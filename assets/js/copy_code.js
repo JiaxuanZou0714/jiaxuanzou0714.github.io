@@ -18,7 +18,6 @@ codeBlocks.forEach(function (codeBlock) {
     copyButton.type = "button";
     copyButton.ariaLabel = "Copy code to clipboard";
     copyButton.innerText = "Copy";
-    copyButton.innerHTML = '<i class="fa-solid fa-clipboard"></i>';
 
     // get code from code block and copy to clipboard
     copyButton.addEventListener("click", function () {
@@ -35,12 +34,10 @@ codeBlocks.forEach(function (codeBlock) {
       }
       window.navigator.clipboard.writeText(code);
       copyButton.innerText = "Copied";
-      copyButton.innerHTML = '<i class="fa-solid fa-clipboard-check"></i>';
       var waitFor = 3000;
 
       setTimeout(function () {
         copyButton.innerText = "Copy";
-        copyButton.innerHTML = '<i class="fa-solid fa-clipboard"></i>';
       }, waitFor);
     });
 
