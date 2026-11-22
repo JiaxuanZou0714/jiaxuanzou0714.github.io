@@ -10,6 +10,7 @@ gem list --installed bundler --version "$BUNDLER_VERSION" >/dev/null || \
 bundle "_${BUNDLER_VERSION}_" check || bundle "_${BUNDLER_VERSION}_" install
 
 start_jekyll() {
+    RUBYOPT="${RUBYOPT:+$RUBYOPT }-r/srv/jekyll/bin/webrick_range_fix" \
     bundle "_${BUNDLER_VERSION}_" exec jekyll serve \
         --watch --port=8080 --host=0.0.0.0 --livereload --trace --force_polling &
     jekyll_pid=$!
