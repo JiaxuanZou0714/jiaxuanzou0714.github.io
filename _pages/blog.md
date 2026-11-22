@@ -20,20 +20,16 @@ pagination:
 
 <div class="post blog-index">
   <header class="post-header">
-    <h1 class="post-title">{{ site.blog_name }}</h1>
+    <h1 class="post-title">Blog</h1>
     <p class="post-description">
-      {{ site.blog_description }}. Most posts are written in Chinese; English translations are collected on the
-      <a href="{{ '/en/blog/' | relative_url }}">English blog page</a>.
+      Notes on machine learning, optimization, and scaling. Most posts are in Chinese; English versions are on the
+      <a href="{{ '/en/blog/' | relative_url }}">English page</a>.
     </p>
-    {% if site.display_tags and site.display_tags.size > 0 or site.display_categories and site.display_categories.size > 0 %}
+    {% if site.display_tags and site.display_tags.size > 0 %}
       <p class="tag-category-inline">
         Topics:
         {% for tag in site.display_tags %}
           <a href="{{ tag | slugify | prepend: '/blog/tag/' | relative_url }}">#{{ tag }}</a>{% unless forloop.last %}, {% endunless %}
-        {% endfor %}
-        {% if site.display_categories.size > 0 and site.display_tags.size > 0 %} &middot; {% endif %}
-        {% for category in site.display_categories %}
-          <a href="{{ category | slugify | prepend: '/blog/category/' | relative_url }}">{{ category }}</a>{% unless forloop.last %}, {% endunless %}
         {% endfor %}
       </p>
     {% endif %}

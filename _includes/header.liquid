@@ -1,13 +1,15 @@
 <header class="site-header">
   <div class="container">
     <nav class="site-nav" role="navigation" aria-label="Main navigation">
-      <a class="site-title" href="{{ '/' | relative_url }}">
-        {%- if site.title == 'blank' -%}
-          {{ site.first_name }} {{ site.middle_name }} {{ site.last_name }}
-        {%- else -%}
-          {{ site.title }}
-        {%- endif -%}
-      </a>
+      {% if page.permalink != '/' %}
+        <a class="site-title" href="{{ '/' | relative_url }}">
+          {%- if site.title == 'blank' -%}
+            {{ site.first_name }} {{ site.middle_name }} {{ site.last_name }}
+          {%- else -%}
+            {{ site.title }}
+          {%- endif -%}
+        </a>
+      {% endif %}
 
       <ul class="site-nav-links">
         {% for p in site.pages %}

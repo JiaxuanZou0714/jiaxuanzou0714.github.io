@@ -10,10 +10,10 @@ lang: en
 
 <div class="post blog-index">
   <header class="post-header">
-    <h1 class="post-title">{{ site.blog_name }} (English)</h1>
+    <h1 class="post-title">Blog (English)</h1>
     <p class="post-description">
-      English translations of posts originally written in Chinese. Each post links back to its source; the originals live on the
-      <a href="{{ '/blog/' | relative_url }}">main blog page</a>.
+      English translations of posts originally written in Chinese. Originals are on the
+      <a href="{{ '/blog/' | relative_url }}">Chinese page</a>.
     </p>
   </header>
 

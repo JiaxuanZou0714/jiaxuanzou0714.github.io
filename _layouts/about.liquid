@@ -9,6 +9,7 @@ layout: default
       {% else %}
         {{ site.title }}
       {% endif %}
+      <span class="name-zh">（邹嘉轩）</span>
     </h1>
     {% if page.subtitle %}
       <p class="desc">{{ page.subtitle }}</p>
@@ -48,7 +49,7 @@ layout: default
           {% endcapture %}
           {% assign profile_image_alt = profile_image_alt | strip %}
           {%
-            include figure.liquid loading="eager" decoding="async" fetchpriority="high" path=profile_image_path class="img-fluid profile-photo" sizes="180px" alt=profile_image_alt
+            include figure.liquid loading="eager" decoding="async" fetchpriority="high" path=profile_image_path class="img-fluid profile-photo" sizes="200px" alt=profile_image_alt
             width="1024" height="1024"
             cache_bust=true
           %}
